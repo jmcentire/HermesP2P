@@ -245,7 +245,7 @@ wheels = [
 ]
 
 [[package]]
-name = "repl-nix-hermesp2p-website"
+name = "repl-nix-hermesp2p"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
