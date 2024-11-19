@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-hermesp2p-website"
+name = "repl-nix-hermesp2p"
 version = "0.1.0"
-description = "Add your description here"
+description = "HermesP2P: A decentralized, cryptographically secure, peer-to-peer messaging platform with transient, ephemeral communication and no central control."
 requires-python = ">=3.11"
 dependencies = [
     "email-validator>=2.2.0",
