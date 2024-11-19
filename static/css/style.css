@@ -1,0 +1,37 @@
+/* Brand styling */
+.brand-text {
+    color: var(--bs-light);
+    margin: 0;
+    padding: 10px 0;
+}
+
+/* Card styling */
+.card {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-dark);
+}
+
+.card-title {
+    color: var(--bs-light);
+}
+
+/* Modal styling */
+.modal-content {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+.modal-header {
+    border-bottom-color: var(--bs-border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--bs-border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .brand-text {
+        font-size: 2rem;
+    }
+}
