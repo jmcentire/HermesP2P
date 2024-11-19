@@ -6,12 +6,111 @@
     <title>HermesP2P</title>
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0073e6;
+        }
+        h2 {
+            color: #005bb5;
+        }
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .cta-buttons a {
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: #0073e6;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .cta-buttons a:hover {
+            background: #005bb5;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="brand-text">HermesP2P</h1>
+        <h1>Welcome to HermesP2P</h1>
+        <p><em>Private. Ephemeral. Decentralized.</em></p>
+
+        <h2>What is HermesP2P?</h2>
+        <p>
+            HermesP2P is a lightweight, peer-to-peer messaging platform designed to connect people through secure, transient communication. 
+            Think of it as a decentralized chat network where your messages aren’t stored by any server, and privacy is built right into the foundation.
+        </p>
+        <ul>
+            <li><strong>Ephemeral Communication:</strong> Messages are transient and do not persist. Once received, they are no longer stored or accessible.</li>
+            <li><strong>Decentralized Network:</strong> No central servers or authority—just a network of connected peers exchanging messages securely.</li>
+            <li><strong>Private and Secure:</strong> Built on PGP encryption, HermesP2P ensures your messages stay private and secure.</li>
+        </ul>
+
+        <h2>How Does It Work?</h2>
+        <h3>1. Public/Private Key Model:</h3>
+        <p>
+            Every user generates a unique public/private keypair using PGP.
+        </p>
+        <ul>
+            <li><strong>Public Keys:</strong> Used by others to send you encrypted messages.</li>
+            <li><strong>Private Keys:</strong> Stay securely stored on your device and are never shared with servers or peers.</li>
+        </ul>
+
+        <h3>2. Channels and Personal Messages:</h3>
+        <ul>
+            <li><strong>Public Channels:</strong> Join topic-based public conversations. Channels like "general" or "tech" are available by default, and you can subscribe to new channels by adding their identifiers to your configuration.</li>
+            <li><strong>Private Channels:</strong> Require access keys. Share them with trusted individuals to create private, secure groups.</li>
+            <li><strong>Personal Messages:</strong> Direct communication encrypted specifically for you, ensuring only the intended recipient can read the message.</li>
+        </ul>
+
+        <h2>Getting Started</h2>
+        <p>You have two options to begin exploring the HermesP2P network:</p>
+        <ol>
+            <li><strong>Load Existing Configuration:</strong> Already have a setup? Upload your configuration file and seamlessly rejoin your preferred channels.</li>
+            <li><strong>Start Fresh:</strong> Generate a new default configuration with public keypairs and subscribe to default channels.</li>
+        </ol>
+        <p>Your keys and configuration always stay local. HermesP2P ensures that your privacy and control remain in your hands.</p>
+
+        <h2>Why Choose HermesP2P?</h2>
+        <ul>
+            <li><strong>Effortless Privacy:</strong> Advanced PGP encryption ensures your messages are secure and private.</li>
+            <li><strong>User-Controlled:</strong> No third-party involvement. Your data belongs to you.</li>
+            <li><strong>Community-Driven:</strong> Join or create channels and shape the conversations that matter to you.</li>
+            <li><strong>Ephemeral by Design:</strong> Messages aren’t saved anywhere, providing peace of mind and privacy.</li>
+        </ul>
+
+        <h2>Ready to Start?</h2>
+        <div class="cta-buttons">
+            <a href="#load-configuration">Load Configuration</a>
+            <a href="#generate-new">Generate New Configuration</a>
+        </div>
+        <p>Join the decentralized, secure, and ephemeral messaging revolution. Welcome to HermesP2P.</p>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
 </body>
 </html>
