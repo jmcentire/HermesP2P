@@ -5,8 +5,8 @@
             "type": "object",
             "properties": {
                 "name": {"type": "string", "minLength": 6, "maxLength": 36 },
-                "pubKey": {"type": "string", "minLength": 64, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"},
-                "privKey": {"type": "string", "minLength": 64, "maxLength": 192, "pattern": "^[A-Za-z0-9+/=]+$"}
+                "pubKey": {"type": "string", "minLength": 32, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"},
+                "privKey": {"type": "string", "minLength": 32, "maxLength": 192, "pattern": "^[A-Za-z0-9+/=]+$"}
             },
             "required": ["name", "pubKey", "privKey"]
         },
@@ -16,8 +16,8 @@
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "minLength": 6, "maxLength": 36 },
-                    "pubKey": {"type": "string", "minLength": 64, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"},
-                    "privKey": {"type": "string", "minLength": 64, "maxLength": 192, "pattern": "^[A-Za-z0-9+/=]+$"}
+                    "pubKey": {"type": "string", "minLength": 32, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"},
+                    "privKey": {"type": "string", "minLength": 32, "maxLength": 192, "pattern": "^[A-Za-z0-9+/=]+$"}
                 },
                 "required": ["name"]
             }
@@ -28,7 +28,7 @@
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "minLength": 6, "maxLength": 36 },
-                    "pubKey": {"type": "string", "minLength": 64, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"}
+                    "pubKey": {"type": "string", "minLength": 32, "maxLength": 96, "pattern": "^[A-Za-z0-9+/=]+$"}
                 },
                 "required": ["name", "pubKey"]
             }
