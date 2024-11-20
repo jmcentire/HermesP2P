@@ -16,7 +16,8 @@
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "minLength": 6, "maxLength": 36 },
-                    "pubKey": {"type": "string", "format": "EdDSA", "minLength": 64, "maxLength": 64}
+                    "pubKey": {"type": "string", "format": "EdDSA", "minLength": 64, "maxLength": 64},
+                    "privKey": {"type": "string", "format": "EdDSA", "minLength": 64, "maxLength": 64}
                 },
                 "required": ["name", "pubKey"]
             }
@@ -31,7 +32,7 @@
                 },
                 "required": ["name", "pubKey"]
             }
-        }
-    },
-    "required": ["user"]
+        },
+        "required": ["user"]
+    }
 }

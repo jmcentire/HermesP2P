@@ -32,14 +32,16 @@ h1, h2, .btn-primary {
     color: #000033 !important;
 }
 
-.btn-primary {
+.btn-primary, .btn-secondary {
     background-color: #000033 !important;
     border-color: #000033 !important;
+    color: #FFFFFF !important;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-secondary:hover {
     background-color: #000022 !important;
     border-color: #000022 !important;
+    color: #FFFFFF !important;
 }
 
 /* Responsive adjustments */
