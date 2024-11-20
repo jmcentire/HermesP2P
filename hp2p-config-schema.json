@@ -1,0 +1,38 @@
+{
+    "type": "object",
+    "properties": {
+        "user": { 
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "minLength": 6, "maxLength": 36 },
+                "pubKey": {"type": "string", "format": "EdDSA", "minLength": 32, "maxLength": 32},
+                "privKey": {"type": "string", "format": "EdDSA", "minLength": 32, "maxLength": 32}
+            },
+            "required": ["name", "pubKey", "privKey"]
+        },
+        "channels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "minLength": 6, "maxLength": 36 },
+                    "pubKey": {"type": "string", "format": "EdDSA", "minLength": 32, "maxLength": 32},
+                    "privKey": {"type": "string", "format": "EdDSA", "minLength": 32, "maxLength": 32}
+                },
+                "required": ["name", "pubKey"]
+            }
+        },
+        "friends": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "minLength": 6, "maxLength": 36 },
+                    "pubKey": {"type": "string", "format": "EdDSA", "minLength": 32, "maxLength": 32}
+                },
+                "required": ["name", "pubKey"]
+            }
+        },
+        "required": ["user"]
+    }
+}
