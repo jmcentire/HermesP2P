@@ -275,7 +275,7 @@ function displayMessages(name = null) {
         messagesDiv.innerHTML = `
             <div class="text-center p-4">
                 <h5 class="text-navy mb-3" style="color: #000033;">Welcome to HermesP2P Chat</h5>
-                <p class="mb-3 fs-6" style="color: #000033;">To get started, select a channel or friend from the lists on the left to view and send messages. You can customize your experience by adding new channels or friends:</p>
+                <p class="mb-3 fs-6" style="color: #000033;">Explore the secure, peer-to-peer network by selecting a channel or friend from the lists on the left. From there, you can view and send messages with ease. Want to personalize your experience? You can expand your network:</p>
                 <div class="px-4">
                     <ul class="list-unstyled text-start mb-3 ps-5">
                         <li class="mb-3 ps-3">
@@ -293,7 +293,7 @@ function displayMessages(name = null) {
                         </li>
                     </ul>
                 </div>
-                <p class="fs-6" style="color: #000033;">When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
+                <p class="fs-6" style="color: #000033;">Feel free to remove channels or friends as your preferences change. When you’re finished, remember to Save and Exit to download your updated configuration file and keep your settings for next time. Dive in and enjoy a secure, customizable messaging experience!</p>
             </div>`;
     }
     
