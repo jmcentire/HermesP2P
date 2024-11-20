@@ -109,7 +109,3 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener('beforeunload', () => {
     sessionStorage.clear();
 });
-
-window.addEventListener('unload', () => {
-    sessionStorage.clear();
-});
