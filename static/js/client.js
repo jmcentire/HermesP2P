@@ -436,41 +436,20 @@ function encryptDirectMessage(message, recipientPubKey) {
 }
 
 function packageMessage(content, type) {
-    const timestamp = new Date().toISOString();
-    const basePackage = {
-        timestamp,
-        type,
-        from: {
-            name: configuration.user.name,
-            pubKey: configuration.user.pubKey
-        }
+    const timestamp = Date.now();
+    return {
+        type: type,
+        timestamp: timestamp,
+        sender: configuration.user.name,
+        content: content
     };
+}
 
-    switch (type) {
-        case 'public':
-            return {
-                ...basePackage,
-                channelName: content.channelName,
-                content: {
-                    message: content.message,
-                    signature: content.signature
-                }
-            };
-        case 'private':
-            return {
-                ...basePackage,
-                channelName: content.channelName,
-                content: {
-                    message: content.message,
-                    signature: content.from.signature
-                }
-            };
-        case 'direct':
-            return {
-                ...basePackage,
-                to: content.to,
-                content: {
-                    message: content.message,
+// Add event listener for message logging
+window.addEventListener('messageBroadcast', (event) => {
+    console.log('Message Broadcast Event:');
+    console.log(JSON.stringify(event.detail, null, 2));
+});
                     signature: content.from.signature,
                     ephemeralPubKey: content.message.ephemeralPubKey
                 }
