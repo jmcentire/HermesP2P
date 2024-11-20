@@ -5,22 +5,7 @@ const base64Decode = (str) => base64js.toByteArray(str);
 // Using global nacl object from CDN
 const { box, sign, randomBytes } = window.nacl;
 
-// Base64 encoding/decoding functions
-const base64Encode = (array) => {
-    const uint8Array = new Uint8Array(array);
-    let binaryString = '';
-    uint8Array.forEach(byte => binaryString += String.fromCharCode(byte));
-    return window.btoa(binaryString);
-};
 
-const base64Decode = (str) => {
-    const binaryString = window.atob(str);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-};
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
@@ -53,8 +38,16 @@ function initializeNewConfig() {
             ...keypair
         },
         channels: [
-            { name: "General" },
-            { name: "TechTalk" }
+            { 
+                name: "General",
+                pubKey: base64Encode(sign.keyPair().publicKey),
+                privKey: base64Encode(sign.keyPair().secretKey)
+            },
+            { 
+                name: "TechTalk",
+                pubKey: base64Encode(sign.keyPair().publicKey),
+                privKey: base64Encode(sign.keyPair().secretKey)
+            }
         ],
         friends: []
     };
