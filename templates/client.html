@@ -26,6 +26,9 @@
                     <div class="list-group" id="friends-list">
                     </div>
                 </div>
+                <div class="mt-auto">
+                    <button id="saveExitBtn" class="btn btn-secondary w-100">Save & Exit</button>
+                </div>
             </div>
             <div class="col-md-9 py-3">
                 <h2 class="h4 mb-4">Messages</h2>
@@ -37,6 +40,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/base64-js@1.5.1/base64js.min.js"></script>
-    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/client.js') }}" type="module"></script>
 </body>
 </html>

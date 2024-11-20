@@ -2,18 +2,21 @@
 const { box, sign, randomBytes } = window.nacl;
 
 // Base64 encoding/decoding functions
-function base64Encode(array) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(array)));
-}
+const base64Encode = (array) => {
+    const uint8Array = new Uint8Array(array);
+    let binaryString = '';
+    uint8Array.forEach(byte => binaryString += String.fromCharCode(byte));
+    return window.btoa(binaryString);
+};
 
-function base64Decode(str) {
-    const binary = atob(str);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
+const base64Decode = (str) => {
+    const binaryString = window.atob(str);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes;
-}
+};
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
@@ -99,10 +102,28 @@ function displayMessages(name) {
     const messagesDiv = document.getElementById("messages");
     messagesDiv.innerHTML = `<p>Messages for <strong>${name}</strong> will appear here.</p>`;
 }
+// Save and Exit functionality
+function handleSaveExit() {
+    // Save current configuration to localStorage for persistence
+    localStorage.setItem('hp2pConfig', sessionStorage.getItem('hp2pConfig'));
+    
+    // Clear session storage
+    sessionStorage.clear();
+    
+    // Redirect to home page
+    window.location.href = '/';
+}
+
 
 // Initialize the page with the configuration
 document.addEventListener("DOMContentLoaded", () => {
     populateSidebar(configuration);
+    
+    // Add Save & Exit button event listener
+    const saveExitBtn = document.getElementById('saveExitBtn');
+    if (saveExitBtn) {
+        saveExitBtn.addEventListener('click', handleSaveExit);
+    }
 });
 
 // Clear session storage when window is closed or refreshed
