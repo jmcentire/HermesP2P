@@ -161,10 +161,16 @@ function populateSidebar(config) {
         const li = document.createElement("li");
         li.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
         li.style.cursor = "pointer";
-        
+
         const nameSpan = document.createElement("span");
         nameSpan.textContent = channel.name;
-        nameSpan.addEventListener("click", () => {
+        li.appendChild(nameSpan);
+
+        // Move click handler to li element
+        li.addEventListener("click", (e) => {
+            // Don't trigger if clicking remove button
+            if (e.target.tagName === 'BUTTON') return;
+            
             document.querySelectorAll('.list-group-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -172,7 +178,6 @@ function populateSidebar(config) {
             displayMessages(channel.name);
             enableMessageInput();
         });
-        li.appendChild(nameSpan);
         
         if (channel.name !== "General" && channel.name !== "TechTalk") {
             const removeBtn = document.createElement("button");
@@ -198,7 +203,13 @@ function populateSidebar(config) {
         
         const nameSpan = document.createElement("span");
         nameSpan.textContent = friend.name;
-        nameSpan.addEventListener("click", () => {
+        li.appendChild(nameSpan);
+
+        // Move click handler to li element
+        li.addEventListener("click", (e) => {
+            // Don't trigger if clicking remove button
+            if (e.target.tagName === 'BUTTON') return;
+            
             document.querySelectorAll('.list-group-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -206,7 +217,6 @@ function populateSidebar(config) {
             displayMessages(friend.name);
             enableMessageInput();
         });
-        li.appendChild(nameSpan);
         
         const removeBtn = document.createElement("button");
         removeBtn.className = "btn btn-sm btn-danger";
