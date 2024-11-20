@@ -478,7 +478,18 @@ function packageMessage(content, type) {
     }
 }
 
-// Handle message submission
+// Package message with consistent format
+function packageMessage(content, type) {
+    const timestamp = Date.now();
+    return {
+        type: type,
+        timestamp: timestamp,
+        sender: configuration.user.name,
+        content: content
+    };
+}
+
+// Handle message submission with standardized signing
 function handleMessageSubmit(e) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
@@ -491,18 +502,21 @@ function handleMessageSubmit(e) {
         let encryptedContent;
         let messageType;
         
+        // Sign the message first, regardless of type
+        const signedMessage = signMessage(message);
+        
         if (isChannel) {
             const channel = configuration.channels.find(ch => ch.name === chatName);
             if (channel.key) {
                 // Encrypt message for private channel
                 messageType = 'private';
-                encryptedContent = encryptChannelMessage(message, channel.key);
+                encryptedContent = encryptChannelMessage(signedMessage.message, channel.key);
                 encryptedContent.channelName = chatName;
+                encryptedContent.signature = signedMessage.signature;
                 appendMessage(configuration.user.name, message, messageType);
             } else {
-                // For public channels, just sign the message
+                // For public channels
                 messageType = 'public';
-                const signedMessage = signMessage(message);
                 encryptedContent = {
                     channelName: chatName,
                     message: signedMessage.message,
@@ -514,7 +528,8 @@ function handleMessageSubmit(e) {
             // Direct message to friend
             messageType = 'direct';
             const friend = configuration.friends.find(f => f.name === chatName);
-            encryptedContent = encryptDirectMessage(message, friend.pubKey);
+            encryptedContent = encryptDirectMessage(signedMessage.message, friend.pubKey);
+            encryptedContent.signature = signedMessage.signature;
             appendMessage(configuration.user.name, message, messageType);
         }
 
@@ -531,56 +546,6 @@ function handleMessageSubmit(e) {
 
 // Add event listener for message form
 document.getElementById('messageForm').addEventListener('submit', handleMessageSubmit);
-                    signature: content.from.signature,
-                    ephemeralPubKey: content.message.ephemeralPubKey
-                }
-            };
-    }
-}
-
-function handleMessageSubmit(e) {
-    e.preventDefault();
-    const messageInput = document.getElementById("messageInput");
-    const message = messageInput.value.trim();
-    const activeChat = document.querySelector('.list-group-item.active');
-    
-    if (message && activeChat) {
-        const chatName = activeChat.querySelector('span').textContent;
-        const isChannel = configuration.channels.some(channel => channel.name === chatName);
-        let encryptedContent;
-        
-        if (isChannel) {
-            const channel = configuration.channels.find(ch => ch.name === chatName);
-            if (channel.key) {
-                // Encrypt message for private channel
-                encryptedContent = encryptChannelMessage(message, channel.key);
-                encryptedContent.channelName = chatName;
-                appendMessage(configuration.user.name, message, 'private');
-            } else {
-                // For public channels, just sign the message
-                const signedMessage = signMessage(message);
-                encryptedContent = {
-                    channelName: chatName,
-                    message: signedMessage.message,
-                    signature: signedMessage.signature
-                };
-                appendMessage(configuration.user.name, message, 'public');
-            }
-        } else {
-            const friend = configuration.friends.find(f => f.name === chatName);
-            if (friend) {
-                encryptedContent = encryptDirectMessage(message, friend.pubKey);
-                appendMessage(configuration.user.name, `🔒 ${message}`);
-            }
-        }
-        
-        const packagedMessage = packageMessage(encryptedContent, isChannel ? 'channel' : 'direct');
-        console.log('Packaged Message:', packagedMessage);
-        
-        messageInput.value = '';
-        messageInput.focus();
-    }
-}
 // Save and Exit functionality
 function handleSaveExit() {
     // Use the global configuration object that contains the actual user data
