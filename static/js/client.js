@@ -326,7 +326,7 @@ function displayMessages(name = null) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function appendMessage(sender, content) {
+function appendMessage(sender, content, type = 'public') {
     const activeChat = document.querySelector('.list-group-item.active');
     if (!activeChat) return;
     
@@ -336,7 +336,22 @@ function appendMessage(sender, content) {
     }
     
     const timestamp = formatTimestamp();
-    messageHistory[chatName].push({ sender, content, timestamp });
+    let displayContent = content;
+    
+    // Add appropriate indicators based on message type
+    switch (type) {
+        case 'private':
+            displayContent = `🔒 ✍️ ${content}`;
+            break;
+        case 'direct':
+            displayContent = `🔒 ✍️ ${content}`;
+            break;
+        case 'public':
+            displayContent = `✍️ ${content}`;
+            break;
+    }
+    
+    messageHistory[chatName].push({ sender, content: displayContent, timestamp });
     displayMessages(chatName);
 }
 
@@ -431,27 +446,95 @@ function packageMessage(content, type) {
         }
     };
 
-    if (type === 'channel') {
-        return {
-            ...basePackage,
-            channelName: content.channelName,
-            content: content.encrypted ? {
-                message: content.message,
-                signature: content.from.signature
-            } : {
-                message: content.message,
-                signature: content.signature
+    switch (type) {
+        case 'public':
+            return {
+                ...basePackage,
+                channelName: content.channelName,
+                content: {
+                    message: content.message,
+                    signature: content.signature
+                }
+            };
+        case 'private':
+            return {
+                ...basePackage,
+                channelName: content.channelName,
+                content: {
+                    message: content.message,
+                    signature: content.from.signature
+                }
+            };
+        case 'direct':
+            return {
+                ...basePackage,
+                to: content.to,
+                content: {
+                    message: content.message,
+                    signature: content.from.signature,
+                    ephemeralPubKey: content.message.ephemeralPubKey
+                }
+            };
+    }
+}
+
+// Handle message submission
+function handleMessageSubmit(e) {
+    e.preventDefault();
+    const messageInput = document.getElementById("messageInput");
+    const message = messageInput.value.trim();
+    const activeChat = document.querySelector('.list-group-item.active');
+    
+    if (message && activeChat) {
+        const chatName = activeChat.querySelector('span').textContent;
+        const isChannel = configuration.channels.some(channel => channel.name === chatName);
+        let encryptedContent;
+        let messageType;
+        
+        if (isChannel) {
+            const channel = configuration.channels.find(ch => ch.name === chatName);
+            if (channel.key) {
+                // Encrypt message for private channel
+                messageType = 'private';
+                encryptedContent = encryptChannelMessage(message, channel.key);
+                encryptedContent.channelName = chatName;
+                appendMessage(configuration.user.name, message, messageType);
+            } else {
+                // For public channels, just sign the message
+                messageType = 'public';
+                const signedMessage = signMessage(message);
+                encryptedContent = {
+                    channelName: chatName,
+                    message: signedMessage.message,
+                    signature: signedMessage.signature
+                };
+                appendMessage(configuration.user.name, message, messageType);
             }
-        };
-    } else if (type === 'direct') {
-        return {
-            ...basePackage,
-            to: content.to,
-            content: {
-                message: content.message,
-                ephemeralPubKey: content.message.ephemeralPubKey
-            }
-        };
+        } else {
+            // Direct message to friend
+            messageType = 'direct';
+            const friend = configuration.friends.find(f => f.name === chatName);
+            encryptedContent = encryptDirectMessage(message, friend.pubKey);
+            appendMessage(configuration.user.name, message, messageType);
+        }
+
+        // Package and broadcast the message
+        const packagedMessage = packageMessage(encryptedContent, messageType);
+        // Trigger a custom event for message broadcast (to be implemented)
+        const broadcastEvent = new CustomEvent('messageBroadcast', { detail: packagedMessage });
+        window.dispatchEvent(broadcastEvent);
+        
+        // Clear input
+        messageInput.value = '';
+    }
+}
+
+// Add event listener for message form
+document.getElementById('messageForm').addEventListener('submit', handleMessageSubmit);
+                    signature: content.from.signature,
+                    ephemeralPubKey: content.message.ephemeralPubKey
+                }
+            };
     }
 }
 
@@ -472,7 +555,7 @@ function handleMessageSubmit(e) {
                 // Encrypt message for private channel
                 encryptedContent = encryptChannelMessage(message, channel.key);
                 encryptedContent.channelName = chatName;
-                appendMessage(configuration.user.name, `🔒 ${message}`);
+                appendMessage(configuration.user.name, message, 'private');
             } else {
                 // For public channels, just sign the message
                 const signedMessage = signMessage(message);
@@ -481,7 +564,7 @@ function handleMessageSubmit(e) {
                     message: signedMessage.message,
                     signature: signedMessage.signature
                 };
-                appendMessage(configuration.user.name, message);
+                appendMessage(configuration.user.name, message, 'public');
             }
         } else {
             const friend = configuration.friends.find(f => f.name === chatName);
