@@ -238,6 +238,28 @@ function displayMessages(name = null) {
     
     if (name) {
         messagesHeader.textContent = name;
+        
+        if (!messageHistory[name]) {
+            messageHistory[name] = [];
+        }
+        
+        messagesDiv.innerHTML = '';
+        messageHistory[name].forEach(msg => {
+            const messageElement = document.createElement("div");
+            messageElement.className = "message mb-2 p-2 border-bottom";
+            messageElement.innerHTML = `
+                <div class="d-flex justify-content-between align-items-baseline">
+                    <strong class="text-secondary">${msg.sender}</strong>
+                    <small class="text-muted">${msg.timestamp}</small>
+                </div>
+                <div class="message-content mt-1">${msg.content}</div>
+            `;
+            messagesDiv.appendChild(messageElement);
+        });
+        
+        if (messageHistory[name].length === 0) {
+            messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
+        }
     } else {
         messagesHeader.textContent = "Messages";
         messagesDiv.innerHTML = `
@@ -250,31 +272,9 @@ function displayMessages(name = null) {
                 </ul>
                 <p style="color: #000033;">You can also remove channels and friends as needed. When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
             </div>`;
-        return;
     }
     
-    if (!messageHistory[name]) {
-        messageHistory[name] = [];
-    }
-    
-    messagesDiv.innerHTML = '';
-    messageHistory[name].forEach(msg => {
-        const messageElement = document.createElement("div");
-        messageElement.className = "message mb-2 p-2 border-bottom";
-        messageElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-baseline">
-                <strong class="text-secondary">${msg.sender}</strong>
-                <small class="text-muted">${msg.timestamp}</small>
-            </div>
-            <div class="message-content mt-1">${msg.content}</div>
-        `;
-        messagesDiv.appendChild(messageElement);
-    });
-    
-    if (messageHistory[name].length === 0) {
-        messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
-    }
-    
+    // Always scroll to bottom after updating messages
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
