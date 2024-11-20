@@ -1,4 +1,17 @@
 .brand-text {
+.logo {
+    height: 50px;
+    width: auto;
+    margin-right: 15px;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
     color: var(--bs-light);
     margin: 20px 0;
     padding: 0;
