@@ -1,6 +1,14 @@
 // Using global nacl and base64js objects from CDN
 const { box, randomBytes } = window.nacl;
-const { encode: base64Encode, decode: base64Decode } = window.base64js;
+
+// Helper functions for base64 encoding/decoding
+function base64Encode(array) {
+    return window.base64js.fromByteArray(array);
+}
+
+function base64Decode(str) {
+    return window.base64js.toByteArray(str);
+}
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
@@ -63,7 +71,8 @@ function populateSidebar(config) {
     // Populate channels
     config.channels.forEach(channel => {
         const li = document.createElement("li");
-        li.className = "name-item";
+        li.className = "list-group-item list-group-item-action";
+        li.style.cursor = "pointer";
         li.textContent = channel.name;
         li.addEventListener("click", () => displayMessages(channel.name));
         channelsList.appendChild(li);
@@ -72,7 +81,8 @@ function populateSidebar(config) {
     // Populate friends
     config.friends.forEach(friend => {
         const li = document.createElement("li");
-        li.className = "name-item";
+        li.className = "list-group-item list-group-item-action";
+        li.style.cursor = "pointer";
         li.textContent = friend.name;
         li.addEventListener("click", () => displayMessages(friend.name));
         friendsList.appendChild(li);
