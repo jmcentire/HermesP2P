@@ -325,14 +325,31 @@ function disableMessageInput() {
     messageInput.placeholder = 'Select a chat to send messages';
 }
 
+// Uses symmetric encryption for private channels
 function encryptChannelMessage(message, channelKey) {
     const nonce = randomBytes(box.nonceLength);
     const messageUint8 = new TextEncoder().encode(message);
+    
+    // Sign the message first
+    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+    
+    // Combine message and signature
+    const combinedMessage = new Uint8Array([...messageUint8, ...signature]);
+    
+    // Use the channel key for symmetric encryption
     const keyUint8 = base64Decode(channelKey);
-    const encrypted = box.after(messageUint8, nonce, keyUint8);
+    const encrypted = box.after(combinedMessage, nonce, keyUint8);
+    
     return {
-        nonce: base64Encode(nonce),
-        encrypted: base64Encode(encrypted)
+        from: {
+            name: configuration.user.name,
+            pubKey: configuration.user.pubKey,
+            signature: base64Encode(signature)
+        },
+        message: {
+            nonce: base64Encode(nonce),
+            encrypted: base64Encode(encrypted)
+        }
     };
 }
 
@@ -369,12 +386,38 @@ function encryptDirectMessage(message, recipientPubKey) {
 }
 
 function packageMessage(content, type) {
-    return {
-        sender: configuration.user.name,
-        timestamp: new Date().toISOString(),
-        content,
-        type
+    const timestamp = new Date().toISOString();
+    const basePackage = {
+        timestamp,
+        type,
+        from: {
+            name: configuration.user.name,
+            pubKey: configuration.user.pubKey
+        }
     };
+
+    if (type === 'channel') {
+        return {
+            ...basePackage,
+            channelName: content.channelName,
+            content: content.encrypted ? {
+                message: content.message,
+                signature: content.from.signature
+            } : {
+                message: content.message,
+                signature: content.signature
+            }
+        };
+    } else if (type === 'direct') {
+        return {
+            ...basePackage,
+            to: content.to,
+            content: {
+                message: content.message,
+                ephemeralPubKey: content.message.ephemeralPubKey
+            }
+        };
+    }
 }
 
 function handleMessageSubmit(e) {
@@ -391,14 +434,17 @@ function handleMessageSubmit(e) {
         if (isChannel) {
             const channel = configuration.channels.find(ch => ch.name === chatName);
             if (channel.key) {
+                // Encrypt message for private channel
                 encryptedContent = encryptChannelMessage(message, channel.key);
+                encryptedContent.channelName = chatName;
                 appendMessage(configuration.user.name, `🔒 ${message}`);
             } else {
                 // For public channels, just sign the message
                 const messageUint8 = new TextEncoder().encode(message);
                 const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
                 encryptedContent = {
-                    message,
+                    channelName: chatName,
+                    message: message,
                     signature: base64Encode(signature)
                 };
                 appendMessage(configuration.user.name, message);
