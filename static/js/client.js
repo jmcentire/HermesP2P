@@ -1,5 +1,5 @@
-// Example configuration object (replace with the uploaded JSON data)
-const configuration = {
+// Get uploaded configuration from sessionStorage or use default
+const configuration = JSON.parse(sessionStorage.getItem('hp2pConfig')) || {
     user: {
         name: "JohnDoe",
         pubKey: "ABCD1234...5678",
