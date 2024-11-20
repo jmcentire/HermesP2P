@@ -232,8 +232,19 @@ function formatTimestamp() {
     return now.toLocaleTimeString();
 }
 
-function displayMessages(name) {
+function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
+    
+    if (!name) {
+        messagesDiv.innerHTML = `
+            <div class="text-center p-4">
+                <h5 class="text-secondary mb-3">Welcome to HermesP2P Chat</h5>
+                <p class="text-muted">Select a channel or friend from the sidebar to start messaging.</p>
+                <p class="text-muted small">Your messages are end-to-end encrypted and ephemeral.</p>
+            </div>`;
+        return;
+    }
+    
     if (!messageHistory[name]) {
         messageHistory[name] = [];
     }
@@ -335,8 +346,9 @@ function handleSaveExit() {
 
 // Initialize the page with the configuration
 document.addEventListener("DOMContentLoaded", () => {
-    // Initially disable message input
+    // Initially disable message input and show welcome message
     disableMessageInput();
+    displayMessages();
     
     // Initialize Bootstrap modals
     channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
