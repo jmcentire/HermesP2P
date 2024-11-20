@@ -1,3 +1,19 @@
+// Base64 encoding/decoding functions
+const base64Encode = (array) => {
+    if (!window.base64js) {
+        console.error('base64js not loaded');
+        return '';
+    }
+    return base64js.fromByteArray(new Uint8Array(array));
+};
+const base64Decode = (str) => {
+    if (!window.base64js) {
+        console.error('base64js not loaded');
+        return new Uint8Array();
+    }
+    return base64js.toByteArray(str);
+};
+
 // Initialize Bootstrap modals
 let channelModal;
 let friendModal;
