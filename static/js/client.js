@@ -19,7 +19,7 @@ let channelModal;
 let friendModal;
 
 // Using global nacl object from CDN
-const { box, sign, randomBytes } = window.nacl;
+const { secretbox, box, sign, randomBytes } = window.nacl;
 
 // Channel and Friend Management Functions
 function addChannel(name, key = '') {
@@ -327,7 +327,7 @@ function disableMessageInput() {
 
 // Uses symmetric encryption for private channels
 function encryptChannelMessage(message, channelKey) {
-    const nonce = randomBytes(box.nonceLength);
+    const nonce = randomBytes(secretbox.nonceLength);
     const messageUint8 = new TextEncoder().encode(message);
     
     // Sign the message first
@@ -336,19 +336,20 @@ function encryptChannelMessage(message, channelKey) {
     // Combine message and signature
     const combinedMessage = new Uint8Array([...messageUint8, ...signature]);
     
-    // Use the channel key for symmetric encryption
+    // Use secretbox for symmetric encryption
     const keyUint8 = base64Decode(channelKey);
-    const encrypted = box.after(combinedMessage, nonce, keyUint8);
+    const encrypted = secretbox(combinedMessage, nonce, keyUint8);
     
     return {
+        to: channelKey,
         from: {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey,
             signature: base64Encode(signature)
         },
         message: {
-            nonce: base64Encode(nonce),
-            encrypted: base64Encode(encrypted)
+            encrypted: base64Encode(encrypted),
+            nonce: base64Encode(nonce)
         }
     };
 }
