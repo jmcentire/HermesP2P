@@ -104,11 +104,14 @@ function displayMessages(name) {
 }
 // Save and Exit functionality
 function handleSaveExit() {
-    // Get configuration from sessionStorage
-    const config = JSON.parse(sessionStorage.getItem('hp2pConfig'));
+    // Use the global configuration object that contains the actual user data
+    if (!configuration) {
+        console.error('No configuration found');
+        return;
+    }
     
     // Create blob and download link
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(configuration, null, 2)], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -120,8 +123,8 @@ function handleSaveExit() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
     
-    // Existing functionality
-    localStorage.setItem('hp2pConfig', sessionStorage.getItem('hp2pConfig'));
+    // Clear storage and redirect
+    localStorage.clear();
     sessionStorage.clear();
     
     // Short delay before redirect to ensure download starts
