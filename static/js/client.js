@@ -1,3 +1,7 @@
+// Base64 encoding/decoding functions
+const base64Encode = (array) => base64js.fromByteArray(new Uint8Array(array));
+const base64Decode = (str) => base64js.toByteArray(str);
+
 // Using global nacl object from CDN
 const { box, sign, randomBytes } = window.nacl;
 
