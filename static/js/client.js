@@ -1,6 +1,6 @@
-// Import required libraries
-import { box, randomBytes } from 'tweetnacl';
-import { encode as base64Encode, decode as base64Decode } from 'base64-js';
+// Using global nacl and base64js objects from CDN
+const { box, randomBytes } = window.nacl;
+const { encode: base64Encode, decode: base64Decode } = window.base64js;
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
