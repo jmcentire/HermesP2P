@@ -450,25 +450,7 @@ window.addEventListener('messageBroadcast', (event) => {
     console.log('Message Broadcast Event:');
     console.log(JSON.stringify(event.detail, null, 2));
 });
-                    signature: content.from.signature,
-                    ephemeralPubKey: content.message.ephemeralPubKey
-                }
-            };
-    }
-}
-
-// Package message with consistent format
-function packageMessage(content, type) {
-    const timestamp = Date.now();
-    return {
-        type: type,
-        timestamp: timestamp,
-        sender: configuration.user.name,
-        content: content
-    };
-}
-
-// Handle message submission with standardized signing
+                    // Handle message submission with standardized signing
 function handleMessageSubmit(e) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
