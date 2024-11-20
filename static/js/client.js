@@ -1,24 +1,19 @@
-// Get configuration from sessionStorage or use default
-const configuration = (() => {
-    const storedConfig = sessionStorage.getItem('hp2pConfig');
-    if (storedConfig) {
-        // Clear the stored config to prevent reuse
-        sessionStorage.removeItem('hp2pConfig');
-        return JSON.parse(storedConfig);
-    }
-    // Default configuration for new users
-    return {
-        user: {
-            name: "NewUser" + Math.random().toString(36).substr(2, 6),
-            pubKey: "DEMO" + "0".repeat(28),
-            privKey: "DEMO" + "0".repeat(28)
-        },
-        channels: [
-            { name: "General", pubKey: "CHAN" + "0".repeat(28) }
-        ],
-        friends: []
-    };
-})();
+// Example configuration object (replace with the uploaded JSON data)
+const configuration = {
+    user: {
+        name: "JohnDoe",
+        pubKey: "ABCD1234...5678",
+        privKey: "WXYZ9876...4321"
+    },
+    channels: [
+        { name: "General", pubKey: "1234ABCD...EFGH" },
+        { name: "TechTalk", pubKey: "5678WXYZ...JKLM" }
+    ],
+    friends: [
+        { name: "Alice", pubKey: "1111AAAA...BBBB" },
+        { name: "Bob", pubKey: "2222CCCC...DDDD" }
+    ]
+};
 
 // Dynamically populate the sidebar
 function populateSidebar(config) {
