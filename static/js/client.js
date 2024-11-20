@@ -210,9 +210,44 @@ function populateSidebar(config) {
 }
 
 // Display messages for the selected channel or friend
+// Message handling functions
+function formatTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString();
+}
+
+function appendMessage(sender, content) {
+    const messagesDiv = document.getElementById("messages");
+    const messageElement = document.createElement("div");
+    messageElement.className = "message mb-2 p-2 border-bottom";
+    
+    const timestamp = formatTimestamp();
+    messageElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-baseline">
+            <strong class="text-secondary">${sender}</strong>
+            <small class="text-muted">${timestamp}</small>
+        </div>
+        <div class="message-content mt-1">${content}</div>
+    `;
+    
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function handleMessageSubmit(e) {
+    e.preventDefault();
+    const messageInput = document.getElementById("messageInput");
+    const message = messageInput.value.trim();
+    
+    if (message) {
+        appendMessage(configuration.user.name, message);
+        messageInput.value = '';
+    }
+}
+
 function displayMessages(name) {
     const messagesDiv = document.getElementById("messages");
-    messagesDiv.innerHTML = `<p>Messages for <strong>${name}</strong> will appear here.</p>`;
+    messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
 }
 // Save and Exit functionality
 function handleSaveExit() {
@@ -301,6 +336,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveExitBtn = document.getElementById('saveExitBtn');
     if (saveExitBtn) {
         saveExitBtn.addEventListener('click', handleSaveExit);
+    }
+
+    // Add Message form submit event listener
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) {
+        messageForm.addEventListener('submit', handleMessageSubmit);
     }
 });
 

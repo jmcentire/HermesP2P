@@ -107,7 +107,13 @@
             </div>
             <div class="col-md-9 py-3">
                 <h2 class="h4 mb-4">Messages</h2>
-                <div id="messages" class="border rounded p-3">
+                <div id="messages" class="border rounded p-3 mb-3" style="height: calc(100vh - 250px); overflow-y: auto;">
+                </div>
+                <div class="message-input-container">
+                    <form id="messageForm" class="d-flex gap-2">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." required>
+                        <button type="submit" class="btn btn-secondary">Send</button>
+                    </form>
                 </div>
             </div>
         </div>
