@@ -380,7 +380,7 @@ function encryptChannelMessage(message, channelKey) {
         from: {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey,
-            signature: base64Encode(signature)
+            signature: signedMessage.signature
         },
         message: {
             encrypted: base64Encode(encrypted),
@@ -410,7 +410,7 @@ function encryptDirectMessage(message, recipientPubKey) {
         from: {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey,
-            signature: base64Encode(signature)
+            signature: signedMessage.signature
         },
         message: {
             nonce: base64Encode(nonce),
