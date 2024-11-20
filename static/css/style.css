@@ -20,25 +20,25 @@
 
 /* Custom color overrides */
 body {
-    background-color: #FFFDD0 !important;
+    background-color: #FFFFFF !important;
 }
 
 .container {
-    background-color: #FFFDD0 !important;
+    background-color: #FFFFFF !important;
 }
 
 h1, h2, .btn-primary {
-    color: #000080 !important;
+    color: #000033 !important;
 }
 
 .btn-primary {
-    background-color: #000080 !important;
-    border-color: #000080 !important;
+    background-color: #000033 !important;
+    border-color: #000033 !important;
 }
 
 .btn-primary:hover {
-    background-color: #000066 !important;
-    border-color: #000066 !important;
+    background-color: #000022 !important;
+    border-color: #000022 !important;
 }
 
 /* Responsive adjustments */
