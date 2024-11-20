@@ -38,16 +38,8 @@ function initializeNewConfig() {
             ...keypair
         },
         channels: [
-            { 
-                name: "General",
-                pubKey: base64Encode(sign.keyPair().publicKey),
-                privKey: base64Encode(sign.keyPair().secretKey)
-            },
-            { 
-                name: "TechTalk",
-                pubKey: base64Encode(sign.keyPair().publicKey),
-                privKey: base64Encode(sign.keyPair().secretKey)
-            }
+            { name: "General" },
+            { name: "TechTalk" }
         ],
         friends: []
     };
