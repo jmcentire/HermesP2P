@@ -1,0 +1,16 @@
+{
+  "name": "hermesp2p-website",
+  "version": "1.0.0",
+  "description": "HermesP2P is a decentralized, transient, peer-to-peer communication network with a cryptographically secure messaging overlay. Designed for simplicity, security, and scalability, HermesP2P eliminates the need for centralized servers while providing a robust platform for private and public messaging.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "base64-js": "^1.5.1",
+    "tweetnacl": "^1.0.3"
+  }
+}
