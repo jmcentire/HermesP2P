@@ -336,38 +336,35 @@ function encryptChannelMessage(message, channelKey) {
     };
 }
 
-function ed25519PubKeyToCurve25519(ed25519PubKey) {
-    // Convert the Ed25519 public key to Curve25519
-    // This is a simplified conversion - in production, use a proper conversion library
-    const pubKey = base64Decode(ed25519PubKey);
-    return box.keyPair.fromSecretKey(pubKey).publicKey;
-}
-
 function encryptDirectMessage(message, recipientPubKey) {
+    // Generate ephemeral keypair for this message
+    const ephemeralKeyPair = box.keyPair();
     const nonce = randomBytes(box.nonceLength);
     const messageUint8 = new TextEncoder().encode(message);
     
     // Sign the message first
     const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
     
-    // Convert recipient's public key and encrypt
-    const sharedKey = box.before(
-        base64Decode(recipientPubKey),
-        base64Decode(configuration.user.privKey)
-    );
-    
-    // Encrypt message + signature
-    const encrypted = box.after(
+    // Encrypt the message + signature
+    const encrypted = box(
         new Uint8Array([...messageUint8, ...signature]),
         nonce,
-        sharedKey
+        base64Decode(recipientPubKey),
+        ephemeralKeyPair.secretKey
     );
 
     return {
-        nonce: base64Encode(nonce),
-        encrypted: base64Encode(encrypted),
-        sender: configuration.user.name,
-        senderPubKey: configuration.user.pubKey
+        to: recipientPubKey,
+        from: {
+            name: configuration.user.name,
+            pubKey: configuration.user.pubKey,
+            signature: base64Encode(signature)
+        },
+        message: {
+            nonce: base64Encode(nonce),
+            encrypted: base64Encode(encrypted),
+            ephemeralPubKey: base64Encode(ephemeralKeyPair.publicKey)
+        }
     };
 }
 
