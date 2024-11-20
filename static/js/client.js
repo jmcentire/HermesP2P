@@ -275,23 +275,25 @@ function displayMessages(name = null) {
         messagesDiv.innerHTML = `
             <div class="text-center p-4">
                 <h5 class="text-navy mb-3" style="color: #000033;">Welcome to HermesP2P Chat</h5>
-                <p class="mb-3 fs-6" style="color: #000033;">Select a channel from the list or customize your experience by adding a new channel:</p>
-                <ul class="list-unstyled text-start mb-3 ps-4">
-                    <li class="mb-3">
-                        <strong class="d-block mb-2">Add a Channel:</strong>
-                        <ul class="list-unstyled ps-3">
-                            <li class="mb-1">• Public channels require no keys</li>
-                            <li class="mb-1">• Private channels require a public/private key pair</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <strong class="d-block mb-2">Add a Friend:</strong>
-                        <ul class="list-unstyled ps-3">
-                            <li>• Enter their public key</li>
-                        </ul>
-                    </li>
-                </ul>
-                <p class="fs-6" style="color: #000033;">When you're done, be sure to Save and Exit to download your updated configuration file for future use.</p>
+                <p class="mb-3 fs-6" style="color: #000033;">To get started, select a channel or friend from the lists on the left to view and send messages. You can customize your experience by adding new channels or friends:</p>
+                <div class="px-4">
+                    <ul class="list-unstyled text-start mb-3 ps-5">
+                        <li class="mb-3 ps-3">
+                            <strong class="d-block mb-2">Add a Channel:</strong>
+                            <ul class="list-unstyled ps-4">
+                                <li class="mb-1">• Public channels require no keys</li>
+                                <li class="mb-1">• Private channels require a public/private key pair</li>
+                            </ul>
+                        </li>
+                        <li class="ps-3">
+                            <strong class="d-block mb-2">Add a Friend:</strong>
+                            <ul class="list-unstyled ps-4">
+                                <li>• Enter their public key</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <p class="fs-6" style="color: #000033;">When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
             </div>`;
     }
     
