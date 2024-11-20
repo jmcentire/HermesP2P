@@ -32,13 +32,14 @@ h1, h2, .btn-primary {
     color: #000033 !important;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .cta-buttons .btn {
     background-color: #000033 !important;
     border-color: #000033 !important;
     color: #FFFFFF !important;
+    font-weight: bold !important;
 }
 
-.btn-primary:hover, .btn-secondary:hover {
+.btn-primary:hover, .btn-secondary:hover, .cta-buttons .btn:hover {
     background-color: #000022 !important;
     border-color: #000022 !important;
     color: #FFFFFF !important;
