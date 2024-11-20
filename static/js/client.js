@@ -325,6 +325,42 @@ function disableMessageInput() {
     messageInput.placeholder = 'Select a chat to send messages';
 }
 
+function encryptChannelMessage(message, channelKey) {
+    const nonce = randomBytes(box.nonceLength);
+    const messageUint8 = new TextEncoder().encode(message);
+    const keyUint8 = base64Decode(channelKey);
+    const encrypted = box.after(messageUint8, nonce, keyUint8);
+    return {
+        nonce: base64Encode(nonce),
+        encrypted: base64Encode(encrypted)
+    };
+}
+
+function encryptDirectMessage(message, recipientPubKey) {
+    const nonce = randomBytes(box.nonceLength);
+    const messageUint8 = new TextEncoder().encode(message);
+    const ephemeralKeyPair = box.keyPair();
+    const encrypted = box.before(
+        messageUint8,
+        nonce,
+        base64Decode(recipientPubKey)
+    );
+    return {
+        nonce: base64Encode(nonce),
+        encrypted: base64Encode(encrypted),
+        ephemeralPubKey: base64Encode(ephemeralKeyPair.publicKey)
+    };
+}
+
+function packageMessage(content, type) {
+    return {
+        sender: configuration.user.name,
+        timestamp: new Date().toISOString(),
+        content,
+        type
+    };
+}
+
 function handleMessageSubmit(e) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
@@ -332,7 +368,36 @@ function handleMessageSubmit(e) {
     const activeChat = document.querySelector('.list-group-item.active');
     
     if (message && activeChat) {
-        appendMessage(configuration.user.name, message);
+        const chatName = activeChat.querySelector('span').textContent;
+        const isChannel = configuration.channels.some(channel => channel.name === chatName);
+        let encryptedContent;
+        
+        if (isChannel) {
+            const channel = configuration.channels.find(ch => ch.name === chatName);
+            if (channel.key) {
+                encryptedContent = encryptChannelMessage(message, channel.key);
+                appendMessage(configuration.user.name, `🔒 ${message}`);
+            } else {
+                // For public channels, just sign the message
+                const messageUint8 = new TextEncoder().encode(message);
+                const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+                encryptedContent = {
+                    message,
+                    signature: base64Encode(signature)
+                };
+                appendMessage(configuration.user.name, message);
+            }
+        } else {
+            const friend = configuration.friends.find(f => f.name === chatName);
+            if (friend) {
+                encryptedContent = encryptDirectMessage(message, friend.pubKey);
+                appendMessage(configuration.user.name, `🔒 ${message}`);
+            }
+        }
+        
+        const packagedMessage = packageMessage(encryptedContent, isChannel ? 'channel' : 'direct');
+        console.log('Packaged Message:', packagedMessage);
+        
         messageInput.value = '';
         messageInput.focus();
     }
