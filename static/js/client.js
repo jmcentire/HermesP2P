@@ -336,19 +336,30 @@ function encryptChannelMessage(message, channelKey) {
     };
 }
 
+function ed25519PubKeyToCurve25519(ed25519PubKey) {
+    return nacl.convertPublicKey(base64Decode(ed25519PubKey));
+}
+
 function encryptDirectMessage(message, recipientPubKey) {
     const nonce = randomBytes(box.nonceLength);
     const messageUint8 = new TextEncoder().encode(message);
-    const ephemeralKeyPair = box.keyPair();
+    const curve25519PubKey = ed25519PubKeyToCurve25519(recipientPubKey);
+    
+    // Sign the message with sender's key
+    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+    
+    // Encrypt the message + signature
     const encrypted = box.before(
-        messageUint8,
+        new Uint8Array([...messageUint8, ...signature]),
         nonce,
-        base64Decode(recipientPubKey)
+        curve25519PubKey
     );
+
     return {
         nonce: base64Encode(nonce),
         encrypted: base64Encode(encrypted),
-        ephemeralPubKey: base64Encode(ephemeralKeyPair.publicKey)
+        sender: configuration.user.name,
+        senderPubKey: configuration.user.pubKey
     };
 }
 
