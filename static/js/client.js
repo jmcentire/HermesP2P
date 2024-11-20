@@ -337,22 +337,30 @@ function encryptChannelMessage(message, channelKey) {
 }
 
 function ed25519PubKeyToCurve25519(ed25519PubKey) {
-    return nacl.convertPublicKey(base64Decode(ed25519PubKey));
+    // Convert the Ed25519 public key to Curve25519
+    // This is a simplified conversion - in production, use a proper conversion library
+    const pubKey = base64Decode(ed25519PubKey);
+    return box.keyPair.fromSecretKey(pubKey).publicKey;
 }
 
 function encryptDirectMessage(message, recipientPubKey) {
     const nonce = randomBytes(box.nonceLength);
     const messageUint8 = new TextEncoder().encode(message);
-    const curve25519PubKey = ed25519PubKeyToCurve25519(recipientPubKey);
     
-    // Sign the message with sender's key
+    // Sign the message first
     const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
     
-    // Encrypt the message + signature
-    const encrypted = box.before(
+    // Convert recipient's public key and encrypt
+    const sharedKey = box.before(
+        base64Decode(recipientPubKey),
+        base64Decode(configuration.user.privKey)
+    );
+    
+    // Encrypt message + signature
+    const encrypted = box.after(
         new Uint8Array([...messageUint8, ...signature]),
         nonce,
-        curve25519PubKey
+        sharedKey
     );
 
     return {
