@@ -35,9 +35,17 @@ function addChannel(name, key = '') {
     }
 
     // Validate key if provided
-    if (key && !/^[A-Za-z0-9+/=]{32,96}$/.test(key)) {
-        alert('Channel key must be in base64 format and between 32-96 characters');
-        return false;
+    if (key) {
+        try {
+            const keyUint8 = base64Decode(key);
+            if (keyUint8.length !== secretbox.keyLength) {
+                alert(`Channel key must be exactly ${secretbox.keyLength} bytes when decoded`);
+                return false;
+            }
+        } catch (error) {
+            alert('Invalid base64 key format');
+            return false;
+        }
     }
     
     const channel = { name };
@@ -333,11 +341,16 @@ function encryptChannelMessage(message, channelKey) {
     // Sign the message first
     const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
     
+    // Ensure key is exactly 32 bytes after base64 decoding
+    const keyUint8 = base64Decode(channelKey);
+    if (keyUint8.length !== secretbox.keyLength) {
+        throw new Error(`Invalid key length. Expected ${secretbox.keyLength} bytes.`);
+    }
+    
     // Combine message and signature
     const combinedMessage = new Uint8Array([...messageUint8, ...signature]);
     
-    // Use secretbox for symmetric encryption
-    const keyUint8 = base64Decode(channelKey);
+    // Encrypt using secretbox
     const encrypted = secretbox(combinedMessage, nonce, keyUint8);
     
     return {
