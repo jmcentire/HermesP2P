@@ -36,8 +36,8 @@ function initializeNewConfig() {
             ...keypair
         },
         channels: [
-            { name: "General", pubKey: generateKeypair().pubKey },
-            { name: "TechTalk", pubKey: generateKeypair().pubKey }
+            { name: "General" },
+            { name: "TechTalk" }
         ],
         friends: []
     };
