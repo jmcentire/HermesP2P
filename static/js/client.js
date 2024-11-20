@@ -170,6 +170,7 @@ function populateSidebar(config) {
             });
             li.classList.add('active');
             displayMessages(channel.name);
+            enableMessageInput();
         });
         li.appendChild(nameSpan);
         
@@ -203,6 +204,7 @@ function populateSidebar(config) {
             });
             li.classList.add('active');
             displayMessages(friend.name);
+            enableMessageInput();
         });
         li.appendChild(nameSpan);
         
@@ -271,14 +273,32 @@ function appendMessage(sender, content) {
     displayMessages(chatName);
 }
 
+function enableMessageInput() {
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    messageForm.classList.remove('disabled');
+    messageInput.disabled = false;
+    messageInput.placeholder = 'Type your message...';
+}
+
+function disableMessageInput() {
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    messageForm.classList.add('disabled');
+    messageInput.disabled = true;
+    messageInput.placeholder = 'Select a chat to send messages';
+}
+
 function handleMessageSubmit(e) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();
+    const activeChat = document.querySelector('.list-group-item.active');
     
-    if (message) {
+    if (message && activeChat) {
         appendMessage(configuration.user.name, message);
         messageInput.value = '';
+        messageInput.focus();
     }
 }
 // Save and Exit functionality
@@ -315,6 +335,9 @@ function handleSaveExit() {
 
 // Initialize the page with the configuration
 document.addEventListener("DOMContentLoaded", () => {
+    // Initially disable message input
+    disableMessageInput();
+    
     // Initialize Bootstrap modals
     channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
     friendModal = new bootstrap.Modal(document.getElementById('addFriendModal'));
