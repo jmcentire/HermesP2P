@@ -1,5 +1,5 @@
 // Using global nacl object from CDN
-const { box, randomBytes } = window.nacl;
+const { box, sign, randomBytes } = window.nacl;
 
 // Base64 encoding/decoding functions using global base64js
 const base64Encode = (array) => window.base64js.fromByteArray(new Uint8Array(array));
@@ -15,7 +15,7 @@ function generateUsername() {
 
 // Generate Ed25519 keypair
 function generateKeypair() {
-    const keypair = box.keyPair();
+    const keypair = sign.keyPair();
     return {
         pubKey: base64Encode(keypair.publicKey),
         privKey: base64Encode(keypair.secretKey)
