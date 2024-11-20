@@ -22,7 +22,7 @@ let friendModal;
 const { box, sign, randomBytes } = window.nacl;
 
 // Channel and Friend Management Functions
-function addChannel(name, pubKey = '', privKey = '') {
+function addChannel(name, key = '') {
     if (name.length < 6 || name.length > 36) {
         alert('Channel name must be between 6 and 36 characters');
         return false;
@@ -34,20 +34,14 @@ function addChannel(name, pubKey = '', privKey = '') {
         return false;
     }
 
-    // Validate keys if provided
-    if (pubKey && !/[A-Za-z0-9+/=]{32,96}/.test(pubKey)) {
-        alert('Public key must be in base64 format and between 32-96 characters');
-        return false;
-    }
-
-    if (privKey && !/[A-Za-z0-9+/=]{32,192}/.test(privKey)) {
-        alert('Private key must be in base64 format and between 32-192 characters');
+    // Validate key if provided
+    if (key && !/^[A-Za-z0-9+/=]{32,96}$/.test(key)) {
+        alert('Channel key must be in base64 format and between 32-96 characters');
         return false;
     }
     
     const channel = { name };
-    if (pubKey) channel.pubKey = pubKey;
-    if (privKey) channel.privKey = privKey;
+    if (key) channel.key = key;
     
     configuration.channels.push(channel);
     saveConfiguration(configuration);
@@ -405,13 +399,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (saveChannelBtn) {
         saveChannelBtn.addEventListener('click', () => {
             const channelName = document.getElementById('channelName').value;
-            const channelPubKey = document.getElementById('channelPubKey').value;
-            const channelPrivKey = document.getElementById('channelPrivKey').value;
-            if (addChannel(channelName, channelPubKey, channelPrivKey)) {
+            const channelKey = document.getElementById('channelKey').value;
+            if (addChannel(channelName, channelKey)) {
                 channelModal.hide();
                 document.getElementById('channelName').value = '';
-                document.getElementById('channelPubKey').value = '';
-                document.getElementById('channelPrivKey').value = '';
+                document.getElementById('channelKey').value = '';
             }
         });
     }
