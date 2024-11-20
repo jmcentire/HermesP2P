@@ -1,5 +1,5 @@
 .logo {
-    height: 6px;
+    height: 48px;
     width: auto;
     margin-right: 10px;
 }
@@ -18,13 +18,36 @@
     font-size: 24px;
 }
 
+/* Custom color overrides */
+body {
+    background-color: #FFFDD0 !important;
+}
+
+.container {
+    background-color: #FFFDD0 !important;
+}
+
+h1, h2, .btn-primary {
+    color: #000080 !important;
+}
+
+.btn-primary {
+    background-color: #000080 !important;
+    border-color: #000080 !important;
+}
+
+.btn-primary:hover {
+    background-color: #000066 !important;
+    border-color: #000066 !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .brand-text {
         font-size: 20px;
     }
     .logo {
-        height: 5px;
+        height: 40px;
         margin-right: 8px;
     }
 }
