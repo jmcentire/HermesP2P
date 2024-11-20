@@ -35,12 +35,12 @@ function addChannel(name, pubKey = '', privKey = '') {
     }
 
     // Validate keys if provided
-    if (pubKey && !/^[A-Za-z0-9+/=]{32,96}$/.test(pubKey)) {
+    if (pubKey && !/[A-Za-z0-9+/=]{32,96}/.test(pubKey)) {
         alert('Public key must be in base64 format and between 32-96 characters');
         return false;
     }
 
-    if (privKey && !/^[A-Za-z0-9+/=]{32,192}$/.test(privKey)) {
+    if (privKey && !/[A-Za-z0-9+/=]{32,192}/.test(privKey)) {
         alert('Private key must be in base64 format and between 32-192 characters');
         return false;
     }
@@ -70,7 +70,7 @@ function addFriend(name, pubKey) {
         return false;
     }
     
-    if (!/^[A-Za-z0-9+/=]{32,96}$/.test(pubKey)) {
+    if (!/[A-Za-z0-9+/=]{32,96}/.test(pubKey)) {
         alert('Public key must be in base64 format and between 32-96 characters');
         return false;
     }
