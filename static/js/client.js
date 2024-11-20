@@ -276,15 +276,21 @@ function displayMessages(name = null) {
             <div class="text-center p-4">
                 <h5 class="text-navy mb-3" style="color: #000033;">Welcome to HermesP2P Chat</h5>
                 <p class="mb-3" style="color: #000033;">Select a channel from the list or customize your experience by adding a new channel:</p>
-                <p style="color: #000033;"><ul class="text-start mb-3" style="color: #000033;">
-                    <li>Add a Channel: 
-                        <p style="color: #000033;">Public channels require no keys</p>
-                        <p style="color: #000033;">Private channels require a public/private key pair</p>
+                <ul class="list-unstyled text-start mb-3">
+                    <li class="mb-3">
+                        <strong class="d-block mb-2">Add a Channel:</strong>
+                        <ul class="list-unstyled ps-3">
+                            <li class="mb-1">• Public channels require no keys</li>
+                            <li class="mb-1">• Private channels require a public/private key pair</li>
+                        </ul>
                     </li>
-                    <li>Add a Friend: 
-                        <p style="color: #000033;">Enter their public key.</p>
+                    <li>
+                        <strong class="d-block mb-2">Add a Friend:</strong>
+                        <ul class="list-unstyled ps-3">
+                            <li>• Enter their public key</li>
+                        </ul>
                     </li>
-                </ul></p>
+                </ul>
                 <p style="color: #000033;">When you're done, be sure to Save and Exit to download your updated configuration file for future use.</p>
             </div>`;
     }
