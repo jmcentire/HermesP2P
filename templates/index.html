@@ -107,10 +107,53 @@
 
         <h2>Ready to Start?</h2>
         <p>Join the decentralized, secure, and ephemeral messaging revolution. Welcome to HermesP2P.</p>
-        <div class="cta-buttons">
-            <a href="{{ url_for('client') }}" class="btn btn-secondary">Launch Client</a>
-            <a href="{{ url_for('client') }}" class="btn btn-primary">New Configuration</a>
+        <div class="cta-buttons mb-4">
+            <input type="file" id="configFile" accept=".json" class="d-none">
+            <button onclick="document.getElementById('configFile').click()" class="btn btn-secondary">Upload Configuration</button>
+            <a href="{{ url_for('client') }}" class="btn btn-primary ms-2">New Configuration</a>
         </div>
+        <div id="uploadStatus" class="alert d-none"></div>
+        
+        <script>
+            document.getElementById('configFile').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const statusDiv = document.getElementById('uploadStatus');
+                statusDiv.className = 'alert alert-info';
+                statusDiv.textContent = 'Validating configuration...';
+                statusDiv.classList.remove('d-none');
+                
+                const formData = new FormData();
+                formData.append('config', file);
+                
+                try {
+                    const response = await fetch('/validate-config', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        statusDiv.className = 'alert alert-success';
+                        statusDiv.textContent = 'Configuration valid! Redirecting to client...';
+                        // Store the config in sessionStorage
+                        sessionStorage.setItem('hp2pConfig', JSON.stringify(result.config));
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = "{{ url_for('client') }}";
+                        }, 1500);
+                    } else {
+                        statusDiv.className = 'alert alert-danger';
+                        statusDiv.textContent = 'Error: ' + result.error;
+                    }
+                } catch (error) {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.textContent = 'Error uploading configuration: ' + error.message;
+                }
+            });
+        </script>
     </div>
 </body>
 </html>
