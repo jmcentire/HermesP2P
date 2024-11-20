@@ -195,18 +195,18 @@ function populateSidebar(config) {
             enableMessageInput();
         });
         
-        if (channel.name !== "General" && channel.name !== "TechTalk") {
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "btn btn-sm btn-danger";
-            removeBtn.innerHTML = "&times;";
-            removeBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
-                    removeChannel(channel.name);
-                }
-            });
-            li.appendChild(removeBtn);
-        }
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-sm";
+        removeBtn.style.backgroundColor = "#000033";
+        removeBtn.style.color = "#FFFFFF";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
+                removeChannel(channel.name);
+            }
+        });
+        li.appendChild(removeBtn);
         
         channelsList.appendChild(li);
     });
