@@ -234,13 +234,21 @@ function formatTimestamp() {
 
 function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
+    const messagesHeader = document.getElementById("messagesHeader");
     
-    if (!name) {
+    if (name) {
+        messagesHeader.textContent = name;
+    } else {
+        messagesHeader.textContent = "Messages";
         messagesDiv.innerHTML = `
             <div class="text-center p-4">
                 <h5 class="text-secondary mb-3">Welcome to HermesP2P Chat</h5>
-                <p class="text-muted">Select a channel or friend from the sidebar to start messaging.</p>
-                <p class="text-muted small">Your messages are end-to-end encrypted and ephemeral.</p>
+                <p class="text-muted mb-3">To get started, select a channel or friend from the lists on the left to view and send messages. You can customize your experience by adding new channels or friends:</p>
+                <ul class="text-start text-muted mb-3">
+                    <li>Add a Friend: Enter their public key.</li>
+                    <li>Add a Channel: Choose between a public channel (no keys required) or a private channel (provide a public/private key pair).</li>
+                </ul>
+                <p class="text-muted">You can also remove channels and friends as needed. When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
             </div>`;
         return;
     }
