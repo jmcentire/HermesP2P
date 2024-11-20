@@ -1,9 +1,73 @@
+// Initialize Bootstrap modals
+let channelModal;
+let friendModal;
+
 // Base64 encoding/decoding functions
 const base64Encode = (array) => base64js.fromByteArray(new Uint8Array(array));
 const base64Decode = (str) => base64js.toByteArray(str);
 
 // Using global nacl object from CDN
 const { box, sign, randomBytes } = window.nacl;
+
+// Channel and Friend Management Functions
+function addChannel(name) {
+    if (name.length < 6 || name.length > 36) {
+        alert('Channel name must be between 6 and 36 characters');
+        return false;
+    }
+    
+    // Check for duplicate channel names
+    if (configuration.channels.some(channel => channel.name === name)) {
+        alert('Channel with this name already exists');
+        return false;
+    }
+    
+    configuration.channels.push({ name });
+    saveConfiguration(configuration);
+    populateSidebar(configuration);
+    return true;
+}
+
+function removeChannel(name) {
+    const index = configuration.channels.findIndex(channel => channel.name === name);
+    if (index !== -1) {
+        configuration.channels.splice(index, 1);
+        saveConfiguration(configuration);
+        populateSidebar(configuration);
+    }
+}
+
+function addFriend(name, pubKey) {
+    if (name.length < 6 || name.length > 36) {
+        alert('Friend name must be between 6 and 36 characters');
+        return false;
+    }
+    
+    if (!/^[A-Za-z0-9+/=]+$/.test(pubKey)) {
+        alert('Invalid public key format');
+        return false;
+    }
+    
+    // Check for duplicate friend names
+    if (configuration.friends.some(friend => friend.name === name)) {
+        alert('Friend with this name already exists');
+        return false;
+    }
+    
+    configuration.friends.push({ name, pubKey });
+    saveConfiguration(configuration);
+    populateSidebar(configuration);
+    return true;
+}
+
+function removeFriend(name) {
+    const index = configuration.friends.findIndex(friend => friend.name === name);
+    if (index !== -1) {
+        configuration.friends.splice(index, 1);
+        saveConfiguration(configuration);
+        populateSidebar(configuration);
+    }
+}
 
 
 
@@ -68,20 +132,52 @@ function populateSidebar(config) {
     // Populate channels
     config.channels.forEach(channel => {
         const li = document.createElement("li");
-        li.className = "list-group-item list-group-item-action";
+        li.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
         li.style.cursor = "pointer";
-        li.textContent = channel.name;
-        li.addEventListener("click", () => displayMessages(channel.name));
+        
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = channel.name;
+        nameSpan.addEventListener("click", () => displayMessages(channel.name));
+        li.appendChild(nameSpan);
+        
+        if (channel.name !== "General" && channel.name !== "TechTalk") {
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "btn btn-sm btn-danger";
+            removeBtn.innerHTML = "&times;";
+            removeBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
+                    removeChannel(channel.name);
+                }
+            });
+            li.appendChild(removeBtn);
+        }
+        
         channelsList.appendChild(li);
     });
 
     // Populate friends
     config.friends.forEach(friend => {
         const li = document.createElement("li");
-        li.className = "list-group-item list-group-item-action";
+        li.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
         li.style.cursor = "pointer";
-        li.textContent = friend.name;
-        li.addEventListener("click", () => displayMessages(friend.name));
+        
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = friend.name;
+        nameSpan.addEventListener("click", () => displayMessages(friend.name));
+        li.appendChild(nameSpan);
+        
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-sm btn-danger";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
+                removeFriend(friend.name);
+            }
+        });
+        li.appendChild(removeBtn);
+        
         friendsList.appendChild(li);
     });
 }
@@ -125,7 +221,50 @@ function handleSaveExit() {
 
 // Initialize the page with the configuration
 document.addEventListener("DOMContentLoaded", () => {
+    // Initialize Bootstrap modals
+    channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    friendModal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    
+    // Initialize sidebar
     populateSidebar(configuration);
+    
+    // Add Channel button event listener
+    const addChannelBtn = document.getElementById('addChannelBtn');
+    if (addChannelBtn) {
+        addChannelBtn.addEventListener('click', () => channelModal.show());
+    }
+    
+    // Add Friend button event listener
+    const addFriendBtn = document.getElementById('addFriendBtn');
+    if (addFriendBtn) {
+        addFriendBtn.addEventListener('click', () => friendModal.show());
+    }
+    
+    // Save Channel button event listener
+    const saveChannelBtn = document.getElementById('saveChannelBtn');
+    if (saveChannelBtn) {
+        saveChannelBtn.addEventListener('click', () => {
+            const channelName = document.getElementById('channelName').value;
+            if (addChannel(channelName)) {
+                channelModal.hide();
+                document.getElementById('channelName').value = '';
+            }
+        });
+    }
+    
+    // Save Friend button event listener
+    const saveFriendBtn = document.getElementById('saveFriendBtn');
+    if (saveFriendBtn) {
+        saveFriendBtn.addEventListener('click', () => {
+            const friendName = document.getElementById('friendName').value;
+            const friendPubKey = document.getElementById('friendPubKey').value;
+            if (addFriend(friendName, friendPubKey)) {
+                friendModal.hide();
+                document.getElementById('friendName').value = '';
+                document.getElementById('friendPubKey').value = '';
+            }
+        });
+    }
     
     // Add Save & Exit button event listener
     const saveExitBtn = document.getElementById('saveExitBtn');
