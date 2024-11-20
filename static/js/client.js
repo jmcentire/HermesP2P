@@ -22,7 +22,7 @@ const base64Decode = (str) => {
 const { box, sign, randomBytes } = window.nacl;
 
 // Channel and Friend Management Functions
-function addChannel(name) {
+function addChannel(name, pubKey = '', privKey = '') {
     if (name.length < 6 || name.length > 36) {
         alert('Channel name must be between 6 and 36 characters');
         return false;
@@ -33,8 +33,23 @@ function addChannel(name) {
         alert('Channel with this name already exists');
         return false;
     }
+
+    // Validate keys if provided
+    if (pubKey && !/^[A-Za-z0-9+/=]+$/.test(pubKey)) {
+        alert('Invalid public key format');
+        return false;
+    }
+
+    if (privKey && !/^[A-Za-z0-9+/=]+$/.test(privKey)) {
+        alert('Invalid private key format');
+        return false;
+    }
     
-    configuration.channels.push({ name });
+    const channel = { name };
+    if (pubKey) channel.pubKey = pubKey;
+    if (privKey) channel.privKey = privKey;
+    
+    configuration.channels.push(channel);
     saveConfiguration(configuration);
     populateSidebar(configuration);
     return true;
@@ -257,9 +272,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (saveChannelBtn) {
         saveChannelBtn.addEventListener('click', () => {
             const channelName = document.getElementById('channelName').value;
-            if (addChannel(channelName)) {
+            const channelPubKey = document.getElementById('channelPubKey').value;
+            const channelPrivKey = document.getElementById('channelPrivKey').value;
+            if (addChannel(channelName, channelPubKey, channelPrivKey)) {
                 channelModal.hide();
                 document.getElementById('channelName').value = '';
+                document.getElementById('channelPubKey').value = '';
+                document.getElementById('channelPrivKey').value = '';
             }
         });
     }
