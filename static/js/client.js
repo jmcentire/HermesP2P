@@ -2,7 +2,7 @@
 let channelModal;
 let friendModal;
 
-// Base64 encoding/decoding functions
+// Base64 encoding/decoding functions (keep only these declarations)
 const base64Encode = (array) => {
     if (!window.base64js) {
         console.error('base64js not loaded');
