@@ -104,14 +104,30 @@ function displayMessages(name) {
 }
 // Save and Exit functionality
 function handleSaveExit() {
-    // Save current configuration to localStorage for persistence
-    localStorage.setItem('hp2pConfig', sessionStorage.getItem('hp2pConfig'));
+    // Get configuration from sessionStorage
+    const config = JSON.parse(sessionStorage.getItem('hp2pConfig'));
     
-    // Clear session storage
+    // Create blob and download link
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hp2p-config.json';
+    
+    // Trigger download
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    // Existing functionality
+    localStorage.setItem('hp2pConfig', sessionStorage.getItem('hp2pConfig'));
     sessionStorage.clear();
     
-    // Redirect to home page
-    window.location.href = '/';
+    // Short delay before redirect to ensure download starts
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 100);
 }
 
 
