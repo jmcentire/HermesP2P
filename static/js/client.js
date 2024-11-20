@@ -28,6 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Using global nacl object from CDN
 const { secretbox, box, sign, randomBytes } = window.nacl;
+// Standardized message signing function
+function signMessage(message) {
+    const messageUint8 = new TextEncoder().encode(message);
+    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+    return {
+        message,
+        signature: base64Encode(signature)
+    };
+}
 
 // Generate a secure channel key
 function generateChannelKey() {
@@ -350,10 +359,9 @@ function disableMessageInput() {
 // Uses symmetric encryption for private channels
 function encryptChannelMessage(message, channelKey) {
     const nonce = randomBytes(secretbox.nonceLength);
-    const messageUint8 = new TextEncoder().encode(message);
-    
-    // Sign the message first
-    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+    const signedMessage = signMessage(message);
+    const messageUint8 = new TextEncoder().encode(signedMessage.message);
+    const signatureUint8 = base64Decode(signedMessage.signature);
     
     // Ensure key is exactly 32 bytes after base64 decoding
     const keyUint8 = base64Decode(channelKey);
@@ -362,7 +370,7 @@ function encryptChannelMessage(message, channelKey) {
     }
     
     // Combine message and signature
-    const combinedMessage = new Uint8Array([...messageUint8, ...signature]);
+    const combinedMessage = new Uint8Array([...messageUint8, ...signatureUint8]);
     
     // Encrypt using secretbox
     const encrypted = secretbox(combinedMessage, nonce, keyUint8);
@@ -385,14 +393,13 @@ function encryptDirectMessage(message, recipientPubKey) {
     // Generate ephemeral keypair for this message
     const ephemeralKeyPair = box.keyPair();
     const nonce = randomBytes(box.nonceLength);
-    const messageUint8 = new TextEncoder().encode(message);
-    
-    // Sign the message first
-    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+    const signedMessage = signMessage(message);
+    const messageUint8 = new TextEncoder().encode(signedMessage.message);
+    const signatureUint8 = base64Decode(signedMessage.signature);
     
     // Encrypt the message + signature
     const encrypted = box(
-        new Uint8Array([...messageUint8, ...signature]),
+        new Uint8Array([...messageUint8, ...signatureUint8]),
         nonce,
         base64Decode(recipientPubKey),
         ephemeralKeyPair.secretKey
@@ -468,12 +475,11 @@ function handleMessageSubmit(e) {
                 appendMessage(configuration.user.name, `🔒 ${message}`);
             } else {
                 // For public channels, just sign the message
-                const messageUint8 = new TextEncoder().encode(message);
-                const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
+                const signedMessage = signMessage(message);
                 encryptedContent = {
                     channelName: chatName,
-                    message: message,
-                    signature: base64Encode(signature)
+                    message: signedMessage.message,
+                    signature: signedMessage.signature
                 };
                 appendMessage(configuration.user.name, message);
             }
