@@ -1,14 +1,9 @@
-// Using global nacl and base64js objects from CDN
+// Using global nacl object from CDN
 const { box, randomBytes } = window.nacl;
 
-// Helper functions for base64 encoding/decoding
-function base64Encode(array) {
-    return window.base64js.fromByteArray(array);
-}
-
-function base64Decode(str) {
-    return window.base64js.toByteArray(str);
-}
+// Base64 encoding/decoding functions using global base64js
+const base64Encode = (array) => window.base64js.fromByteArray(new Uint8Array(array));
+const base64Decode = (str) => window.base64js.toByteArray(str);
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
@@ -98,4 +93,13 @@ function displayMessages(name) {
 // Initialize the page with the configuration
 document.addEventListener("DOMContentLoaded", () => {
     populateSidebar(configuration);
+});
+
+// Clear session storage when window is closed or refreshed
+window.addEventListener('beforeunload', () => {
+    sessionStorage.clear();
+});
+
+window.addEventListener('unload', () => {
+    sessionStorage.clear();
 });
