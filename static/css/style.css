@@ -22,6 +22,7 @@
 /* Custom color overrides */
 body {
     background-color: #FFFFFF !important;
+    color: #333333 !important;
 }
 
 .container {
@@ -54,4 +55,23 @@ h1, h2, .btn-primary {
         height: 40px;
         margin-right: 8px;
     }
+}
+/* Client page specific styles */
+.list-group-item {
+    color: #333333 !important;
+    background-color: #FFFFFF !important;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+#messages {
+    color: #333333 !important;
+    background-color: #FFFFFF !important;
+    min-height: 200px;
+}
+
+.h4, .h5 {
+    color: #000033 !important;
 }

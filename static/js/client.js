@@ -1,9 +1,19 @@
 // Using global nacl object from CDN
 const { box, sign, randomBytes } = window.nacl;
 
-// Base64 encoding/decoding functions using global base64js
-const base64Encode = (array) => window.base64js.fromByteArray(new Uint8Array(array));
-const base64Decode = (str) => window.base64js.toByteArray(str);
+// Base64 encoding/decoding functions
+function base64Encode(array) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(array)));
+}
+
+function base64Decode(str) {
+    const binary = atob(str);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
 
 // Generate a random username (6-36 characters)
 function generateUsername() {
