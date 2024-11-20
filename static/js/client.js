@@ -164,7 +164,13 @@ function populateSidebar(config) {
         
         const nameSpan = document.createElement("span");
         nameSpan.textContent = channel.name;
-        nameSpan.addEventListener("click", () => displayMessages(channel.name));
+        nameSpan.addEventListener("click", () => {
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            li.classList.add('active');
+            displayMessages(channel.name);
+        });
         li.appendChild(nameSpan);
         
         if (channel.name !== "General" && channel.name !== "TechTalk") {
@@ -191,7 +197,13 @@ function populateSidebar(config) {
         
         const nameSpan = document.createElement("span");
         nameSpan.textContent = friend.name;
-        nameSpan.addEventListener("click", () => displayMessages(friend.name));
+        nameSpan.addEventListener("click", () => {
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            li.classList.add('active');
+            displayMessages(friend.name);
+        });
         li.appendChild(nameSpan);
         
         const removeBtn = document.createElement("button");
@@ -209,29 +221,54 @@ function populateSidebar(config) {
     });
 }
 
-// Display messages for the selected channel or friend
+// Message history storage
+const messageHistory = {};
+
 // Message handling functions
 function formatTimestamp() {
     const now = new Date();
     return now.toLocaleTimeString();
 }
 
-function appendMessage(sender, content) {
+function displayMessages(name) {
     const messagesDiv = document.getElementById("messages");
-    const messageElement = document.createElement("div");
-    messageElement.className = "message mb-2 p-2 border-bottom";
+    if (!messageHistory[name]) {
+        messageHistory[name] = [];
+    }
+    
+    messagesDiv.innerHTML = '';
+    messageHistory[name].forEach(msg => {
+        const messageElement = document.createElement("div");
+        messageElement.className = "message mb-2 p-2 border-bottom";
+        messageElement.innerHTML = `
+            <div class="d-flex justify-content-between align-items-baseline">
+                <strong class="text-secondary">${msg.sender}</strong>
+                <small class="text-muted">${msg.timestamp}</small>
+            </div>
+            <div class="message-content mt-1">${msg.content}</div>
+        `;
+        messagesDiv.appendChild(messageElement);
+    });
+    
+    if (messageHistory[name].length === 0) {
+        messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
+    }
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function appendMessage(sender, content) {
+    const activeChat = document.querySelector('.list-group-item.active');
+    if (!activeChat) return;
+    
+    const chatName = activeChat.querySelector('span').textContent;
+    if (!messageHistory[chatName]) {
+        messageHistory[chatName] = [];
+    }
     
     const timestamp = formatTimestamp();
-    messageElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-baseline">
-            <strong class="text-secondary">${sender}</strong>
-            <small class="text-muted">${timestamp}</small>
-        </div>
-        <div class="message-content mt-1">${content}</div>
-    `;
-    
-    messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    messageHistory[chatName].push({ sender, content, timestamp });
+    displayMessages(chatName);
 }
 
 function handleMessageSubmit(e) {
@@ -243,11 +280,6 @@ function handleMessageSubmit(e) {
         appendMessage(configuration.user.name, message);
         messageInput.value = '';
     }
-}
-
-function displayMessages(name) {
-    const messagesDiv = document.getElementById("messages");
-    messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
 }
 // Save and Exit functionality
 function handleSaveExit() {
