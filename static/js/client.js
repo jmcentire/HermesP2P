@@ -18,8 +18,22 @@ const base64Decode = (str) => {
 let channelModal;
 let friendModal;
 
+// Initialize event listeners when document is ready
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('generateKeyBtn').addEventListener('click', () => {
+        const channelKey = document.getElementById('channelKey');
+        channelKey.value = generateChannelKey();
+    });
+});
+
 // Using global nacl object from CDN
 const { secretbox, box, sign, randomBytes } = window.nacl;
+
+// Generate a secure channel key
+function generateChannelKey() {
+    const key = randomBytes(secretbox.keyLength);
+    return base64Encode(key);
+}
 
 // Channel and Friend Management Functions
 function addChannel(name, key = '') {

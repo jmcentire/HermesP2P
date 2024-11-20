@@ -49,9 +49,10 @@
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="channelKey" class="form-label text-dark fw-semibold mb-2">Channel Key (Optional)</label>
-                                        <input type="text" class="form-control" id="channelKey" 
-                                               minlength="32" maxlength="96"
-                                               placeholder="Enter channel key">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="channelKey" minlength="32" maxlength="96" placeholder="Enter channel key">
+                                            <button type="button" class="btn btn-outline-secondary" id="generateKeyBtn">Generate Key</button>
+                                        </div>
                                         <small class="form-text text-muted">Key must be in base64 format (32-96 characters).</small>
                                     </div>
                                 </div>
