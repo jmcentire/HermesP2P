@@ -242,13 +242,13 @@ function displayMessages(name = null) {
         messagesHeader.textContent = "Messages";
         messagesDiv.innerHTML = `
             <div class="text-center p-4">
-                <h5 class="text-secondary mb-3">Welcome to HermesP2P Chat</h5>
-                <p class="text-muted mb-3">To get started, select a channel or friend from the lists on the left to view and send messages. You can customize your experience by adding new channels or friends:</p>
-                <ul class="text-start text-muted mb-3">
+                <h5 class="text-navy mb-3" style="color: #000033;">Welcome to HermesP2P Chat</h5>
+                <p class="mb-3" style="color: #000033;">To get started, select a channel or friend from the lists on the left to view and send messages. You can customize your experience by adding new channels or friends:</p>
+                <ul class="text-start mb-3" style="color: #000033;">
                     <li>Add a Friend: Enter their public key.</li>
                     <li>Add a Channel: Choose between a public channel (no keys required) or a private channel (provide a public/private key pair).</li>
                 </ul>
-                <p class="text-muted">You can also remove channels and friends as needed. When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
+                <p style="color: #000033;">You can also remove channels and friends as needed. When you're done, be sure to Save and Exit to download your updated configuration file for future use. Enjoy secure and seamless communication!</p>
             </div>`;
         return;
     }
