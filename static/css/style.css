@@ -1,17 +1,17 @@
-.brand-text {
 .logo {
-    height: 50px;
+    height: 6px;
     width: auto;
-    margin-right: 15px;
+    margin-right: 10px;
 }
 
 .brand-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     margin-bottom: 1rem;
 }
 
+.brand-text {
     color: var(--bs-light);
     margin: 20px 0;
     padding: 0;
@@ -22,5 +22,9 @@
 @media (max-width: 768px) {
     .brand-text {
         font-size: 20px;
+    }
+    .logo {
+        height: 5px;
+        margin-right: 8px;
     }
 }
