@@ -169,6 +169,24 @@ function saveConfiguration(config) {
 }
 
 // Dynamically populate the sidebar
+// Helper function to create action buttons
+function createActionButton(icon, clickHandler, isEdit = false) {
+    const btn = document.createElement("button");
+    btn.className = `btn btn-sm px-0 py-0 ${isEdit ? 'me-1' : ''}`;
+    btn.style.backgroundColor = "#000033";
+    btn.style.color = "#FFFFFF";
+    btn.style.fontSize = "0.75rem";
+    btn.style.width = "15px";
+    btn.style.height = "15px";
+    btn.style.lineHeight = "1";
+    btn.style.display = "flex";
+    btn.style.alignItems = "center";
+    btn.style.justifyContent = "center";
+    btn.innerHTML = icon;
+    btn.addEventListener("click", clickHandler);
+    return btn;
+}
+
 function populateSidebar(config) {
     const channelsList = document.getElementById("channels-list");
     const friendsList = document.getElementById("friends-list");
@@ -191,53 +209,26 @@ function populateSidebar(config) {
         buttonContainer.className = "d-flex gap-1";
 
         // Edit button
-        const editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm px-0 py-0 me-1";
-        editBtn.style.backgroundColor = "#000033";
-        editBtn.style.color = "#FFFFFF";
-        editBtn.style.fontSize = "0.75rem";
-        editBtn.style.width = "15px";
-        editBtn.style.height = "15px";
-        editBtn.style.lineHeight = "1";
-        editBtn.style.display = "flex";
-        editBtn.style.alignItems = "center";
-        editBtn.style.justifyContent = "center";
-        editBtn.innerHTML = "✎";
-        editBtn.addEventListener("click", (e) => {
+        const editBtn = createActionButton("✎", (e) => {
             e.stopPropagation();
             editChannel(channel);
-        });
-
+        }, true);
         buttonContainer.appendChild(editBtn);
 
-        // Remove button (existing)
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm px-0 py-0";
-        removeBtn.style.backgroundColor = "#000033";
-        removeBtn.style.color = "#FFFFFF";
-        removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "15px";
-        removeBtn.style.height = "15px";
-        removeBtn.style.lineHeight = "1";
-        removeBtn.style.display = "flex";
-        removeBtn.style.alignItems = "center";
-        removeBtn.style.justifyContent = "center";
-        removeBtn.innerHTML = "&times;";
-        removeBtn.addEventListener("click", (e) => {
+        // Remove button
+        const removeBtn = createActionButton("&times;", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
                 removeChannel(channel.name);
             }
         });
-
         buttonContainer.appendChild(removeBtn);
+        
         li.appendChild(buttonContainer);
 
-        // Move click handler to li element
+        // Click handler for messages
         li.addEventListener("click", (e) => {
-            // Don't trigger if clicking remove button
             if (e.target.tagName === 'BUTTON') return;
-            
             document.querySelectorAll('.list-group-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -245,27 +236,7 @@ function populateSidebar(config) {
             displayMessages(channel.name);
             enableMessageInput();
         });
-        
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm px-0 py-0";
-        removeBtn.style.backgroundColor = "#000033";
-        removeBtn.style.color = "#FFFFFF";
-        removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "15px";
-        removeBtn.style.height = "15px";
-        removeBtn.style.lineHeight = "1";
-        removeBtn.style.display = "flex";
-        removeBtn.style.alignItems = "center";
-        removeBtn.style.justifyContent = "center";
-        removeBtn.innerHTML = "&times;";
-        removeBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
-                removeChannel(channel.name);
-            }
-        });
-        li.appendChild(removeBtn);
-        
+
         channelsList.appendChild(li);
     });
 
@@ -283,53 +254,26 @@ function populateSidebar(config) {
         buttonContainer.className = "d-flex gap-1";
 
         // Edit button
-        const editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm px-0 py-0 me-1";
-        editBtn.style.backgroundColor = "#000033";
-        editBtn.style.color = "#FFFFFF";
-        editBtn.style.fontSize = "0.75rem";
-        editBtn.style.width = "15px";
-        editBtn.style.height = "15px";
-        editBtn.style.lineHeight = "1";
-        editBtn.style.display = "flex";
-        editBtn.style.alignItems = "center";
-        editBtn.style.justifyContent = "center";
-        editBtn.innerHTML = "✎";
-        editBtn.addEventListener("click", (e) => {
+        const editBtn = createActionButton("✎", (e) => {
             e.stopPropagation();
             editFriend(friend);
-        });
-
+        }, true);
         buttonContainer.appendChild(editBtn);
 
-        // Remove button (existing)
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm px-0 py-0";
-        removeBtn.style.backgroundColor = "#000033";
-        removeBtn.style.color = "#FFFFFF";
-        removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "15px";
-        removeBtn.style.height = "15px";
-        removeBtn.style.lineHeight = "1";
-        removeBtn.style.display = "flex";
-        removeBtn.style.alignItems = "center";
-        removeBtn.style.justifyContent = "center";
-        removeBtn.innerHTML = "&times;";
-        removeBtn.addEventListener("click", (e) => {
+        // Remove button
+        const removeBtn = createActionButton("&times;", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
                 removeFriend(friend.name);
             }
         });
-
         buttonContainer.appendChild(removeBtn);
+        
         li.appendChild(buttonContainer);
 
-        // Move click handler to li element
+        // Click handler for messages
         li.addEventListener("click", (e) => {
-            // Don't trigger if clicking remove button
             if (e.target.tagName === 'BUTTON') return;
-            
             document.querySelectorAll('.list-group-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -337,27 +281,7 @@ function populateSidebar(config) {
             displayMessages(friend.name);
             enableMessageInput();
         });
-        
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm px-0 py-0";
-        removeBtn.style.backgroundColor = "#000033";
-        removeBtn.style.color = "#FFFFFF";
-        removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "15px";
-        removeBtn.style.height = "15px";
-        removeBtn.style.lineHeight = "1";
-        removeBtn.style.display = "flex";
-        removeBtn.style.alignItems = "center";
-        removeBtn.style.justifyContent = "center";
-        removeBtn.innerHTML = "&times;";
-        removeBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
-                removeFriend(friend.name);
-            }
-        });
-        li.appendChild(removeBtn);
-        
+
         friendsList.appendChild(li);
     });
 }
