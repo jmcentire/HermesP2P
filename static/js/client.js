@@ -201,9 +201,7 @@ function populateSidebar(config) {
         });
         
         const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm";
-        removeBtn.style.backgroundColor = "#000033";
-        removeBtn.style.color = "#FFFFFF";
+        removeBtn.className = "btn btn-sm btn-outline-secondary";
         removeBtn.innerHTML = "&times;";
         removeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -240,7 +238,7 @@ function populateSidebar(config) {
         });
         
         const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-sm btn-danger";
+        removeBtn.className = "btn btn-sm btn-outline-secondary";
         removeBtn.innerHTML = "&times;";
         removeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
