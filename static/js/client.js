@@ -205,8 +205,8 @@ function populateSidebar(config) {
         removeBtn.style.backgroundColor = "#000033";
         removeBtn.style.color = "#FFFFFF";
         removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "16px";
-        removeBtn.style.height = "16px";
+        removeBtn.style.width = "15px";
+        removeBtn.style.height = "15px";
         removeBtn.style.lineHeight = "1";
         removeBtn.style.display = "flex";
         removeBtn.style.alignItems = "center";
@@ -251,8 +251,8 @@ function populateSidebar(config) {
         removeBtn.style.backgroundColor = "#000033";
         removeBtn.style.color = "#FFFFFF";
         removeBtn.style.fontSize = "0.75rem";
-        removeBtn.style.width = "16px";
-        removeBtn.style.height = "16px";
+        removeBtn.style.width = "15px";
+        removeBtn.style.height = "15px";
         removeBtn.style.lineHeight = "1";
         removeBtn.style.display = "flex";
         removeBtn.style.alignItems = "center";
