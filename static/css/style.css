@@ -7,9 +7,13 @@
 .brand-container {
     display: flex;
     align-items: center;
-    justify-content: center;
     margin-bottom: 1rem;
-    width: 100%;
+}
+
+.brand-container a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
 .brand-text {

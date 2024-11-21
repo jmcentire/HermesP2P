@@ -89,10 +89,14 @@ function addChannel(name, key = '') {
     
     // Check for name collisions, excluding the channel being edited
     const isEdit = editingItem && editingItem.type === 'channel';
-    const nameExists = configuration.channels.some(channel => 
-        channel.name === name && 
-        (!isEdit || channel.name !== editingItem.original.name)
-    );
+    const nameExists = configuration.channels.some(channel => {
+        // If editing, allow the current channel to keep its name
+        if (isEdit && channel.name === editingItem.original.name) {
+            return false;
+        }
+        // Check for name collision with other channels
+        return channel.name === name;
+    });
     
     if (nameExists) {
         alert('Channel with this name already exists');
