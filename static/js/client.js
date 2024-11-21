@@ -40,7 +40,10 @@ function editChannel(channel) {
 }
 
 function editFriend(friend) {
-    editingItem = friend;
+    editingItem = {
+        original: friend,
+        type: 'friend'
+    };
     const friendNameInput = document.getElementById('friendName');
     const friendPubKeyInput = document.getElementById('friendPubKey');
     const saveButton = document.getElementById('saveFriendBtn');
@@ -84,11 +87,11 @@ function addChannel(name, key = '') {
         return false;
     }
     
-    // For edits, allow the same name or check against other channels
+    // Check for name collisions, excluding the channel being edited
     const isEdit = editingItem && editingItem.type === 'channel';
     const nameExists = configuration.channels.some(channel => 
         channel.name === name && 
-        (!isEdit || name !== editingItem.original.name)
+        (!isEdit || channel.name !== editingItem.original.name)
     );
     
     if (nameExists) {
@@ -110,24 +113,21 @@ function addChannel(name, key = '') {
         }
     }
 
-    // If editing, remove the old channel
+    // If editing, update the existing channel
     if (isEdit) {
         const index = configuration.channels.findIndex(
             channel => channel.name === editingItem.original.name
         );
         if (index !== -1) {
-            configuration.channels.splice(index, 1);
+            configuration.channels[index] = { name, ...(key && { key }) };
         }
+    } else {
+        // Add new channel
+        configuration.channels.push({ name, ...(key && { key }) });
     }
     
-    const channel = { name };
-    if (key) channel.key = key;
-    
-    configuration.channels.push(channel);
     saveConfiguration(configuration);
     populateSidebar(configuration);
-    
-    // Reset editingItem after successful save
     editingItem = null;
     return true;
 }
@@ -152,15 +152,34 @@ function addFriend(name, pubKey) {
         return false;
     }
     
-    // Check for duplicate friend names
-    if (configuration.friends.some(friend => friend.name === name)) {
+    // Check for name collisions, excluding the friend being edited
+    const isEdit = editingItem && editingItem.type === 'friend';
+    const nameExists = configuration.friends.some(friend => 
+        friend.name === name && 
+        (!isEdit || friend.name !== editingItem.original.name)
+    );
+    
+    if (nameExists) {
         alert('Friend with this name already exists');
         return false;
     }
+
+    // If editing, update the existing friend
+    if (isEdit) {
+        const index = configuration.friends.findIndex(
+            friend => friend.name === editingItem.original.name
+        );
+        if (index !== -1) {
+            configuration.friends[index] = { name, pubKey };
+        }
+    } else {
+        // Add new friend
+        configuration.friends.push({ name, pubKey });
+    }
     
-    configuration.friends.push({ name, pubKey });
     saveConfiguration(configuration);
     populateSidebar(configuration);
+    editingItem = null;
     return true;
 }
 
