@@ -21,7 +21,10 @@ const base64Decode = (str) => {
 
 // Edit functionality
 function editChannel(channel) {
-    editingItem = channel;
+    editingItem = {
+        original: channel,
+        type: 'channel'
+    };
     const channelNameInput = document.getElementById('channelName');
     const channelKeyInput = document.getElementById('channelKey');
     const saveButton = document.getElementById('saveChannelBtn');
@@ -81,8 +84,14 @@ function addChannel(name, key = '') {
         return false;
     }
     
-    // Check for duplicate channel names
-    if (configuration.channels.some(channel => channel.name === name)) {
+    // For edits, allow the same name or check against other channels
+    const isEdit = editingItem && editingItem.type === 'channel';
+    const nameExists = configuration.channels.some(channel => 
+        channel.name === name && 
+        (!isEdit || name !== editingItem.original.name)
+    );
+    
+    if (nameExists) {
         alert('Channel with this name already exists');
         return false;
     }
@@ -100,6 +109,16 @@ function addChannel(name, key = '') {
             return false;
         }
     }
+
+    // If editing, remove the old channel
+    if (isEdit) {
+        const index = configuration.channels.findIndex(
+            channel => channel.name === editingItem.original.name
+        );
+        if (index !== -1) {
+            configuration.channels.splice(index, 1);
+        }
+    }
     
     const channel = { name };
     if (key) channel.key = key;
@@ -107,6 +126,9 @@ function addChannel(name, key = '') {
     configuration.channels.push(channel);
     saveConfiguration(configuration);
     populateSidebar(configuration);
+    
+    // Reset editingItem after successful save
+    editingItem = null;
     return true;
 }
 
@@ -421,6 +443,10 @@ function enableMessageInput() {
     const messageForm = document.getElementById('messageForm');
     const messageInput = document.getElementById('messageInput');
     
+    messageForm.classList.remove('disabled');
+    messageInput.disabled = false;
+    messageInput.placeholder = 'Type your message...';
+
     messageForm.onsubmit = async (e) => {
         e.preventDefault();
         const message = messageInput.value.trim();
@@ -504,11 +530,6 @@ document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', ()
     document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
     document.getElementById('saveFriendBtn').textContent = 'Add Friend';
 });
-    const messageInput = document.getElementById('messageInput');
-    messageForm.classList.remove('disabled');
-    messageInput.disabled = false;
-    messageInput.placeholder = 'Type your message...';
-}
 
 function disableMessageInput() {
     const messageForm = document.getElementById('messageForm');
