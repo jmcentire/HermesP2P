@@ -90,13 +90,15 @@ function addChannel(name, key = '') {
     // Check for name collisions, excluding the channel being edited
     const isEdit = editingItem && editingItem.type === 'channel';
     const nameExists = configuration.channels.some(channel => {
-        // If editing, allow the current channel to keep its name
+        // If we're editing and this is the channel being edited, allow the name
         if (isEdit && channel === editingItem.original) {
             return false;
         }
+        // For all other cases, check if the name exists
         return channel.name === name;
     });
     
+    // Only show the error message once and only when there's actually a duplicate
     if (nameExists) {
         alert('Channel with this name already exists');
         return false;
