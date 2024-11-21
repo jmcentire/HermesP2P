@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#000033" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M16 4L4 16l12 12M4 16h24"/>
-  <path d="M16 4l12 12-12 12"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Main H shape -->
+  <path d="M8 4v24M24 4v24M8 16h16" stroke="#000033" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Stylized wings -->
+  <path d="M4 12c4-4 8-4 12-2M28 12c-4-4-8-4-12-2M4 20c4 4 8 4 12 2M28 20c-4 4-8 4-12 2" 
+        stroke="#000033" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
