@@ -59,17 +59,7 @@ feather.replace();
 
 // Using global nacl object from CDN
 const { secretbox, box, sign, randomBytes } = window.nacl;
-// Standardized message signing function
-function signMessage(message) {
-    const messageUint8 = new TextEncoder().encode(message);
-    return base64Encode(sign.detached(messageUint8, base64Decode(configuration.user.privKey)));
-}
-
-// Generate a secure channel key
-function generateChannelKey() {
-    const key = randomBytes(secretbox.keyLength);
-    return base64Encode(key);
-}
+// Using imported functions from crypto.js
 
 // Channel and Friend Management Functions
 function addChannel(name, key = '') {
