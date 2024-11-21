@@ -187,6 +187,52 @@ function populateSidebar(config) {
         nameSpan.textContent = channel.name;
         li.appendChild(nameSpan);
 
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "d-flex gap-1";
+
+        // Edit button
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-sm px-0 py-0 me-1";
+        editBtn.style.backgroundColor = "#000033";
+        editBtn.style.color = "#FFFFFF";
+        editBtn.style.fontSize = "0.75rem";
+        editBtn.style.width = "15px";
+        editBtn.style.height = "15px";
+        editBtn.style.lineHeight = "1";
+        editBtn.style.display = "flex";
+        editBtn.style.alignItems = "center";
+        editBtn.style.justifyContent = "center";
+        editBtn.innerHTML = "✎";
+        editBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            editChannel(channel);
+        });
+
+        buttonContainer.appendChild(editBtn);
+
+        // Remove button (existing)
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-sm px-0 py-0";
+        removeBtn.style.backgroundColor = "#000033";
+        removeBtn.style.color = "#FFFFFF";
+        removeBtn.style.fontSize = "0.75rem";
+        removeBtn.style.width = "15px";
+        removeBtn.style.height = "15px";
+        removeBtn.style.lineHeight = "1";
+        removeBtn.style.display = "flex";
+        removeBtn.style.alignItems = "center";
+        removeBtn.style.justifyContent = "center";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
+                removeChannel(channel.name);
+            }
+        });
+
+        buttonContainer.appendChild(removeBtn);
+        li.appendChild(buttonContainer);
+
         // Move click handler to li element
         li.addEventListener("click", (e) => {
             // Don't trigger if clicking remove button
@@ -232,6 +278,52 @@ function populateSidebar(config) {
         const nameSpan = document.createElement("span");
         nameSpan.textContent = friend.name;
         li.appendChild(nameSpan);
+
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "d-flex gap-1";
+
+        // Edit button
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-sm px-0 py-0 me-1";
+        editBtn.style.backgroundColor = "#000033";
+        editBtn.style.color = "#FFFFFF";
+        editBtn.style.fontSize = "0.75rem";
+        editBtn.style.width = "15px";
+        editBtn.style.height = "15px";
+        editBtn.style.lineHeight = "1";
+        editBtn.style.display = "flex";
+        editBtn.style.alignItems = "center";
+        editBtn.style.justifyContent = "center";
+        editBtn.innerHTML = "✎";
+        editBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            editFriend(friend);
+        });
+
+        buttonContainer.appendChild(editBtn);
+
+        // Remove button (existing)
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-sm px-0 py-0";
+        removeBtn.style.backgroundColor = "#000033";
+        removeBtn.style.color = "#FFFFFF";
+        removeBtn.style.fontSize = "0.75rem";
+        removeBtn.style.width = "15px";
+        removeBtn.style.height = "15px";
+        removeBtn.style.lineHeight = "1";
+        removeBtn.style.display = "flex";
+        removeBtn.style.alignItems = "center";
+        removeBtn.style.justifyContent = "center";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
+                removeFriend(friend.name);
+            }
+        });
+
+        buttonContainer.appendChild(removeBtn);
+        li.appendChild(buttonContainer);
 
         // Move click handler to li element
         li.addEventListener("click", (e) => {
@@ -369,6 +461,88 @@ function appendMessage(sender, content, type = 'public') {
 
 function enableMessageInput() {
     const messageForm = document.getElementById('messageForm');
+// Edit functionality
+let editingItem = null;
+
+function editChannel(channel) {
+    editingItem = channel;
+    const channelNameInput = document.getElementById('channelName');
+    const channelKeyInput = document.getElementById('channelKey');
+    const saveButton = document.getElementById('saveChannelBtn');
+    const modalTitle = document.querySelector('#addChannelModal .modal-title');
+
+    channelNameInput.value = channel.name;
+    channelKeyInput.value = channel.key || '';
+    modalTitle.textContent = 'Edit Channel';
+    saveButton.textContent = 'Save Changes';
+
+    const modal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    modal.show();
+}
+
+function editFriend(friend) {
+    editingItem = friend;
+    const friendNameInput = document.getElementById('friendName');
+    const friendPubKeyInput = document.getElementById('friendPubKey');
+    const saveButton = document.getElementById('saveFriendBtn');
+    const modalTitle = document.querySelector('#addFriendModal .modal-title');
+
+    friendNameInput.value = friend.name;
+    friendPubKeyInput.value = friend.pubKey;
+    modalTitle.textContent = 'Edit Friend';
+    saveButton.textContent = 'Save Changes';
+
+    const modal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    modal.show();
+}
+
+// Update save handlers for channels and friends
+document.getElementById('saveChannelBtn').addEventListener('click', () => {
+    const name = document.getElementById('channelName').value.trim();
+    const key = document.getElementById('channelKey').value.trim();
+
+    if (editingItem) {
+        // Remove old channel
+        removeChannel(editingItem.name);
+    }
+
+    if (addChannel(name, key)) {
+        editingItem = null;
+        bootstrap.Modal.getInstance(document.getElementById('addChannelModal')).hide();
+    }
+});
+
+document.getElementById('saveFriendBtn').addEventListener('click', () => {
+    const name = document.getElementById('friendName').value.trim();
+    const pubKey = document.getElementById('friendPubKey').value.trim();
+
+    if (editingItem) {
+        // Remove old friend
+        removeFriend(editingItem.name);
+    }
+
+    if (addFriend(name, pubKey)) {
+        editingItem = null;
+        bootstrap.Modal.getInstance(document.getElementById('addFriendModal')).hide();
+    }
+});
+
+// Reset modals on close
+document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
+    editingItem = null;
+    document.getElementById('channelName').value = '';
+    document.getElementById('channelKey').value = '';
+    document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
+    document.getElementById('saveChannelBtn').textContent = 'Add Channel';
+});
+
+document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
+    editingItem = null;
+    document.getElementById('friendName').value = '';
+    document.getElementById('friendPubKey').value = '';
+    document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
+    document.getElementById('saveFriendBtn').textContent = 'Add Friend';
+});
     const messageInput = document.getElementById('messageInput');
     messageForm.classList.remove('disabled');
     messageInput.disabled = false;
