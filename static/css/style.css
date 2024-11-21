@@ -1,7 +1,13 @@
+/* Base logo style (for index.html) */
 .logo {
     height: 96px;
     width: auto;
     margin-right: 16px;
+}
+
+/* Client page specific logo size */
+.client-page .logo {
+    height: 76.8px;  /* 80% of 96px */
 }
 
 .brand-container {
