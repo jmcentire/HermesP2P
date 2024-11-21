@@ -796,3 +796,87 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener('beforeunload', () => {
     sessionStorage.clear();
 });
+
+// Updated here: The following code has been changed.
+
+import { initializeNewConfig } from './crypto.js';
+import { displayMessages, enableMessageInput } from './messages.js';
+import { populateSidebar, addChannel, addFriend, saveConfiguration } from './ui.js';
+
+// Get configuration from sessionStorage or initialize new one
+const configuration = (() => {
+    const storedConfig = sessionStorage.getItem('hp2pConfig');
+    return storedConfig ? JSON.parse(storedConfig) : initializeNewConfig();
+})();
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Feather Icons
+    feather.replace();
+
+    // Initialize UI
+    populateSidebar(configuration);
+    displayMessages();
+
+    // Setup event listeners
+    document.getElementById('generateKeyBtn').addEventListener('click', () => {
+        const channelKey = document.getElementById('channelKey');
+        channelKey.value = generateChannelKey();
+    });
+
+    // Setup modals
+    setupModals();
+});
+
+// Setup modal functionality
+function setupModals() {
+    let editingItem = null;
+
+    // Channel Modal
+    const channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    document.getElementById('addChannelBtn').addEventListener('click', () => {
+        document.getElementById('channelName').value = '';
+        document.getElementById('channelKey').value = '';
+        editingItem = null;
+        channelModal.show();
+    });
+
+    document.getElementById('saveChannelBtn').addEventListener('click', () => {
+        const name = document.getElementById('channelName').value;
+        const key = document.getElementById('channelKey').value;
+        if (addChannel(name, key, configuration, editingItem)) {
+            channelModal.hide();
+        }
+    });
+
+    // Friend Modal
+    const friendModal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    document.getElementById('addFriendBtn').addEventListener('click', () => {
+        document.getElementById('friendName').value = '';
+        document.getElementById('friendPubKey').value = '';
+        editingItem = null;
+        friendModal.show();
+    });
+
+    document.getElementById('saveFriendBtn').addEventListener('click', () => {
+        const name = document.getElementById('friendName').value;
+        const pubKey = document.getElementById('friendPubKey').value;
+        if (addFriend(name, pubKey, configuration, editingItem)) {
+            friendModal.hide();
+        }
+    });
+
+    // Save & Exit functionality
+    document.getElementById('saveExitBtn').addEventListener('click', () => {
+        const configBlob = new Blob([JSON.stringify(configuration, null, 2)], { type: 'application/json' });
+        const downloadUrl = URL.createObjectURL(configBlob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        downloadLink.download = 'hp2p-config.json';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(downloadUrl);
+        sessionStorage.removeItem('hp2pConfig');
+        window.location.href = '/';
+    });
+}
