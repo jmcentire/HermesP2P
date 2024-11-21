@@ -468,21 +468,6 @@ function handleMessageSubmit(e) {
         // Append message to UI and clear input
         appendMessage(configuration.user.name, message, messageType);
         messageInput.value = '';
-    }
-}
-        appendMessage(configuration.user.name, message, messageType);
-        messageInput.value = '';
-    }
-}
-            encryptedContent.signature = signedMessage.signature;
-            appendMessage(configuration.user.name, message, messageType);
-        }
-
-        // Package and broadcast the message
-        const packagedMessage = packageMessage(encryptedContent, messageType);
-        // Trigger a custom event for message broadcast (to be implemented)
-        const broadcastEvent = new CustomEvent('messageBroadcast', { detail: packagedMessage });
-        window.dispatchEvent(broadcastEvent);
         
         // Clear input
         messageInput.value = '';
