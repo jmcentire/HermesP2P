@@ -1,3 +1,8 @@
+// Global variables
+let editingItem = null;
+let channelModal;
+let friendModal;
+
 // Base64 encoding/decoding functions
 const base64Encode = (array) => {
     if (!window.base64js) {
@@ -14,9 +19,38 @@ const base64Decode = (str) => {
     return base64js.toByteArray(str);
 };
 
-// Initialize Bootstrap modals
-let channelModal;
-let friendModal;
+// Edit functionality
+function editChannel(channel) {
+    editingItem = channel;
+    const channelNameInput = document.getElementById('channelName');
+    const channelKeyInput = document.getElementById('channelKey');
+    const saveButton = document.getElementById('saveChannelBtn');
+    const modalTitle = document.querySelector('#addChannelModal .modal-title');
+
+    channelNameInput.value = channel.name;
+    channelKeyInput.value = channel.key || '';
+    modalTitle.textContent = 'Edit Channel';
+    saveButton.textContent = 'Save Changes';
+
+    const modal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    modal.show();
+}
+
+function editFriend(friend) {
+    editingItem = friend;
+    const friendNameInput = document.getElementById('friendName');
+    const friendPubKeyInput = document.getElementById('friendPubKey');
+    const saveButton = document.getElementById('saveFriendBtn');
+    const modalTitle = document.querySelector('#addFriendModal .modal-title');
+
+    friendNameInput.value = friend.name;
+    friendPubKeyInput.value = friend.pubKey;
+    modalTitle.textContent = 'Edit Friend';
+    saveButton.textContent = 'Save Changes';
+
+    const modal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    modal.show();
+}
 
 // Initialize event listeners when document is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -385,39 +419,42 @@ function appendMessage(sender, content, type = 'public') {
 
 function enableMessageInput() {
     const messageForm = document.getElementById('messageForm');
-// Edit functionality
-let editingItem = null;
-
-function editChannel(channel) {
-    editingItem = channel;
-    const channelNameInput = document.getElementById('channelName');
-    const channelKeyInput = document.getElementById('channelKey');
-    const saveButton = document.getElementById('saveChannelBtn');
-    const modalTitle = document.querySelector('#addChannelModal .modal-title');
-
-    channelNameInput.value = channel.name;
-    channelKeyInput.value = channel.key || '';
-    modalTitle.textContent = 'Edit Channel';
-    saveButton.textContent = 'Save Changes';
-
-    const modal = new bootstrap.Modal(document.getElementById('addChannelModal'));
-    modal.show();
-}
-
-function editFriend(friend) {
-    editingItem = friend;
-    const friendNameInput = document.getElementById('friendName');
-    const friendPubKeyInput = document.getElementById('friendPubKey');
-    const saveButton = document.getElementById('saveFriendBtn');
-    const modalTitle = document.querySelector('#addFriendModal .modal-title');
-
-    friendNameInput.value = friend.name;
-    friendPubKeyInput.value = friend.pubKey;
-    modalTitle.textContent = 'Edit Friend';
-    saveButton.textContent = 'Save Changes';
-
-    const modal = new bootstrap.Modal(document.getElementById('addFriendModal'));
-    modal.show();
+    const messageInput = document.getElementById('messageInput');
+    
+    messageForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        const activeChat = document.querySelector('.list-group-item.active');
+        if (!activeChat) return;
+        
+        const chatName = activeChat.querySelector('span').textContent;
+        const isFriend = activeChat.closest('#friends-list') !== null;
+        
+        // Package and sign the message
+        const messagePackage = {
+            type: isFriend ? 'direct' : 
+                  (configuration.channels.find(c => c.name === chatName)?.key ? 'private' : 'public'),
+            timestamp: new Date().toISOString(),
+            from: {
+                name: configuration.user.name,
+                pubKey: configuration.user.pubKey
+            },
+            to: chatName,
+            message: message,
+            signature: ''
+        };
+        
+        // Sign the plaintext message
+        messagePackage.signature = signMessage(message);
+        
+        // Broadcast the message (to be implemented)
+        appendMessage(configuration.user.name, message, messagePackage.type);
+        
+        // Clear input
+        messageInput.value = '';
+    };
 }
 
 // Update save handlers for channels and friends
