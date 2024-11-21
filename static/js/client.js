@@ -60,6 +60,9 @@ function editFriend(friend) {
 
 // Initialize event listeners when document is ready
 document.addEventListener('DOMContentLoaded', () => {
+// Initialize Feather Icons
+feather.replace();
+
     document.getElementById('generateKeyBtn').addEventListener('click', () => {
         const channelKey = document.getElementById('channelKey');
         channelKey.value = generateChannelKey();
@@ -256,20 +259,26 @@ function saveConfiguration(config) {
 
 // Dynamically populate the sidebar
 // Helper function to create action buttons
-function createActionButton(icon, clickHandler, isEdit = false) {
+function createActionButton(iconName, clickHandler, isEdit = false) {
     const btn = document.createElement("button");
     btn.className = `btn btn-sm px-0 py-0 ${isEdit ? 'me-1' : ''}`;
     btn.style.backgroundColor = "#000033";
     btn.style.color = "#FFFFFF";
-    btn.style.fontSize = "0.75rem";
     btn.style.width = "15px";
     btn.style.height = "15px";
-    btn.style.lineHeight = "1";
     btn.style.display = "flex";
     btn.style.alignItems = "center";
     btn.style.justifyContent = "center";
-    btn.innerHTML = icon;
+    
+    // Create Feather icon
+    const icon = document.createElement("i");
+    icon.setAttribute("data-feather", iconName);
+    icon.style.width = "10px";
+    icon.style.height = "10px";
+    btn.appendChild(icon);
+    
     btn.addEventListener("click", clickHandler);
+    feather.replace(); // Replace the icon after adding to DOM
     return btn;
 }
 
@@ -295,14 +304,14 @@ function populateSidebar(config) {
         buttonContainer.className = "d-flex gap-1";
 
         // Edit button
-        const editBtn = createActionButton("✎", (e) => {
+        const editBtn = createActionButton("edit-2", (e) => {
             e.stopPropagation();
             editChannel(channel);
         }, true);
         buttonContainer.appendChild(editBtn);
 
         // Remove button
-        const removeBtn = createActionButton("&times;", (e) => {
+        const removeBtn = createActionButton("x", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
                 removeChannel(channel.name);
@@ -340,14 +349,14 @@ function populateSidebar(config) {
         buttonContainer.className = "d-flex gap-1";
 
         // Edit button
-        const editBtn = createActionButton("✎", (e) => {
+        const editBtn = createActionButton("edit-2", (e) => {
             e.stopPropagation();
             editFriend(friend);
         }, true);
         buttonContainer.appendChild(editBtn);
 
         // Remove button
-        const removeBtn = createActionButton("&times;", (e) => {
+        const removeBtn = createActionButton("x", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
                 removeFriend(friend.name);
