@@ -1,6 +1,13 @@
-import { initializeNewConfig, base64Decode, generateChannelKey, signMessage } from './crypto.js';
-import { displayMessages, enableMessageInput, appendMessage } from './messages.js';
-import { populateSidebar, addChannel, removeChannel, addFriend, removeFriend, editChannel, editFriend } from './ui.js';
+import { initializeNewConfig, generateChannelKey } from './crypto.js';
+import { displayMessages, enableMessageInput } from './messages.js';
+import { 
+    populateSidebar, 
+    addChannel, 
+    addFriend,
+    editChannel, 
+    editFriend,
+    saveConfiguration
+} from './ui.js';
 
 // Global variables for editing state
 let editingItem = null;
@@ -11,38 +18,74 @@ const configuration = (() => {
     return storedConfig ? JSON.parse(storedConfig) : initializeNewConfig();
 })();
 
-function editFriend(friend) {
-    editingItem = {
-        original: friend,
-        type: 'friend'
-    };
-    const friendNameInput = document.getElementById('friendName');
-    const friendPubKeyInput = document.getElementById('friendPubKey');
-    const saveButton = document.getElementById('saveFriendBtn');
-    const modalTitle = document.querySelector('#addFriendModal .modal-title');
-
-    friendNameInput.value = friend.name;
-    friendPubKeyInput.value = friend.pubKey;
-    modalTitle.textContent = 'Edit Friend';
-    saveButton.textContent = 'Save Changes';
-
-    const modal = new bootstrap.Modal(document.getElementById('addFriendModal'));
-    modal.show();
-}
-
-// Initialize event listeners when document is ready
+// Initialize event listeners
 document.addEventListener('DOMContentLoaded', () => {
-// Initialize Feather Icons
-feather.replace();
+    // Initialize Feather Icons
+    feather.replace();
 
+    // Initialize the sidebar with the current configuration
+    populateSidebar(configuration);
+
+    // Set up the generate key button
     document.getElementById('generateKeyBtn').addEventListener('click', () => {
         const channelKey = document.getElementById('channelKey');
         channelKey.value = generateChannelKey();
     });
-});
 
-// Using global nacl object from CDN
-const { secretbox, box, sign, randomBytes } = window.nacl;
+    // Add Channel button handler
+    document.getElementById('saveChannelBtn').addEventListener('click', () => {
+        const name = document.getElementById('channelName').value.trim();
+        const key = document.getElementById('channelKey').value.trim();
+
+        if (addChannel(name, key, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addChannelModal')).hide();
+        }
+    });
+
+    // Add Friend button handler
+    document.getElementById('saveFriendBtn').addEventListener('click', () => {
+        const name = document.getElementById('friendName').value.trim();
+        const pubKey = document.getElementById('friendPubKey').value.trim();
+
+        if (addFriend(name, pubKey, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addFriendModal')).hide();
+        }
+    });
+
+    // Modal reset handlers
+    document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
+        editingItem = null;
+        document.getElementById('channelName').value = '';
+        document.getElementById('channelKey').value = '';
+        document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
+        document.getElementById('saveChannelBtn').textContent = 'Add Channel';
+    });
+
+    document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
+        editingItem = null;
+        document.getElementById('friendName').value = '';
+        document.getElementById('friendPubKey').value = '';
+        document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
+        document.getElementById('saveFriendBtn').textContent = 'Add Friend';
+    });
+
+    // Save & Exit button handler
+    document.getElementById('saveExitBtn').addEventListener('click', () => {
+        const config = JSON.parse(sessionStorage.getItem('hp2pConfig'));
+        const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'hermesp2p-config.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        window.location.href = '/';
+    });
+});
 // Using imported functions from crypto.js
 
 // Using imported channel and friend management functions from ui.js
