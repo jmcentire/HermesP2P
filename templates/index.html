@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HermesP2P</title>
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <link rel="icon" type="image/pdf" href="{{ url_for('static', filename='images/hermesp2p_small.pdf') }}">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <style>
         body {
@@ -52,9 +52,11 @@
 </head>
 <body>
     <div class="container">
-        <div class="brand-container">
-            <img src="{{ url_for('static', filename='images/hermes p2p.png') }}" alt="HermesP2P Logo" class="logo">
-            <h1 class="text-center mb-0">Welcome to HermesP2P</h1>
+        <div class="brand-container d-flex justify-content-center align-items-center w-100">
+            <div class="text-center">
+                <img src="{{ url_for('static', filename='images/hermesp2p.png') }}" alt="HermesP2P Logo" class="logo d-block mx-auto mb-3">
+                <h1 class="text-center">Welcome to HermesP2P</h1>
+            </div>
         </div>
         <p class="text-center fs-5 mt-2 mb-4 text-secondary"><em>Private. Ephemeral. Decentralized.</em></p>
 
