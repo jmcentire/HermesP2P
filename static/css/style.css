@@ -1,13 +1,19 @@
-.logo {
+.index_logo {
     height: 96px;
     width: auto;
     margin-right: 10px;
 }
 
+.client_logo {
+    height: 64px;
+    width: auto;
+    margin-right: 10px;
+}
 .brand-container {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
+    justify-content: center;
 }
 
 .brand-container a {
