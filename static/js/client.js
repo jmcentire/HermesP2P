@@ -259,26 +259,32 @@ function saveConfiguration(config) {
 
 // Dynamically populate the sidebar
 // Helper function to create action buttons
-function createActionButton(iconName, clickHandler, isEdit = false) {
+function createActionButton(text, clickHandler, isEdit = false) {
     const btn = document.createElement("button");
     btn.className = `btn btn-sm px-0 py-0 ${isEdit ? 'me-1' : ''}`;
     btn.style.backgroundColor = "#000033";
     btn.style.color = "#FFFFFF";
     btn.style.width = "15px";
     btn.style.height = "15px";
+    btn.style.fontSize = "0.75rem";
+    btn.style.lineHeight = "1";
     btn.style.display = "flex";
     btn.style.alignItems = "center";
     btn.style.justifyContent = "center";
     
-    // Create Feather icon
-    const icon = document.createElement("i");
-    icon.setAttribute("data-feather", iconName);
-    icon.style.width = "10px";
-    icon.style.height = "10px";
-    btn.appendChild(icon);
+    if (text === "edit-2") {
+        // Special case for edit button - use Feather icon
+        const icon = document.createElement("i");
+        icon.setAttribute("data-feather", "edit-2");
+        icon.style.width = "10px";
+        icon.style.height = "10px";
+        btn.appendChild(icon);
+        feather.replace();
+    } else {
+        btn.innerHTML = text;
+    }
     
     btn.addEventListener("click", clickHandler);
-    feather.replace(); // Replace the icon after adding to DOM
     return btn;
 }
 
@@ -311,7 +317,7 @@ function populateSidebar(config) {
         buttonContainer.appendChild(editBtn);
 
         // Remove button
-        const removeBtn = createActionButton("x", (e) => {
+        const removeBtn = createActionButton("×", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove the channel "${channel.name}"?`)) {
                 removeChannel(channel.name);
@@ -356,7 +362,7 @@ function populateSidebar(config) {
         buttonContainer.appendChild(editBtn);
 
         // Remove button
-        const removeBtn = createActionButton("x", (e) => {
+        const removeBtn = createActionButton("×", (e) => {
             e.stopPropagation();
             if (confirm(`Are you sure you want to remove "${friend.name}" from your friends list?`)) {
                 removeFriend(friend.name);
