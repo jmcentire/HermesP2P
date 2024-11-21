@@ -465,7 +465,11 @@ function handleMessageSubmit(e) {
             detail: content
         }));
 
-        // Append message to UI
+        // Append message to UI and clear input
+        appendMessage(configuration.user.name, message, messageType);
+        messageInput.value = '';
+    }
+}
         appendMessage(configuration.user.name, message, messageType);
         messageInput.value = '';
     }
