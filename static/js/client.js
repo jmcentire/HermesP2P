@@ -31,11 +31,7 @@ const { secretbox, box, sign, randomBytes } = window.nacl;
 // Standardized message signing function
 function signMessage(message) {
     const messageUint8 = new TextEncoder().encode(message);
-    const signature = sign.detached(messageUint8, base64Decode(configuration.user.privKey));
-    return {
-        message,
-        signature: base64Encode(signature)
-    };
+    return base64Encode(sign.detached(messageUint8, base64Decode(configuration.user.privKey)));
 }
 
 // Generate a secure channel key
@@ -372,30 +368,20 @@ function disableMessageInput() {
 }
 
 // Uses symmetric encryption for private channels
-function encryptChannelMessage(message, channelKey) {
+function encryptChannelMessage(plaintext, channelKey) {
+    const signature = signMessage(plaintext);
     const nonce = randomBytes(secretbox.nonceLength);
-    const signedMessage = signMessage(message);
-    const messageUint8 = new TextEncoder().encode(signedMessage.message);
-    const signatureUint8 = base64Decode(signedMessage.signature);
-    
-    // Ensure key is exactly 32 bytes after base64 decoding
+    const messageUint8 = new TextEncoder().encode(plaintext);
     const keyUint8 = base64Decode(channelKey);
-    if (keyUint8.length !== secretbox.keyLength) {
-        throw new Error(`Invalid key length. Expected ${secretbox.keyLength} bytes.`);
-    }
     
-    // Combine message and signature
-    const combinedMessage = new Uint8Array([...messageUint8, ...signatureUint8]);
-    
-    // Encrypt using secretbox
-    const encrypted = secretbox(combinedMessage, nonce, keyUint8);
+    const encrypted = secretbox(messageUint8, nonce, keyUint8);
     
     return {
         to: channelKey,
         from: {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey,
-            signature: signedMessage.signature
+            signature: signature
         },
         message: {
             encrypted: base64Encode(encrypted),
@@ -404,17 +390,14 @@ function encryptChannelMessage(message, channelKey) {
     };
 }
 
-function encryptDirectMessage(message, recipientPubKey) {
-    // Generate ephemeral keypair for this message
+function encryptDirectMessage(plaintext, recipientPubKey) {
+    const signature = signMessage(plaintext);
     const ephemeralKeyPair = box.keyPair();
     const nonce = randomBytes(box.nonceLength);
-    const signedMessage = signMessage(message);
-    const messageUint8 = new TextEncoder().encode(signedMessage.message);
-    const signatureUint8 = base64Decode(signedMessage.signature);
+    const messageUint8 = new TextEncoder().encode(plaintext);
     
-    // Encrypt the message + signature
     const encrypted = box(
-        new Uint8Array([...messageUint8, ...signatureUint8]),
+        messageUint8,
         nonce,
         base64Decode(recipientPubKey),
         ephemeralKeyPair.secretKey
@@ -425,22 +408,24 @@ function encryptDirectMessage(message, recipientPubKey) {
         from: {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey,
-            signature: signedMessage.signature
+            signature: signature
         },
         message: {
-            nonce: base64Encode(nonce),
             encrypted: base64Encode(encrypted),
+            nonce: base64Encode(nonce),
             ephemeralPubKey: base64Encode(ephemeralKeyPair.publicKey)
         }
     };
 }
 
 function packageMessage(content, type) {
-    const timestamp = Date.now();
     return {
         type: type,
-        timestamp: timestamp,
-        sender: configuration.user.name,
+        timestamp: Date.now(),
+        sender: {
+            name: configuration.user.name,
+            pubKey: configuration.user.pubKey
+        },
         content: content
     };
 }
