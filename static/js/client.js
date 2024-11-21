@@ -273,13 +273,11 @@ function createActionButton(text, clickHandler, isEdit = false) {
     btn.style.justifyContent = "center";
     
     if (text === "edit-2") {
-        // Special case for edit button - use Feather icon
         const icon = document.createElement("i");
         icon.setAttribute("data-feather", "edit-2");
         icon.style.width = "10px";
         icon.style.height = "10px";
         btn.appendChild(icon);
-        feather.replace();
     } else {
         btn.innerHTML = text;
     }
@@ -385,6 +383,9 @@ function populateSidebar(config) {
 
         friendsList.appendChild(li);
     });
+    
+    // Initialize Feather icons after populating both lists
+    feather.replace();
 }
 
 // Message history storage
