@@ -1,23 +1,11 @@
+import { initializeNewConfig, base64Decode, generateChannelKey, signMessage } from './crypto.js';
+import { displayMessages, enableMessageInput, appendMessage } from './messages.js';
+import { populateSidebar, addChannel, removeChannel, addFriend, removeFriend } from './ui.js';
+
 // Global variables
 let editingItem = null;
 let channelModal;
 let friendModal;
-
-// Base64 encoding/decoding functions
-const base64Encode = (array) => {
-    if (!window.base64js) {
-        console.error('base64js not loaded');
-        return '';
-    }
-    return base64js.fromByteArray(new Uint8Array(array));
-};
-const base64Decode = (str) => {
-    if (!window.base64js) {
-        console.error('base64js not loaded');
-        return new Uint8Array();
-    }
-    return base64js.toByteArray(str);
-};
 
 // Edit functionality
 function editChannel(channel) {
@@ -228,22 +216,6 @@ function generateKeypair() {
 // Generate secure nonce for messages
 function generateNonce() {
     return base64Encode(randomBytes(box.nonceLength));
-}
-
-// Initialize new configuration
-function initializeNewConfig() {
-    const keypair = generateKeypair();
-    return {
-        user: {
-            name: generateUsername(),
-            ...keypair
-        },
-        channels: [
-            { name: "General" },
-            { name: "TechTalk" }
-        ],
-        friends: []
-    };
 }
 
 // Get configuration from sessionStorage or initialize new one
