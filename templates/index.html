@@ -72,7 +72,7 @@
         <h2>How Does It Work?</h2>
         <h3>1. Public/Private Key Model:</h3>
         <p>
-            Every user generates a unique public/private keypair using PGP.
+            Every user generates a unique public/private keypair using Ed25519.
         </p>
         <ul>
             <li><strong>Public Keys:</strong> Used by others to send you encrypted messages.</li>
@@ -82,7 +82,7 @@
         <h3>2. Channels and Personal Messages:</h3>
         <ul>
             <li><strong>Public Channels:</strong> Join topic-based public conversations. Channels like "general" or "tech" are available by default, and you can subscribe to new channels by adding their identifiers to your configuration.</li>
-            <li><strong>Private Channels:</strong> Require access keys. Share them with trusted individuals to create private, secure groups.</li>
+            <li><strong>Private Channels:</strong> Require access keys, AES-256 symmetric keys. Share them with trusted individuals to create private, secure groups.</li>
             <li><strong>Personal Messages:</strong> Direct communication encrypted specifically for you, ensuring only the intended recipient can read the message.</li>
         </ul>
 
