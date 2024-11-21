@@ -90,15 +90,11 @@ function addChannel(name, key = '') {
     // Check for name collisions, excluding the channel being edited
     const isEdit = editingItem && editingItem.type === 'channel';
     const nameExists = configuration.channels.some(channel => {
-        // If editing, allow the current channel to keep its name
-        if (isEdit && channel.name === editingItem.original.name) {
-            return false;
-        }
         // Check for name collision with other channels
         return channel.name === name;
     });
     
-    if (nameExists) {
+    if (nameExists && (isEdit && editingItem.original.name !== name)) {
         alert('Channel with this name already exists');
         return false;
     }
@@ -124,6 +120,12 @@ function addChannel(name, key = '') {
         );
         if (index !== -1) {
             configuration.channels[index] = { name, ...(key && { key }) };
+            
+            // Update message history key if channel name changed
+            if (name !== editingItem.original.name && messageHistory[editingItem.original.name]) {
+                messageHistory[name] = messageHistory[editingItem.original.name];
+                delete messageHistory[editingItem.original.name];
+            }
         }
     } else {
         // Add new channel
