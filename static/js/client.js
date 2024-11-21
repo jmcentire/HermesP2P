@@ -1,31 +1,15 @@
 import { initializeNewConfig, base64Decode, generateChannelKey, signMessage } from './crypto.js';
 import { displayMessages, enableMessageInput, appendMessage } from './messages.js';
-import { populateSidebar, addChannel, removeChannel, addFriend, removeFriend } from './ui.js';
+import { populateSidebar, addChannel, removeChannel, addFriend, removeFriend, editChannel, editFriend } from './ui.js';
 
-// Global variables
+// Global variables for editing state
 let editingItem = null;
-let channelModal;
-let friendModal;
 
-// Edit functionality
-function editChannel(channel) {
-    editingItem = {
-        original: channel,
-        type: 'channel'
-    };
-    const channelNameInput = document.getElementById('channelName');
-    const channelKeyInput = document.getElementById('channelKey');
-    const saveButton = document.getElementById('saveChannelBtn');
-    const modalTitle = document.querySelector('#addChannelModal .modal-title');
-
-    channelNameInput.value = channel.name;
-    channelKeyInput.value = channel.key || '';
-    modalTitle.textContent = 'Edit Channel';
-    saveButton.textContent = 'Save Changes';
-
-    const modal = new bootstrap.Modal(document.getElementById('addChannelModal'));
-    modal.show();
-}
+// Initialize configuration
+const configuration = (() => {
+    const storedConfig = sessionStorage.getItem('hp2pConfig');
+    return storedConfig ? JSON.parse(storedConfig) : initializeNewConfig();
+})();
 
 function editFriend(friend) {
     editingItem = {
@@ -61,152 +45,11 @@ feather.replace();
 const { secretbox, box, sign, randomBytes } = window.nacl;
 // Using imported functions from crypto.js
 
-// Channel and Friend Management Functions
-function addChannel(name, key = '') {
-    if (name.length < 6 || name.length > 36) {
-        alert('Channel name must be between 6 and 36 characters');
-        return false;
-    }
-    
-    // Check for name collisions, excluding the channel being edited
-    const isEdit = editingItem && editingItem.type === 'channel';
-    const nameExists = configuration.channels.some(channel => {
-        // If we're editing and this is the channel being edited, allow the name
-        if (isEdit && channel === editingItem.original) {
-            return false;
-        }
-        // For all other cases, check if the name exists
-        return channel.name === name;
-    });
-    
-    // Only show the error message once and only when there's actually a duplicate
-    if (nameExists) {
-        alert('Channel with this name already exists');
-        return false;
-    }
-
-    // Validate key if provided
-    if (key) {
-        try {
-            const keyUint8 = base64Decode(key);
-            if (keyUint8.length !== secretbox.keyLength) {
-                alert(`Channel key must be exactly ${secretbox.keyLength} bytes when decoded`);
-                return false;
-            }
-        } catch (error) {
-            alert('Invalid base64 key format');
-            return false;
-        }
-    }
-
-    // If editing, update the existing channel
-    if (isEdit) {
-        const index = configuration.channels.findIndex(
-            channel => channel === editingItem.original
-        );
-        if (index !== -1) {
-            configuration.channels[index] = { name, ...(key && { key }) };
-            
-            // Update message history key if channel name changed
-            if (name !== editingItem.original.name && messageHistory[editingItem.original.name]) {
-                messageHistory[name] = messageHistory[editingItem.original.name];
-                delete messageHistory[editingItem.original.name];
-            }
-        }
-    } else {
-        // Add new channel
-        configuration.channels.push({ name, ...(key && { key }) });
-    }
-    
-    saveConfiguration(configuration);
-    populateSidebar(configuration);
-    editingItem = null;
-    return true;
-}
-
-function removeChannel(name) {
-    const index = configuration.channels.findIndex(channel => channel.name === name);
-    if (index !== -1) {
-        configuration.channels.splice(index, 1);
-        saveConfiguration(configuration);
-        populateSidebar(configuration);
-    }
-}
-
-function addFriend(name, pubKey) {
-    if (name.length < 6 || name.length > 36) {
-        alert('Friend name must be between 6 and 36 characters');
-        return false;
-    }
-    
-    if (!/[A-Za-z0-9+/=]{32,96}/.test(pubKey)) {
-        alert('Public key must be in base64 format and between 32-96 characters');
-        return false;
-    }
-    
-    // Check for name collisions, excluding the friend being edited
-    const isEdit = editingItem && editingItem.type === 'friend';
-    const nameExists = configuration.friends.some(friend => 
-        friend.name === name && 
-        (!isEdit || friend.name !== editingItem.original.name)
-    );
-    
-    if (nameExists) {
-        alert('Friend with this name already exists');
-        return false;
-    }
-
-    // If editing, update the existing friend
-    if (isEdit) {
-        const index = configuration.friends.findIndex(
-            friend => friend.name === editingItem.original.name
-        );
-        if (index !== -1) {
-            configuration.friends[index] = { name, pubKey };
-        }
-    } else {
-        // Add new friend
-        configuration.friends.push({ name, pubKey });
-    }
-    
-    saveConfiguration(configuration);
-    populateSidebar(configuration);
-    editingItem = null;
-    return true;
-}
-
-function removeFriend(name) {
-    const index = configuration.friends.findIndex(friend => friend.name === name);
-    if (index !== -1) {
-        configuration.friends.splice(index, 1);
-        saveConfiguration(configuration);
-        populateSidebar(configuration);
-    }
-}
+// Using imported channel and friend management functions from ui.js
 
 
 
-// Generate a random username (6-36 characters)
-function generateUsername() {
-    const adjectives = ['Swift', 'Bright', 'Silent', 'Noble', 'Mystic', 'Cosmic'];
-    const nouns = ['Phoenix', 'Dragon', 'Falcon', 'Knight', 'Voyager', 'Wanderer'];
-    const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `${adjectives[Math.floor(Math.random() * adjectives.length)]}${nouns[Math.floor(Math.random() * nouns.length)]}${randomNum}`;
-}
-
-// Generate Ed25519 keypair
-function generateKeypair() {
-    const keypair = sign.keyPair();
-    return {
-        pubKey: base64Encode(keypair.publicKey),
-        privKey: base64Encode(keypair.secretKey)
-    };
-}
-
-// Generate secure nonce for messages
-function generateNonce() {
-    return base64Encode(randomBytes(box.nonceLength));
-}
+// Using imported cryptographic functions from crypto.js
 
 // Get configuration from sessionStorage or initialize new one
 const configuration = (() => {
@@ -350,14 +193,19 @@ function populateSidebar(config) {
     feather.replace();
 }
 
-// Message history storage
-const messageHistory = {};
+// Initialize event listeners when document is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Feather Icons
+    feather.replace();
 
-// Message handling functions
-function formatTimestamp() {
-    const now = new Date();
-    return now.toLocaleTimeString();
-}
+    // Initialize the sidebar with the current configuration
+    populateSidebar(configuration);
+
+    // Set up the generate key button
+    document.getElementById('generateKeyBtn').addEventListener('click', () => {
+        const channelKey = document.getElementById('channelKey');
+        channelKey.value = generateChannelKey();
+    });
 
 function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
@@ -491,20 +339,44 @@ function enableMessageInput() {
     };
 }
 
-// Update save handlers for channels and friends
-document.getElementById('saveChannelBtn').addEventListener('click', () => {
-    const name = document.getElementById('channelName').value.trim();
-    const key = document.getElementById('channelKey').value.trim();
+// Add Channel button handler
+    document.getElementById('saveChannelBtn').addEventListener('click', () => {
+        const name = document.getElementById('channelName').value.trim();
+        const key = document.getElementById('channelKey').value.trim();
 
-    if (editingItem) {
-        // Remove old channel
-        removeChannel(editingItem.name);
-    }
+        if (addChannel(name, key, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addChannelModal')).hide();
+        }
+    });
 
-    if (addChannel(name, key)) {
+    // Add Friend button handler
+    document.getElementById('saveFriendBtn').addEventListener('click', () => {
+        const name = document.getElementById('friendName').value.trim();
+        const pubKey = document.getElementById('friendPubKey').value.trim();
+
+        if (addFriend(name, pubKey, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addFriendModal')).hide();
+        }
+    });
+
+    // Modal reset handlers
+    document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
         editingItem = null;
-        bootstrap.Modal.getInstance(document.getElementById('addChannelModal')).hide();
-    }
+        document.getElementById('channelName').value = '';
+        document.getElementById('channelKey').value = '';
+        document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
+        document.getElementById('saveChannelBtn').textContent = 'Add Channel';
+    });
+
+    document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
+        editingItem = null;
+        document.getElementById('friendName').value = '';
+        document.getElementById('friendPubKey').value = '';
+        document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
+        document.getElementById('saveFriendBtn').textContent = 'Add Friend';
+    });
 });
 
 document.getElementById('saveFriendBtn').addEventListener('click', () => {
