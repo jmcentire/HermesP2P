@@ -171,7 +171,7 @@ export function handleMessageSubmit(e, configuration) {
                 // Private channel message
                 messageType = 'private';
                 const [encrypted, nonce] = encryptChannelMessage(message, channel.key);
-                content = packageMessage({encrypted, nonce}, 'private', channel.key);
+                content = packageMessage({encrypted, nonce}, 'private', channel.key, configuration);
             } else {
                 // Public channel message
                 messageType = 'public';
@@ -190,7 +190,8 @@ export function handleMessageSubmit(e, configuration) {
                         ephemeralPubKey
                     },
                     'direct',
-                    friend.pubKey
+                    friend.pubKey,
+                    configuration
                 );
             }
         }
