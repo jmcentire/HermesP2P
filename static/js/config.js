@@ -1,10 +1,5 @@
-import { displayMessages, enableMessageInput } from './messages.js';
+import { displayMessages, enableMessageInput, handleMessageSubmit } from './messages.js';
 import { generateKeypair, generateUsername, generateChannelKey } from './crypto.js';
-// Module level variable for tracking editing state
-let editingItem = null;
-
-
-
 
 // Get configuration from sessionStorage or initialize new one
 export function getConfiguration() {
@@ -14,12 +9,12 @@ export function getConfiguration() {
 
 // Save configuration
 // TODO:  Encrypt on download w/ password
-export function saveConfiguration(config) {
+function saveConfiguration(config) {
     sessionStorage.setItem('hp2pConfig', JSON.stringify(config));
 }
 
 // Initialize new configuration
-export function initializeNewConfig() {
+function initializeNewConfig() {
     const keypair = generateKeypair();
     return {
         user: {

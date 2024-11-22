@@ -1,4 +1,10 @@
-import { getConfiguration, populateSidebar, handleSaveExit } from './config.js';
+import { 
+    getConfiguration, 
+    handleSaveExit, 
+    addChannel, 
+    addFriend, 
+    populateSidebar 
+} from './config.js';
 import { handleMessageSubmit, disableMessageInput, displayMessages } from './messages.js';
 
 const configuration = getConfiguration();

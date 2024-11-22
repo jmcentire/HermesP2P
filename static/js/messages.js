@@ -1,7 +1,9 @@
-import { signMessage } from './crypto.js';
+import { getConfiguration } from './config.js';
+import { signMessage, encryptChannelMessage, encryptDirectMessage } from './crypto.js';
 
 // Message history storage
 const messageHistory = {};
+const configuration = getConfiguration();
 
 // Display messages in the UI
 export function displayMessages(name = null) {
@@ -64,7 +66,7 @@ export function displayMessages(name = null) {
 }
 
 // Append a new message
-export function appendMessage(sender, content, type = 'public') {
+function appendMessage(sender, content, type = 'public') {
     const activeChat = document.querySelector('.list-group-item.active');
     if (!activeChat) return;
     
@@ -149,7 +151,7 @@ export function disableMessageInput() {
 }
 
 // Handle message submission with standardized signing
-export function handleMessageSubmit(e, configuration) {
+export function handleMessageSubmit(e) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();
@@ -166,7 +168,8 @@ export function handleMessageSubmit(e, configuration) {
             if (channel.key) {
                 // Private channel message
                 messageType = 'private';
-                content = encryptChannelMessage(message, channel.key);
+                e, n = encryptChannelMessage(message, channel.key);
+                content = packageMessage({encrypted: e, nonce: n}, 'private', channel.key);
             } else {
                 // Public channel message
                 messageType = 'public';
@@ -177,7 +180,16 @@ export function handleMessageSubmit(e, configuration) {
             const friend = configuration.friends.find(f => f.name === chatName);
             if (friend) {
                 messageType = 'direct';
-                content = encryptDirectMessage(message, friend.pubKey);
+                e, n, eph = encryptDirectMessage(message, friend.pubKey);
+                content = packageMessage(
+                    {
+                        encrypted: e,
+                        nonce: n,
+                        ephemeralPubKey: eph
+                    },
+                    'direct',
+                    recipientPubKey
+                );
             }
         }
 
