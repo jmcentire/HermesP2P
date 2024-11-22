@@ -1,31 +1,127 @@
 import { displayMessages, enableMessageInput } from './messages.js';
+import { generateKeypair, generateUsername } from './crypto.js';
 
-// Create action button helper
-function createActionButton(text, clickHandler, isEdit = false) {
-    const btn = document.createElement("button");
-    btn.className = `btn btn-sm px-0 py-0 ${isEdit ? 'me-1' : ''}`;
-    btn.style.backgroundColor = "#000033";
-    btn.style.color = "#FFFFFF";
-    btn.style.width = "15px";
-    btn.style.height = "15px";
-    btn.style.fontSize = "0.75rem";
-    btn.style.lineHeight = "1";
-    btn.style.display = "flex";
-    btn.style.alignItems = "center";
-    btn.style.justifyContent = "center";
-    
-    if (text === "edit-2") {
-        const icon = document.createElement("i");
-        icon.setAttribute("data-feather", "edit-2");
-        icon.style.width = "10px";
-        icon.style.height = "10px";
-        btn.appendChild(icon);
-    } else {
-        btn.innerHTML = text;
+
+
+// Get configuration from sessionStorage or initialize new one
+export function getConfiguration() {
+    const storedConfig = sessionStorage.getItem('hp2pConfig');
+    return storedConfig ? JSON.parse(storedConfig) : initializeNewConfig();
+}
+
+// Save configuration
+// TODO:  Encrypt on download w/ password
+export function saveConfiguration(config) {
+    sessionStorage.setItem('hp2pConfig', JSON.stringify(config));
+}
+
+// Initialize new configuration
+export function initializeNewConfig() {
+    const keypair = generateKeypair();
+    return {
+        user: {
+            name: generateUsername(),
+            ...keypair
+        },
+        channels: [
+            { name: "General" },
+            { name: "TechTalk" }
+        ],
+        friends: []
+    };
+}
+
+// Save and Exit functionality
+export function handleSaveExit() {
+    const config = JSON.parse(sessionStorage.getItem('hp2pConfig'));
+    if (!config) {
+        console.error('No configuration found');
+        return;
     }
     
-    btn.addEventListener("click", clickHandler);
-    return btn;
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hermesp2p-config.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    window.location.href = '/';
+}
+
+// Setup all event listeners
+export function setupEventListeners(configuration) {
+    // Set up the generate key button
+    document.getElementById('generateKeyBtn').addEventListener('click', () => {
+        const channelKey = document.getElementById('channelKey');
+        channelKey.value = generateChannelKey();
+    });
+
+    // Channel Modal
+    const channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    document.getElementById('addChannelBtn').addEventListener('click', () => {
+        document.getElementById('channelName').value = '';
+        document.getElementById('channelKey').value = '';
+        editingItem = null;
+        channelModal.show();
+    });
+
+    // Add Channel button handler
+    document.getElementById('saveChannelBtn').addEventListener('click', () => {
+        const name = document.getElementById('channelName').value.trim();
+        const key = document.getElementById('channelKey').value.trim();
+        if (addChannel(name, key, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addChannelModal')).hide();
+        }
+    });
+
+    // Friend Modal
+    const friendModal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    document.getElementById('addFriendBtn').addEventListener('click', () => {
+        document.getElementById('friendName').value = '';
+        document.getElementById('friendPubKey').value = '';
+        editingItem = null;
+        friendModal.show();
+    });
+
+    // Add Friend button handler
+    document.getElementById('saveFriendBtn').addEventListener('click', () => {
+        const name = document.getElementById('friendName').value.trim();
+        const pubKey = document.getElementById('friendPubKey').value.trim();
+        if (addFriend(name, pubKey, configuration, editingItem)) {
+            editingItem = null;
+            bootstrap.Modal.getInstance(document.getElementById('addFriendModal')).hide();
+        }
+    });
+
+    // Modal reset handlers
+    document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
+        editingItem = null;
+        document.getElementById('channelName').value = '';
+        document.getElementById('channelKey').value = '';
+        document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
+        document.getElementById('saveChannelBtn').textContent = 'Add Channel';
+    });
+
+    document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
+        editingItem = null;
+        document.getElementById('friendName').value = '';
+        document.getElementById('friendPubKey').value = '';
+        document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
+        document.getElementById('saveFriendBtn').textContent = 'Add Friend';
+    });
+
+    // Save & Exit button handler
+    document.getElementById('saveExitBtn').addEventListener('click', handleSaveExit);
+
+    // Message form submit handler
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) {
+        messageForm.addEventListener('submit', handleMessageSubmit);
+    }
 }
 
 // Channel management
@@ -134,9 +230,34 @@ export function removeFriend(name, configuration) {
     }
 }
 
-// Save configuration helper
-export function saveConfiguration(config) {
-    sessionStorage.setItem('hp2pConfig', JSON.stringify(config));
+
+
+// Create action button helper
+function createActionButton(text, clickHandler, isEdit = false) {
+    const btn = document.createElement("button");
+    btn.className = `btn btn-sm px-0 py-0 ${isEdit ? 'me-1' : ''}`;
+    btn.style.backgroundColor = "#000033";
+    btn.style.color = "#FFFFFF";
+    btn.style.width = "15px";
+    btn.style.height = "15px";
+    btn.style.fontSize = "0.75rem";
+    btn.style.lineHeight = "1";
+    btn.style.display = "flex";
+    btn.style.alignItems = "center";
+    btn.style.justifyContent = "center";
+    
+    if (text === "edit-2") {
+        const icon = document.createElement("i");
+        icon.setAttribute("data-feather", "edit-2");
+        icon.style.width = "10px";
+        icon.style.height = "10px";
+        btn.appendChild(icon);
+    } else {
+        btn.innerHTML = text;
+    }
+    
+    btn.addEventListener("click", clickHandler);
+    return btn;
 }
 
 // Populate sidebar with channels and friends

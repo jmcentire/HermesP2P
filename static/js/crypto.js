@@ -43,18 +43,44 @@ export function generateUsername() {
     return `${adjectives[Math.floor(Math.random() * adjectives.length)]}${nouns[Math.floor(Math.random() * nouns.length)]}${randomNum}`;
 }
 
-// Initialize new configuration
-export function initializeNewConfig() {
-    const keypair = generateKeypair();
-    return {
-        user: {
-            name: generateUsername(),
-            ...keypair
+
+// Uses symmetric encryption for private channels
+function encryptChannelMessage(plaintext, channelKey) {
+    const nonce = randomBytes(secretbox.nonceLength);
+    const messageUint8 = new TextEncoder().encode(plaintext);
+    const keyUint8 = base64Decode(channelKey);
+
+    const encrypted = secretbox(messageUint8, nonce, keyUint8);
+
+    return packageMessage(
+        {
+            encrypted: base64Encode(encrypted),
+            nonce: base64Encode(nonce)
         },
-        channels: [
-            { name: "General" },
-            { name: "TechTalk" }
-        ],
-        friends: []
-    };
+        'private',
+        channelKey
+    );
+}
+
+function encryptDirectMessage(plaintext, recipientPubKey) {
+    const ephemeralKeyPair = box.keyPair();
+    const nonce = randomBytes(box.nonceLength);
+    const messageUint8 = new TextEncoder().encode(plaintext);
+
+    const encrypted = box(
+        messageUint8,
+        nonce,
+        base64Decode(recipientPubKey),
+        ephemeralKeyPair.secretKey
+    );
+
+    return packageMessage(
+        {
+            encrypted: base64Encode(encrypted),
+            nonce: base64Encode(nonce),
+            ephemeralPubKey: base64Encode(ephemeralKeyPair.publicKey)
+        },
+        'direct',
+        recipientPubKey
+    );
 }

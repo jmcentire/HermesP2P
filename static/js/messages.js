@@ -3,14 +3,8 @@ import { signMessage } from './crypto.js';
 // Message history storage
 const messageHistory = {};
 
-// Format timestamp for messages
-function formatTimestamp() {
-    const now = new Date();
-    return now.toLocaleTimeString();
-}
-
 // Display messages in the UI
-export function displayMessages(name = null, configuration = null) {
+export function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
     const messagesHeader = document.getElementById("messagesHeader");
     
@@ -79,7 +73,8 @@ export function appendMessage(sender, content, type = 'public') {
         messageHistory[chatName] = [];
     }
     
-    const timestamp = formatTimestamp();
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString();
     let displayContent = content;
     
     // Add appropriate indicators based on message type
@@ -142,5 +137,74 @@ export function enableMessageInput(configuration) {
         
         // Broadcast message (to be implemented)
         // broadcastMessage(messagePackage);
+    };
+}
+
+export function disableMessageInput() {
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    messageForm.classList.add('disabled');
+    messageInput.disabled = true;
+    messageInput.placeholder = 'Select a chat to send messages';
+}
+
+// Handle message submission with standardized signing
+export function handleMessageSubmit(e) {
+    e.preventDefault();
+    const messageInput = document.getElementById("messageInput");
+    const message = messageInput.value.trim();
+    const activeChat = document.querySelector('.list-group-item.active');
+    
+    if (message && activeChat) {
+        const chatName = activeChat.querySelector('span').textContent;
+        const isChannel = configuration.channels.some(channel => channel.name === chatName);
+        let content;
+        let messageType;
+        
+        if (isChannel) {
+            const channel = configuration.channels.find(ch => ch.name === chatName);
+            if (channel.key) {
+                // Private channel message
+                messageType = 'private';
+                content = encryptChannelMessage(message, channel.key);
+            } else {
+                // Public channel message
+                messageType = 'public';
+                content = packageMessage(message, messageType, chatName);
+            }
+        } else {
+            // Direct message
+            const friend = configuration.friends.find(f => f.name === chatName);
+            if (friend) {
+                messageType = 'direct';
+                content = encryptDirectMessage(message, friend.pubKey);
+            }
+        }
+
+        // Dispatch message broadcast event
+        window.dispatchEvent(new CustomEvent('messageBroadcast', {
+            detail: content
+        }));
+
+        // Append message to UI and clear input
+        appendMessage(configuration.user.name, message, messageType);
+        messageInput.value = '';
+        
+        // Clear input
+        messageInput.value = '';
+    }
+}
+
+function packageMessage(content, type, to) {
+    return {
+        type: type,
+        timestamp: Date.now(),
+        to: to,
+        from: {
+            name: configuration.user.name,
+            pubKey: configuration.user.pubKey
+        },
+        signature: signMessage(typeof content === 'string' ? content : JSON.stringify(content)),
+        message: content
     };
 }
