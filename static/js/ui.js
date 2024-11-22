@@ -61,7 +61,9 @@ export function setupEventListeners(configuration) {
     // Message Form
     const messageForm = document.getElementById('messageForm');
     if (messageForm) {
+        if (messageForm) {
         messageForm.addEventListener('submit', (e) => handleMessageSubmit(e, configuration));
+    }
     }
 }
 

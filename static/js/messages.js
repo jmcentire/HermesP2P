@@ -151,7 +151,7 @@ export function disableMessageInput() {
 }
 
 // Handle message submission with standardized signing
-export function handleMessageSubmit(e) {
+export function handleMessageSubmit(e, configuration) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();
@@ -168,8 +168,8 @@ export function handleMessageSubmit(e) {
             if (channel.key) {
                 // Private channel message
                 messageType = 'private';
-                e, n = encryptChannelMessage(message, channel.key);
-                content = packageMessage({encrypted: e, nonce: n}, 'private', channel.key);
+                const [encrypted, nonce] = encryptChannelMessage(message, channel.key);
+                content = packageMessage({encrypted, nonce}, 'private', channel.key);
             } else {
                 // Public channel message
                 messageType = 'public';
@@ -180,15 +180,15 @@ export function handleMessageSubmit(e) {
             const friend = configuration.friends.find(f => f.name === chatName);
             if (friend) {
                 messageType = 'direct';
-                e, n, eph = encryptDirectMessage(message, friend.pubKey);
+                const [encrypted, nonce, ephemeralPubKey] = encryptDirectMessage(message, friend.pubKey);
                 content = packageMessage(
                     {
-                        encrypted: e,
-                        nonce: n,
-                        ephemeralPubKey: eph
+                        encrypted,
+                        nonce,
+                        ephemeralPubKey
                     },
                     'direct',
-                    recipientPubKey
+                    friend.pubKey
                 );
             }
         }
