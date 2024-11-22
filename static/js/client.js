@@ -1,31 +1,20 @@
-import { generateChannelKey } from './crypto.js';
-import { displayMessages, enableMessageInput, disableMessageInput, handleMessageSubmit } from './messages.js';
-import { 
-    populateSidebar, 
-    addChannel, 
-    addFriend,
-    editChannel, 
-    editFriend,
-    getConfiguration,
-    saveConfiguration,
-    handleSaveExit,
-    setupEventListeners
-} from './config.js';
+import { getConfiguration } from './config.js';
+import { initializeUI } from './ui.js';
+import { handleMessageSubmit } from './messages.js';
 
 // Get configuration from sessionStorage or initialize new one
 const configuration = getConfiguration();
 
-// Initialize event listeners when document is ready
+// Initialize when document is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Feather Icons
-    feather.replace();
+    // Initialize UI components
+    initializeUI(configuration);
 
-    // Initialize the sidebar with the current configuration
-    populateSidebar(configuration);
-    displayMessages();
-
-    // Setup all event listeners
-    setupEventListeners(configuration);
+    // Setup message form handler
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) {
+        messageForm.addEventListener('submit', handleMessageSubmit);
+    }
 
     // Clear session storage when window is closed or refreshed
     window.addEventListener('beforeunload', () => {

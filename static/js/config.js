@@ -1,5 +1,8 @@
 import { displayMessages, enableMessageInput } from './messages.js';
-import { generateKeypair, generateUsername } from './crypto.js';
+import { generateKeypair, generateUsername, generateChannelKey } from './crypto.js';
+// Module level variable for tracking editing state
+let editingItem = null;
+
 
 
 
@@ -227,6 +230,17 @@ export function removeFriend(name, configuration) {
         configuration.friends.splice(index, 1);
         saveConfiguration(configuration);
         populateSidebar(configuration);
+// Edit channel function
+export function editChannel(channel) {
+    const channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    document.getElementById('channelName').value = channel.name;
+    document.getElementById('channelKey').value = channel.key || '';
+    document.querySelector('#addChannelModal .modal-title').textContent = 'Edit Channel';
+    document.getElementById('saveChannelBtn').textContent = 'Save Changes';
+    editingItem = { type: 'channel', original: channel };
+    channelModal.show();
+}
+
     }
 }
 
