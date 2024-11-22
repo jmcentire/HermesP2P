@@ -119,8 +119,8 @@ function setupFriendModalEvents(configuration) {
         saveFriendBtn.addEventListener('click', () => {
             const friendName = document.getElementById('friendName').value;
             const friendPubKey = document.getElementById('friendPubKey').value;
-            if (addFriend(friendName, friendPubKey, configuration, editingItem)) {
-                editingItem = null;
+            if (addFriend(friendName, friendPubKey, configuration, getEditingItem())) {
+                clearEditingItem();
                 document.getElementById('friendName').value = '';
                 document.getElementById('friendPubKey').value = '';
                 friendModal.hide();
@@ -130,10 +130,6 @@ function setupFriendModalEvents(configuration) {
 }
 
 // Export UI state modifiers
-export function setEditingItem(item) {
-    editingItem = item;
-}
-
 export function showChannelModal() {
     channelModal.show();
 }
