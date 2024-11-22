@@ -1,9 +1,7 @@
-import { getConfiguration } from './config.js';
 import { signMessage, encryptChannelMessage, encryptDirectMessage } from './crypto.js';
 
 // Message history storage
 const messageHistory = {};
-// Remove this line as configuration is passed as parameter
 
 // Display messages in the UI
 export function displayMessages(name = null) {
@@ -150,8 +148,12 @@ export function disableMessageInput() {
     messageInput.placeholder = 'Select a chat to send messages';
 }
 
-// Handle message submission with standardized signing
+// Handle message submission with standardized signing and configuration validation
 export function handleMessageSubmit(e, configuration) {
+    if (!configuration || !configuration.user) {
+        console.error('Invalid configuration in handleMessageSubmit');
+        return;
+    }
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();
@@ -208,6 +210,11 @@ export function handleMessageSubmit(e, configuration) {
 }
 
 function packageMessage(content, type, to, configuration) {
+    if (!configuration || !configuration.user) {
+        console.error('Invalid configuration passed to packageMessage');
+        return null;
+    }
+    const messageContent = typeof content === 'string' ? content : JSON.stringify(content);
     return {
         type: type,
         timestamp: Date.now(),
@@ -216,7 +223,7 @@ function packageMessage(content, type, to, configuration) {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey
         },
-        signature: signMessage(typeof content === 'string' ? content : JSON.stringify(content), configuration.user.privKey),
+        signature: signMessage(messageContent, configuration.user.privKey),
         message: content
     };
 }
