@@ -1,7 +1,18 @@
 // UI-related functionality
-import { addChannel, addFriend, populateSidebar, handleSaveExit, editChannel, editFriend, setEditingItem, getEditingItem, clearEditingItem } from './config.js';
-import { generateChannelKey } from './crypto.js';
-import { handleMessageSubmit, disableMessageInput, displayMessages, enableMessageInput } from './messages.js';
+import {
+    addChannel,
+    addFriend,
+    populateSidebar,
+    handleSaveExit,
+    getEditingItem,
+    clearEditingItem,
+} from "./config.js";
+import { generateChannelKey } from "./crypto.js";
+import {
+    handleMessageSubmit,
+    disableMessageInput,
+    displayMessages,
+} from "./messages.js";
 
 // UI state management
 let channelModal = null;
@@ -13,8 +24,12 @@ export function initializeUI(configuration) {
     feather.replace();
 
     // Initialize modals
-    channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
-    friendModal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    channelModal = new bootstrap.Modal(
+        document.getElementById("addChannelModal"),
+    );
+    friendModal = new bootstrap.Modal(
+        document.getElementById("addFriendModal"),
+    );
 
     // Initialize the sidebar
     populateSidebar(configuration);
@@ -26,13 +41,13 @@ export function initializeUI(configuration) {
     setupEventListeners(configuration);
 
     // Add event listener for message logging
-    window.addEventListener('messageBroadcast', (event) => {
-        console.log('Message Broadcast Event:');
+    window.addEventListener("messageBroadcast", (event) => {
+        console.log("Message Broadcast Event:");
         console.log(JSON.stringify(event.detail, null, 2));
     });
 
     // Clear session storage when window is closed or refreshed
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener("beforeunload", () => {
         sessionStorage.clear();
     });
 }
@@ -46,52 +61,60 @@ export function setupEventListeners(configuration) {
     setupFriendModalEvents(configuration);
 
     // Generate Key Button
-    document.getElementById('generateKeyBtn').addEventListener('click', () => {
-        const channelKey = document.getElementById('channelKey');
+    document.getElementById("generateKeyBtn").addEventListener("click", () => {
+        const channelKey = document.getElementById("channelKey");
         channelKey.value = generateChannelKey();
     });
 
     // Save & Exit Button
-    const saveExitBtn = document.getElementById('saveExitBtn');
+    const saveExitBtn = document.getElementById("saveExitBtn");
     if (saveExitBtn) {
-        saveExitBtn.addEventListener('click', handleSaveExit);
+        saveExitBtn.addEventListener("click", handleSaveExit);
     }
 
     // Message Form
-    const messageForm = document.getElementById('messageForm');
+    const messageForm = document.getElementById("messageForm");
     if (messageForm) {
         if (messageForm) {
-        messageForm.addEventListener('submit', (e) => handleMessageSubmit(e, configuration));
-    }
+            messageForm.addEventListener("submit", (e) =>
+                handleMessageSubmit(e, configuration),
+            );
+        }
     }
 }
 
 // Channel Modal Events Setup
 function setupChannelModalEvents(configuration) {
-    document.getElementById('addChannelBtn').addEventListener('click', () => {
-        document.getElementById('channelName').value = '';
-        document.getElementById('channelKey').value = '';
+    document.getElementById("addChannelBtn").addEventListener("click", () => {
+        document.getElementById("channelName").value = "";
+        document.getElementById("channelKey").value = "";
         clearEditingItem();
-        channelModal.show();
+        showChannelModal();
     });
 
-    document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
-        clearEditingItem();
-        document.getElementById('channelName').value = '';
-        document.getElementById('channelKey').value = '';
-        document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
-        document.getElementById('saveChannelBtn').textContent = 'Add Channel';
-    });
+    document
+        .getElementById("addChannelModal")
+        .addEventListener("hidden.bs.modal", () => {
+            clearEditingItem();
+            document.getElementById("channelName").value = "";
+            document.getElementById("channelKey").value = "";
+            document.querySelector(
+                "#addChannelModal .modal-title",
+            ).textContent = "Add Channel";
+            document.getElementById("saveChannelBtn").textContent =
+                "Add Channel";
+        });
 
-    const saveChannelBtn = document.getElementById('saveChannelBtn');
+    const saveChannelBtn = document.getElementById("saveChannelBtn");
     if (saveChannelBtn) {
-        saveChannelBtn.addEventListener('click', () => {
-            const channelName = document.getElementById('channelName').value;
-            const channelKey = document.getElementById('channelKey').value;
+        saveChannelBtn.addEventListener("click", () => {
+            const channelName = document.getElementById("channelName").value;
+            const channelKey = document.getElementById("channelKey").value;
             if (addChannel(channelName, channelKey, configuration)) {
-                channelModal.hide();
-                document.getElementById('channelName').value = '';
-                document.getElementById('channelKey').value = '';
+                clearEditingItem();
+                document.getElementById("channelName").value = "";
+                document.getElementById("channelKey").value = "";
+                hideChannelModal();
             }
         });
     }
@@ -99,49 +122,58 @@ function setupChannelModalEvents(configuration) {
 
 // Friend Modal Events Setup
 function setupFriendModalEvents(configuration) {
-    document.getElementById('addFriendBtn').addEventListener('click', () => {
-        document.getElementById('friendName').value = '';
-        document.getElementById('friendPubKey').value = '';
+    document.getElementById("addFriendBtn").addEventListener("click", () => {
+        document.getElementById("friendName").value = "";
+        document.getElementById("friendPubKey").value = "";
         clearEditingItem();
-        friendModal.show();
+        showFriendModal();
     });
 
-    document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
-        clearEditingItem();
-        document.getElementById('friendName').value = '';
-        document.getElementById('friendPubKey').value = '';
-        document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
-        document.getElementById('saveFriendBtn').textContent = 'Add Friend';
-    });
+    document
+        .getElementById("addFriendModal")
+        .addEventListener("hidden.bs.modal", () => {
+            clearEditingItem();
+            document.getElementById("friendName").value = "";
+            document.getElementById("friendPubKey").value = "";
+            document.querySelector("#addFriendModal .modal-title").textContent =
+                "Add Friend";
+            document.getElementById("saveFriendBtn").textContent = "Add Friend";
+        });
 
-    const saveFriendBtn = document.getElementById('saveFriendBtn');
+    const saveFriendBtn = document.getElementById("saveFriendBtn");
     if (saveFriendBtn) {
-        saveFriendBtn.addEventListener('click', () => {
-            const friendName = document.getElementById('friendName').value;
-            const friendPubKey = document.getElementById('friendPubKey').value;
-            if (addFriend(friendName, friendPubKey, configuration, getEditingItem())) {
+        saveFriendBtn.addEventListener("click", () => {
+            const friendName = document.getElementById("friendName").value;
+            const friendPubKey = document.getElementById("friendPubKey").value;
+            if (
+                addFriend(
+                    friendName,
+                    friendPubKey,
+                    configuration,
+                    getEditingItem(),
+                )
+            ) {
                 clearEditingItem();
-                document.getElementById('friendName').value = '';
-                document.getElementById('friendPubKey').value = '';
-                friendModal.hide();
+                document.getElementById("friendName").value = "";
+                document.getElementById("friendPubKey").value = "";
+                hideFriendModal();
             }
         });
     }
-}
-
-// Export UI state modifiers
-export function showChannelModal() {
-    channelModal.show();
 }
 
 export function showFriendModal() {
     friendModal.show();
 }
 
-export function hideChannelModal() {
-    channelModal.hide();
-}
-
 export function hideFriendModal() {
     friendModal.hide();
+}
+
+export function showChannelModal() {
+    channelModal.show();
+}
+
+export function hideChannelModal() {
+    channelModal.hide();
 }

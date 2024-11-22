@@ -1,5 +1,5 @@
-import { getConfiguration  } from './config.js';
-import { initializeUI  } from './ui.js';
+import { getConfiguration } from './config.js';
+import { initializeUI } from './ui.js';
 
 const configuration = getConfiguration();
 

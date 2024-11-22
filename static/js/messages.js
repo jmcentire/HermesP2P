@@ -3,6 +3,13 @@ import { signMessage, encryptChannelMessage, encryptDirectMessage } from './cryp
 // Message history storage
 const messageHistory = {};
 
+export function updateChannelName(oldName, newName) {
+    if (messageHistory.hasOwnProperty(oldName)) {
+        messageHistory[newName] = messageHistory[oldName];
+        messageHistory[oldName] = null;
+    }
+}
+
 // Display messages in the UI
 export function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
