@@ -3,7 +3,7 @@ import { signMessage, encryptChannelMessage, encryptDirectMessage } from './cryp
 
 // Message history storage
 const messageHistory = {};
-const configuration = getConfiguration();
+// Remove this line as configuration is passed as parameter
 
 // Display messages in the UI
 export function displayMessages(name = null) {
@@ -173,7 +173,7 @@ export function handleMessageSubmit(e) {
             } else {
                 // Public channel message
                 messageType = 'public';
-                content = packageMessage(message, messageType, chatName);
+                content = packageMessage(message, messageType, chatName, configuration);
             }
         } else {
             // Direct message
@@ -207,7 +207,7 @@ export function handleMessageSubmit(e) {
     }
 }
 
-function packageMessage(content, type, to) {
+function packageMessage(content, type, to, configuration) {
     return {
         type: type,
         timestamp: Date.now(),
@@ -216,7 +216,7 @@ function packageMessage(content, type, to) {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey
         },
-        signature: signMessage(typeof content === 'string' ? content : JSON.stringify(content)),
+        signature: signMessage(typeof content === 'string' ? content : JSON.stringify(content), configuration.user.privKey),
         message: content
     };
 }

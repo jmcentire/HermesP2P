@@ -34,6 +34,10 @@ function generateNonce() {
 }
 
 export function signMessage(message, privateKey) {
+    if (!message || !privateKey) {
+        console.error('Message or private key is missing');
+        return '';
+    }
     const messageUint8 = new TextEncoder().encode(message);
     return base64Encode(sign.detached(messageUint8, base64Decode(privateKey)));
 }
@@ -45,7 +49,7 @@ export function encryptChannelMessage(plaintext, channelKey) {
 
     const encrypted = secretbox(messageUint8, nonce, keyUint8);
 
-    return base64Encode(encrypted), base64Encode(nonce);
+    return [base64Encode(encrypted), base64Encode(nonce)];
 }
 
 export function encryptDirectMessage(plaintext, recipientPubKey) {
@@ -60,5 +64,5 @@ export function encryptDirectMessage(plaintext, recipientPubKey) {
         ephemeralKeyPair.secretKey
     );
 
-    return base64Encode(encrypted), base64Encode(nonce), base64Encode(ephemeralKeyPair.publicKey);
+    return [base64Encode(encrypted), base64Encode(nonce), base64Encode(ephemeralKeyPair.publicKey)];
 }

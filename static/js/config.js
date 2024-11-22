@@ -229,6 +229,35 @@ export function addFriend(name, pubKey, configuration, editingItem = null) {
     populateSidebar(configuration);
     return true;
 }
+// Channel editing functionality
+export function editChannel(channel) {
+    const channelNameInput = document.getElementById('channelName');
+    const channelKeyInput = document.getElementById('channelKey');
+    const modalTitle = document.querySelector('#addChannelModal .modal-title');
+    const saveButton = document.getElementById('saveChannelBtn');
+    
+    channelNameInput.value = channel.name;
+    channelKeyInput.value = channel.key || '';
+    modalTitle.textContent = 'Edit Channel';
+    saveButton.textContent = 'Save Changes';
+    
+    showChannelModal();
+}
+
+// Friend editing functionality
+export function editFriend(friend) {
+    const friendNameInput = document.getElementById('friendName');
+    const friendPubKeyInput = document.getElementById('friendPubKey');
+    const modalTitle = document.querySelector('#addFriendModal .modal-title');
+    const saveButton = document.getElementById('saveFriendBtn');
+    
+    friendNameInput.value = friend.name;
+    friendPubKeyInput.value = friend.pubKey;
+    modalTitle.textContent = 'Edit Friend';
+    saveButton.textContent = 'Save Changes';
+    
+    showFriendModal();
+}
 
 export function removeFriend(name, configuration) {
     const index = configuration.friends.findIndex(friend => friend.name === name);
