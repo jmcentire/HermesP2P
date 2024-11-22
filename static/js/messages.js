@@ -149,7 +149,7 @@ export function disableMessageInput() {
 }
 
 // Handle message submission with standardized signing
-export function handleMessageSubmit(e) {
+export function handleMessageSubmit(e, configuration) {
     e.preventDefault();
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();

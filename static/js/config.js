@@ -176,6 +176,17 @@ export function addChannel(name, key = '', configuration, editingItem = null) {
     return true;
 }
 
+// Edit channel function
+export function editChannel(channel) {
+    const channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
+    document.getElementById('channelName').value = channel.name;
+    document.getElementById('channelKey').value = channel.key || '';
+    document.querySelector('#addChannelModal .modal-title').textContent = 'Edit Channel';
+    document.getElementById('saveChannelBtn').textContent = 'Save Changes';
+    editingItem = { type: 'channel', original: channel };
+    channelModal.show();
+}
+
 export function removeChannel(name, configuration) {
     const index = configuration.channels.findIndex(channel => channel.name === name);
     if (index !== -1) {
@@ -230,20 +241,8 @@ export function removeFriend(name, configuration) {
         configuration.friends.splice(index, 1);
         saveConfiguration(configuration);
         populateSidebar(configuration);
-// Edit channel function
-export function editChannel(channel) {
-    const channelModal = new bootstrap.Modal(document.getElementById('addChannelModal'));
-    document.getElementById('channelName').value = channel.name;
-    document.getElementById('channelKey').value = channel.key || '';
-    document.querySelector('#addChannelModal .modal-title').textContent = 'Edit Channel';
-    document.getElementById('saveChannelBtn').textContent = 'Save Changes';
-    editingItem = { type: 'channel', original: channel };
-    channelModal.show();
-}
-
     }
 }
-
 
 
 // Create action button helper
