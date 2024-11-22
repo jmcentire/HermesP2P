@@ -1,6 +1,18 @@
 import { displayMessages, enableMessageInput, handleMessageSubmit } from './messages.js';
 import { generateKeypair, generateUsername, generateChannelKey } from './crypto.js';
 
+// UI state management
+let editingItem = null;
+export function setEditingItem(item) {
+    editingItem = item;
+}
+export function getEditingItem() {
+    return editingItem;
+}
+export function clearEditingItem() {
+    editingItem = null;
+}
+
 // Get configuration from sessionStorage or initialize new one
 export function getConfiguration() {
     const storedConfig = sessionStorage.getItem('hp2pConfig');

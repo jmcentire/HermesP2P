@@ -1,10 +1,9 @@
 // UI-related functionality
-import { addChannel, addFriend, populateSidebar, handleSaveExit, editChannel, editFriend } from './config.js';
+import { addChannel, addFriend, populateSidebar, handleSaveExit, editChannel, editFriend, setEditingItem, getEditingItem, clearEditingItem } from './config.js';
 import { generateChannelKey } from './crypto.js';
 import { handleMessageSubmit, disableMessageInput, displayMessages, enableMessageInput } from './messages.js';
 
 // UI state management
-let editingItem = null;
 let channelModal = null;
 let friendModal = null;
 
@@ -72,12 +71,12 @@ function setupChannelModalEvents(configuration) {
     document.getElementById('addChannelBtn').addEventListener('click', () => {
         document.getElementById('channelName').value = '';
         document.getElementById('channelKey').value = '';
-        editingItem = null;
+        clearEditingItem();
         channelModal.show();
     });
 
     document.getElementById('addChannelModal').addEventListener('hidden.bs.modal', () => {
-        editingItem = null;
+        clearEditingItem();
         document.getElementById('channelName').value = '';
         document.getElementById('channelKey').value = '';
         document.querySelector('#addChannelModal .modal-title').textContent = 'Add Channel';
@@ -103,12 +102,12 @@ function setupFriendModalEvents(configuration) {
     document.getElementById('addFriendBtn').addEventListener('click', () => {
         document.getElementById('friendName').value = '';
         document.getElementById('friendPubKey').value = '';
-        editingItem = null;
+        clearEditingItem();
         friendModal.show();
     });
 
     document.getElementById('addFriendModal').addEventListener('hidden.bs.modal', () => {
-        editingItem = null;
+        clearEditingItem();
         document.getElementById('friendName').value = '';
         document.getElementById('friendPubKey').value = '';
         document.querySelector('#addFriendModal .modal-title').textContent = 'Add Friend';
