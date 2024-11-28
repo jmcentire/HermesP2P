@@ -56,7 +56,7 @@
             <img src="{{ url_for('static', filename='images/hermesp2p.png') }}" alt="HermesP2P Logo" class="index_logo">
             <h1 class="text-center mb-0">Welcome to HermesP2P</h1>
         </div>
-        <p class="text-center fs-5 mt-2 mb-4 text-secondary"><em>Private. Ephemeral. Decentralized.</em></p>
+        <p class="text-center fs-5 mt-2 mb-4 text-secondary"><em>Safe. Secure. Soverign.</em></p>
 
         <h2>What is HermesP2P?</h2>
         <p>
@@ -126,22 +126,42 @@
         <h2>Support the Project</h2>
         <p>HermesP2P is an open-source project dedicated to providing secure, decentralized communication. Your support helps us maintain and improve the platform.</p>
         <div class="donation-options p-4 bg-light rounded">
-            <h3 class="h5 mb-3">Ways to Support:</h3>
-            <ul class="list-unstyled">
-                <li class="mb-3">
-                    <strong>🪙 Cryptocurrency:</strong><br>
-                    <small class="d-block mb-2">BTC: bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</small>
-                    <small class="d-block">ETH: 0x71C7656EC7ab88b098defB751B7401B5f6d8976F</small>
-                </li>
-                <li class="mb-3">
-                    <strong>💻 Contribute Code:</strong><br>
-                    <a href="https://github.com/your-username/hermesp2p" target="_blank" class="text-decoration-none">Visit our GitHub repository</a>
-                </li>
-                <li>
-                    <strong>📢 Spread the Word:</strong><br>
-                    Share HermesP2P with your network and help us grow the community.
-                </li>
-            </ul>
+            <h3 class="h5 mb-4 text-center">Ways to Support:</h3>
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h4 class="h6 mb-3">💳 Credit Card</h4>
+                            <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+                            <stripe-buy-button
+                                buy-button-id="buy_btn_1QQ0q4CfzH6JBjFkMRXGE0En"
+                                publishable-key="pk_live_51QQ0dRCfzH6JBjFkQIMvCqw2f5WBX1V4vREVHMgRdaQmRK3ofdDhZpaksE7pGwNwrkbW5BGKGcACXsfaPLUcGoWf00hACEXNxq">
+                            </stripe-buy-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="h6 mb-3 text-center">🪙 Cryptocurrency</h4>
+                            <div class="crypto-addresses">
+                                <div class="mb-3">
+                                    <strong class="d-block mb-1">Bitcoin (BTC):</strong>
+                                    <small class="d-block text-break">bc1qz5s4fx5kwj7cnhujpeg3z56f40lf2mwdzu2gfr</small>
+                                </div>
+                                <div class="mb-3">
+                                    <strong class="d-block mb-1">Ethereum (ETH):</strong>
+                                    <small class="d-block text-break">0x81d2884b970b6F96004Fbed0a593be7D22Bb46AA</small>
+                                </div>
+                                <div>
+                                    <strong class="d-block mb-1">Nano:</strong>
+                                    <small class="d-block text-break">nano_3rq9q17s111bq41kmochax4wexarzsemo3kmzxiqrenhbju93jdm77fhza4f</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <script>
