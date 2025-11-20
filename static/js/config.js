@@ -323,7 +323,7 @@ function createActionButton(text, clickHandler, isEdit = false) {
         icon.style.height = "10px";
         btn.appendChild(icon);
     } else {
-        btn.innerHTML = text;
+        btn.textContent = text;
     }
 
     btn.addEventListener("click", clickHandler);
