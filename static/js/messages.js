@@ -26,18 +26,37 @@ export function displayMessages(name = null) {
         messageHistory[name].forEach(msg => {
             const messageElement = document.createElement("div");
             messageElement.className = "message mb-2 p-2 border-bottom";
-            messageElement.innerHTML = `
-                <div class="d-flex justify-content-between align-items-baseline">
-                    <strong class="text-secondary">${msg.sender}</strong>
-                    <small class="text-muted">${msg.timestamp}</small>
-                </div>
-                <div class="message-content mt-1">${msg.content}</div>
-            `;
+            
+            // Create header div with sender and timestamp
+            const headerDiv = document.createElement("div");
+            headerDiv.className = "d-flex justify-content-between align-items-baseline";
+            
+            const senderStrong = document.createElement("strong");
+            senderStrong.className = "text-secondary";
+            senderStrong.textContent = msg.sender;
+            
+            const timestampSmall = document.createElement("small");
+            timestampSmall.className = "text-muted";
+            timestampSmall.textContent = msg.timestamp;
+            
+            headerDiv.appendChild(senderStrong);
+            headerDiv.appendChild(timestampSmall);
+            
+            // Create content div
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "message-content mt-1";
+            contentDiv.textContent = msg.content;
+            
+            messageElement.appendChild(headerDiv);
+            messageElement.appendChild(contentDiv);
             messagesDiv.appendChild(messageElement);
         });
         
         if (messageHistory[name].length === 0) {
-            messagesDiv.innerHTML = `<p class="text-center text-muted">Messages for <strong>${name}</strong> will appear here.</p>`;
+            const emptyMessage = document.createElement("p");
+            emptyMessage.className = "text-center text-muted";
+            emptyMessage.textContent = `Messages for ${name} will appear here.`;
+            messagesDiv.appendChild(emptyMessage);
         }
     } else {
         messagesHeader.textContent = "Messages";
