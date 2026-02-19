@@ -1,6 +1,12 @@
 # HermesP2P
 
-HermesP2P is a decentralized, transient, peer-to-peer communication network with a cryptographically secure messaging overlay. Designed for simplicity, security, and scalability, HermesP2P eliminates the need for centralized servers while providing a robust platform for private and public messaging.
+Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.
+
+HermesP2P is a transient communication network with a cryptographically secure messaging overlay. Every node contributes to the network's resilience — no centralized servers store or relay your messages.
+
+**Website:** [hp2p.net](https://hp2p.net)
+
+**Book:** [*Privacy*](https://a.co/d/05PSJFBK) — the theoretical foundation behind HermesP2P's design decisions around ephemeral communication, key sovereignty, and decentralized trust.
 
 ## Key Features
 
@@ -39,7 +45,7 @@ HermesP2P is a decentralized, transient, peer-to-peer communication network with
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/hermesp2p.git
+   git clone https://github.com/jmcentire/HermesP2P.git
    ```
 2. Install dependencies:
    ```bash
