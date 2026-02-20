@@ -98,3 +98,85 @@ h1, h2 {
 .h4, .h5 {
     color: #000033 !important;
 }
+
+/* Network Traffic Panel */
+#network-panel {
+    border-top: 1px solid #dee2e6;
+    padding-top: 4px;
+}
+
+#network-panel-header {
+    cursor: pointer;
+}
+
+.network-label {
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#network-panel-body {
+    background: #0a0a1a;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    padding: 6px 8px;
+    border-radius: 4px;
+    max-height: 140px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.network-entry {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1px 0;
+}
+
+.network-meta {
+    color: #555;
+}
+
+.network-type {
+    font-weight: bold;
+    padding: 0 3px;
+    border-radius: 2px;
+    font-size: 0.65rem;
+}
+
+.network-type-public {
+    color: #0f0;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.network-type-private {
+    color: #ff0;
+    background: rgba(255, 255, 0, 0.1);
+}
+
+.network-type-direct {
+    color: #0af;
+    background: rgba(0, 170, 255, 0.1);
+}
+
+.network-channel {
+    color: #0af;
+}
+
+.network-sender {
+    color: #aaa;
+}
+
+.network-plaintext {
+    color: #0c0;
+}
+
+.network-ciphertext {
+    color: #444;
+    font-style: italic;
+    letter-spacing: -0.5px;
+}

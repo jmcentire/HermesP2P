@@ -9,6 +9,7 @@ import {
     generateUsername,
     generateChannelKey,
 } from "./crypto.js";
+import { BOT_PUBLIC_KEYS } from "./bot-identities.js";
 import {
     showFriendModal,
     hideFriendModal,
@@ -50,7 +51,7 @@ function initializeNewConfig() {
             ...keypair,
         },
         channels: [{ name: "General" }, { name: "TechTalk" }],
-        friends: [],
+        friends: [...BOT_PUBLIC_KEYS],
     };
 }
 

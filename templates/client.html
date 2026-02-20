@@ -103,13 +103,24 @@
             </div>
             <div class="col-md-9 py-3">
                 <h2 class="h4 mb-4" id="messagesHeader">Messages</h2>
-                <div id="messages" class="border rounded p-3 mb-3" style="height: calc(100vh - 250px); overflow-y: auto;">
+                <div id="messages" class="border rounded p-3 mb-3" style="height: calc(100vh - 320px); overflow-y: auto;">
                 </div>
                 <div class="message-input-container">
                     <form id="messageForm" class="d-flex gap-2">
                         <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." required>
                         <button type="submit" class="btn btn-secondary">Send</button>
                     </form>
+                </div>
+
+                <!-- Network Traffic Panel -->
+                <div id="network-panel" class="mt-2">
+                    <div id="network-panel-header" class="d-flex align-items-center">
+                        <button id="network-panel-toggle" class="btn btn-sm px-2 py-0 me-2" style="background: #000033; color: #0f0; font-family: monospace; font-size: 0.7rem;">
+                            <span class="toggle-indicator">&#9654;</span> NETWORK
+                        </button>
+                        <span class="network-label">mesh traffic</span>
+                    </div>
+                    <div id="network-panel-body" style="display: none;"></div>
                 </div>
             </div>
         </div>

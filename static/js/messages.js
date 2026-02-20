@@ -4,7 +4,7 @@ import { padMessage } from './padding.js';
 import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
 import { broadcastMessage } from './network.js';
 
-// Message history storage
+// Message history storage — also used by bots.js via injectBotMessage
 const messageHistory = {};
 
 let messageIdCounter = 0;
@@ -152,6 +152,11 @@ export function enableMessageInput(configuration) {
             broadcastMessage(paddedFrame);
             messageInput.value = '';
             appendMessage(configuration.user.name, message, messageType);
+
+            // Notify bots about outgoing DMs
+            window.dispatchEvent(new CustomEvent('hermesBotCheck', {
+                detail: { to: chatName, type: messageType }
+            }));
         } catch (err) {
             if (err instanceof RangeError) {
                 appendMessage('System', 'Message too long (max 64KB)', 'public');
@@ -160,6 +165,42 @@ export function enableMessageInput(configuration) {
             }
         }
     };
+}
+
+/**
+ * Inject a bot message into message history and refresh display if active.
+ * Used by bots.js to post without going through the network.
+ * @param {string} channelOrFriendName - Target channel or friend name
+ * @param {string} senderName - Display name / pseudonym of the sender
+ * @param {string} content - Message content
+ * @param {'public'|'private'|'direct'} type - Message type
+ */
+export function injectBotMessage(channelOrFriendName, senderName, content, type = 'public') {
+    if (!messageHistory[channelOrFriendName]) {
+        messageHistory[channelOrFriendName] = [];
+    }
+
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString();
+    let displayContent = content;
+
+    switch (type) {
+        case 'private':
+        case 'direct':
+            displayContent = `\u{1F512} ${content}`;
+            break;
+    }
+
+    messageHistory[channelOrFriendName].push({ sender: senderName, content: displayContent, timestamp });
+
+    // Refresh display if this channel/friend is currently active
+    const activeChat = document.querySelector('.list-group-item.active');
+    if (activeChat) {
+        const activeName = activeChat.querySelector('span').textContent;
+        if (activeName === channelOrFriendName) {
+            displayMessages(channelOrFriendName);
+        }
+    }
 }
 
 export function disableMessageInput() {
