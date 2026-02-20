@@ -39,21 +39,34 @@ body {
     background-color: #FFFFFF !important;
 }
 
-h1, h2, .btn-primary {
+h1, h2 {
     color: #000033 !important;
 }
 
-.btn-primary, .btn-secondary, .cta-buttons .btn {
+.btn-primary {
     background-color: #000033 !important;
     border-color: #000033 !important;
     color: #FFFFFF !important;
     font-weight: bold !important;
 }
 
-.btn-primary:hover, .btn-secondary:hover, .cta-buttons .btn:hover {
-    background-color: #000022 !important;
-    border-color: #000022 !important;
+.btn-primary:hover {
+    background-color: #000055 !important;
+    border-color: #000055 !important;
     color: #FFFFFF !important;
+}
+
+.btn-secondary {
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #000033 !important;
+    font-weight: bold !important;
+}
+
+.btn-secondary:hover {
+    background-color: #dee2e6 !important;
+    border-color: #adb5bd !important;
+    color: #000033 !important;
 }
 
 /* Responsive adjustments */
