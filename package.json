@@ -12,5 +12,8 @@
   "dependencies": {
     "base64-js": "^1.5.1",
     "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

@@ -1,3 +1,9 @@
+# Node
+node_modules/
+
+# Pact (build tool artifacts)
+.pact/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,10 +1,10 @@
 const { secretbox, box, sign, randomBytes } = window.nacl;
 
-function base64Encode(uint8Array) {
+export function base64Encode(uint8Array) {
     return base64js.fromByteArray(uint8Array);
 }
 
-function base64Decode(base64String) {
+export function base64Decode(base64String) {
     return base64js.toByteArray(base64String);
 }
 
@@ -50,6 +50,34 @@ export function encryptChannelMessage(plaintext, channelKey) {
     const encrypted = secretbox(messageUint8, nonce, keyUint8);
 
     return [base64Encode(encrypted), base64Encode(nonce)];
+}
+
+/**
+ * Verify an Ed25519 detached signature against a message and public key.
+ * Fail-closed: any exception returns false.
+ * @param {string} message - The message that was signed.
+ * @param {string} signature - Base64-encoded Ed25519 detached signature.
+ * @param {string} publicKey - Base64-encoded Ed25519 public key.
+ * @returns {boolean}
+ */
+export function verifySignature(message, signature, publicKey) {
+    try {
+        if (typeof message !== 'string' || typeof signature !== 'string' || typeof publicKey !== 'string') {
+            return false;
+        }
+        if (!message || !signature || !publicKey) return false;
+
+        const signatureBytes = base64Decode(signature);
+        const publicKeyBytes = base64Decode(publicKey);
+        const messageBytes = new TextEncoder().encode(message);
+
+        if (signatureBytes.length !== 64) return false;
+        if (publicKeyBytes.length !== 32) return false;
+
+        return sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes);
+    } catch {
+        return false;
+    }
 }
 
 export function encryptDirectMessage(plaintext, recipientPubKey) {

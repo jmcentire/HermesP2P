@@ -1,7 +1,17 @@
 import { signMessage, encryptChannelMessage, encryptDirectMessage } from './crypto.js';
+import { stampTTL } from './ttl.js';
+import { padMessage } from './padding.js';
+import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
+import { broadcastMessage } from './network.js';
 
 // Message history storage
 const messageHistory = {};
+
+let messageIdCounter = 0;
+
+function generateMessageId() {
+    return `msg_${Date.now()}_${messageIdCounter++}_${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export function updateChannelName(oldName, newName) {
     if (messageHistory.hasOwnProperty(oldName)) {
@@ -14,44 +24,42 @@ export function updateChannelName(oldName, newName) {
 export function displayMessages(name = null) {
     const messagesDiv = document.getElementById("messages");
     const messagesHeader = document.getElementById("messagesHeader");
-    
+
     if (name) {
         messagesHeader.textContent = name;
-        
+
         if (!messageHistory[name]) {
             messageHistory[name] = [];
         }
-        
+
         messagesDiv.innerHTML = '';
         messageHistory[name].forEach(msg => {
             const messageElement = document.createElement("div");
             messageElement.className = "message mb-2 p-2 border-bottom";
-            
-            // Create header div with sender and timestamp
+
             const headerDiv = document.createElement("div");
             headerDiv.className = "d-flex justify-content-between align-items-baseline";
-            
+
             const senderStrong = document.createElement("strong");
             senderStrong.className = "text-secondary";
             senderStrong.textContent = msg.sender;
-            
+
             const timestampSmall = document.createElement("small");
             timestampSmall.className = "text-muted";
             timestampSmall.textContent = msg.timestamp;
-            
+
             headerDiv.appendChild(senderStrong);
             headerDiv.appendChild(timestampSmall);
-            
-            // Create content div
+
             const contentDiv = document.createElement("div");
             contentDiv.className = "message-content mt-1";
             contentDiv.textContent = msg.content;
-            
+
             messageElement.appendChild(headerDiv);
             messageElement.appendChild(contentDiv);
             messagesDiv.appendChild(messageElement);
         });
-        
+
         if (messageHistory[name].length === 0) {
             const emptyMessage = document.createElement("p");
             emptyMessage.className = "text-center text-muted";
@@ -84,8 +92,7 @@ export function displayMessages(name = null) {
                 <p class="fs-6" style="color: #000033;">Feel free to remove channels or friends as your preferences change. When you're finished, remember to Save and Exit to download your updated configuration file and keep your settings for next time. Dive in and enjoy a secure, customizable messaging experience!</p>
             </div>`;
     }
-    
-    // Always scroll to bottom after updating messages
+
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
@@ -93,17 +100,16 @@ export function displayMessages(name = null) {
 function appendMessage(sender, content, type = 'public') {
     const activeChat = document.querySelector('.list-group-item.active');
     if (!activeChat) return;
-    
+
     const chatName = activeChat.querySelector('span').textContent;
     if (!messageHistory[chatName]) {
         messageHistory[chatName] = [];
     }
-    
+
     const now = new Date();
     const timestamp = now.toLocaleTimeString();
     let displayContent = content;
-    
-    // Add appropriate indicators based on message type
+
     switch (type) {
         case 'private':
         case 'direct':
@@ -113,7 +119,7 @@ function appendMessage(sender, content, type = 'public') {
             displayContent = `✍️ ${content}`;
             break;
     }
-    
+
     messageHistory[chatName].push({ sender, content: displayContent, timestamp });
     displayMessages(chatName);
 }
@@ -122,7 +128,7 @@ function appendMessage(sender, content, type = 'public') {
 export function enableMessageInput(configuration) {
     const messageForm = document.getElementById('messageForm');
     const messageInput = document.getElementById('messageInput');
-    
+
     messageForm.classList.remove('disabled');
     messageInput.disabled = false;
     messageInput.placeholder = 'Type your message...';
@@ -131,38 +137,28 @@ export function enableMessageInput(configuration) {
         e.preventDefault();
         const message = messageInput.value.trim();
         if (!message) return;
-        
+
         const activeChat = document.querySelector('.list-group-item.active');
         if (!activeChat) return;
-        
+
         const chatName = activeChat.querySelector('span').textContent;
         const isFriend = activeChat.closest('#friends-list') !== null;
-        
-        // Package and sign the message
-        const messagePackage = {
-            type: isFriend ? 'direct' : 
-                  (configuration.channels.find(c => c.name === chatName)?.key ? 'private' : 'public'),
-            timestamp: new Date().toISOString(),
-            from: {
-                name: configuration.user.name,
-                pubKey: configuration.user.pubKey
-            },
-            to: chatName,
-            message: message,
-            signature: ''
-        };
-        
-        // Sign the plaintext message
-        messagePackage.signature = signMessage(message, configuration.user.privKey);
-        
-        // Clear input after sending
-        messageInput.value = '';
-        
-        // Append message locally
-        appendMessage(configuration.user.name, message, messagePackage.type);
-        
-        // Broadcast message (to be implemented)
-        // broadcastMessage(messagePackage);
+
+        const messageType = isFriend ? 'direct' :
+              (configuration.channels.find(c => c.name === chatName)?.key ? 'private' : 'public');
+
+        try {
+            const paddedFrame = await packageMessage(message, messageType, chatName, configuration);
+            broadcastMessage(paddedFrame);
+            messageInput.value = '';
+            appendMessage(configuration.user.name, message, messageType);
+        } catch (err) {
+            if (err instanceof RangeError) {
+                appendMessage('System', 'Message too long (max 64KB)', 'public');
+            } else {
+                console.error('Failed to send message:', err);
+            }
+        }
     };
 }
 
@@ -174,8 +170,11 @@ export function disableMessageInput() {
     messageInput.placeholder = 'Select a chat to send messages';
 }
 
-// Handle message submission with standardized signing and configuration validation
-export function handleMessageSubmit(e, configuration) {
+/**
+ * Handle message submission (called from ui.js form handler).
+ * Now async to support pseudonym generation.
+ */
+export async function handleMessageSubmit(e, configuration) {
     if (!configuration || !configuration.user) {
         console.error('Invalid configuration in handleMessageSubmit');
         return;
@@ -184,65 +183,74 @@ export function handleMessageSubmit(e, configuration) {
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim();
     const activeChat = document.querySelector('.list-group-item.active');
-    
+
     if (message && activeChat) {
         const chatName = activeChat.querySelector('span').textContent;
         const isChannel = configuration.channels.some(channel => channel.name === chatName);
-        let content;
         let messageType;
-        
+
         if (isChannel) {
             const channel = configuration.channels.find(ch => ch.name === chatName);
-            if (channel.key) {
-                // Private channel message
-                messageType = 'private';
-                const [encrypted, nonce] = encryptChannelMessage(message, channel.key);
-                content = packageMessage({encrypted, nonce}, 'private', channel.key, configuration);
-            } else {
-                // Public channel message
-                messageType = 'public';
-                content = packageMessage(message, messageType, chatName, configuration);
-            }
+            messageType = channel.key ? 'private' : 'public';
         } else {
-            // Direct message
-            const friend = configuration.friends.find(f => f.name === chatName);
-            if (friend) {
-                messageType = 'direct';
-                const [encrypted, nonce, ephemeralPubKey] = encryptDirectMessage(message, friend.pubKey);
-                content = packageMessage(
-                    {
-                        encrypted,
-                        nonce,
-                        ephemeralPubKey
-                    },
-                    'direct',
-                    friend.pubKey,
-                    configuration
-                );
-            }
+            messageType = 'direct';
         }
 
-        // Dispatch message broadcast event
-        window.dispatchEvent(new CustomEvent('messageBroadcast', {
-            detail: content
-        }));
+        try {
+            const paddedFrame = await packageMessage(message, messageType, chatName, configuration);
 
-        // Append message to UI and clear input
-        appendMessage(configuration.user.name, message, messageType);
-        messageInput.value = '';
-        
-        // Clear input
-        messageInput.value = '';
+            // Dispatch message broadcast event
+            window.dispatchEvent(new CustomEvent('messageBroadcast', {
+                detail: { type: messageType, to: chatName }
+            }));
+
+            broadcastMessage(paddedFrame);
+            appendMessage(configuration.user.name, message, messageType);
+            messageInput.value = '';
+        } catch (err) {
+            if (err instanceof RangeError) {
+                appendMessage('System', 'Message too long (max 64KB)', 'public');
+            } else {
+                console.error('Failed to send message:', err);
+            }
+        }
     }
 }
 
-function packageMessage(content, type, to, configuration) {
+/**
+ * Builds, encrypts, stamps TTL, signs, serializes, and pads a message.
+ * Returns a padded Uint8Array ready for binary broadcast.
+ */
+export async function packageMessage(plaintext, type, to, configuration) {
     if (!configuration || !configuration.user) {
-        console.error('Invalid configuration passed to packageMessage');
-        return null;
+        throw new Error('Invalid configuration passed to packageMessage');
     }
-    const messageContent = typeof content === 'string' ? content : JSON.stringify(content);
-    return {
+
+    // Encrypt content based on type
+    let messageContent;
+    if (type === 'private') {
+        const channel = configuration.channels.find(ch => ch.name === to);
+        if (channel?.key) {
+            const [encrypted, nonce] = encryptChannelMessage(plaintext, channel.key);
+            messageContent = JSON.stringify({ encrypted, nonce });
+        } else {
+            messageContent = plaintext;
+        }
+    } else if (type === 'direct') {
+        const friend = configuration.friends.find(f => f.name === to);
+        if (friend) {
+            const [encrypted, nonce, ephemeralPubKey] = encryptDirectMessage(plaintext, friend.pubKey);
+            messageContent = JSON.stringify({ encrypted, nonce, ephemeralPubKey });
+        } else {
+            messageContent = plaintext;
+        }
+    } else {
+        messageContent = plaintext;
+    }
+
+    // Build message package
+    const messagePackage = {
+        id: generateMessageId(),
         type: type,
         timestamp: Date.now(),
         to: to,
@@ -250,7 +258,29 @@ function packageMessage(content, type, to, configuration) {
             name: configuration.user.name,
             pubKey: configuration.user.pubKey
         },
-        signature: signMessage(messageContent, configuration.user.privKey),
-        message: content
+        message: messageContent,
+        signature: '',
     };
+
+    // Stamp TTL
+    stampTTL(messagePackage, type);
+
+    // Channel messages: remove pubKey for anonymity, replace name with pseudonym
+    if (type === 'private' || type === 'public') {
+        delete messagePackage.from.pubKey;
+        try {
+            const pseudonym = await generatePseudonym(configuration.user.privKey, to);
+            messagePackage.from.name = shortenPseudonym(pseudonym, 16);
+        } catch (err) {
+            console.warn('Pseudonym generation failed, using username:', err);
+        }
+    }
+
+    // Sign the message content
+    messagePackage.signature = signMessage(messageContent, configuration.user.privKey);
+
+    // Serialize and pad
+    const jsonStr = JSON.stringify(messagePackage);
+    const jsonBytes = new TextEncoder().encode(jsonStr);
+    return padMessage(jsonBytes);
 }

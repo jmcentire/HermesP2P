@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HermesP2P - Safe. Secure. Sovereign.</title>
+  <meta name="description" content="Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.">
+  <meta property="og:title" content="HermesP2P - Safe. Secure. Sovereign.">
+  <meta property="og:description" content="Decentralized, ephemeral peer-to-peer messaging with cryptographic key sovereignty.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jmcentire.github.io/HermesP2P/">
+  <style>
+    :root {
+      --navy: #000033;
+      --navy-light: #000055;
+      --white: #ffffff;
+      --gray: #f8f9fa;
+      --text: #333333;
+      --text-muted: #6c757d;
+      --border: #dee2e6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--white);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--navy); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 12px 0;
+    }
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    nav .logo img { height: 32px; }
+    nav .links { display: flex; gap: 24px; align-items: center; }
+    nav .links a { color: var(--text-muted); font-size: 0.9rem; }
+    nav .links a:hover { color: var(--navy); text-decoration: none; }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--navy);
+      color: var(--white) !important;
+    }
+    .btn-primary:hover {
+      background: var(--navy-light);
+      text-decoration: none;
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--navy) !important;
+    }
+    .btn-outline:hover {
+      border-color: var(--navy);
+      text-decoration: none;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 140px 0 80px;
+      text-align: center;
+      background: var(--white);
+    }
+    .hero img {
+      width: 160px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .hero .tagline {
+      font-size: 1.4rem;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .hero .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 36px;
+      line-height: 1.5;
+    }
+    .hero .cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Principles */
+    .principles {
+      padding: 72px 0;
+      background: var(--gray);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .principle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .principle-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+    }
+    .principle-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .principle-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* How it works */
+    .how-it-works {
+      padding: 72px 0;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      align-items: start;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .step h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .step p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Architecture */
+    .architecture {
+      padding: 72px 0;
+      background: var(--gray);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .architecture h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+    .architecture p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+    }
+    .architecture .highlight {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .arch-diagram {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+    .arch-diagram .label { color: var(--navy); font-weight: 600; }
+    .arch-diagram .arrow { color: var(--navy); }
+
+    /* Quick start */
+    .quickstart {
+      padding: 72px 0;
+    }
+    .quickstart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .quickstart h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+    .quickstart p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+    }
+    pre {
+      background: var(--navy);
+      color: #e6edf3;
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+    .code-comment { color: #6c757d; }
+    .code-cmd { color: #7ec8e3; }
+
+    /* Book */
+    .book {
+      padding: 72px 0;
+      background: var(--gray);
+      border-top: 1px solid var(--border);
+    }
+    .book-inner {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 48px;
+      text-align: center;
+    }
+    .book-inner h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+    .book-inner p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .hero .tagline { font-size: 1.1rem; }
+      .principle-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .arch-grid,
+      .quickstart-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <img src="hermesp2p_logo.png" alt="HermesP2P" onerror="this.style.display='none'">
+      HermesP2P
+    </a>
+    <div class="links">
+      <a href="#principles">Principles</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="https://hp2p.net" class="btn btn-outline">Live App</a>
+      <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-primary">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <img src="hermesp2p_logo.png" alt="HermesP2P Logo" onerror="this.style.display='none'">
+    <h1>HermesP2P</h1>
+    <p class="tagline">Safe. Secure. Sovereign.</p>
+    <p class="subtitle">
+      Decentralized, ephemeral peer-to-peer messaging. No servers store your messages.
+      No accounts to breach. Your config is your identity &mdash; upload it and you're you.
+    </p>
+    <div class="cta-group">
+      <a href="https://hp2p.net" class="btn btn-primary">Try It Live</a>
+      <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-outline">View Source</a>
+      <a href="#how-it-works" class="btn btn-outline">Learn More</a>
+    </div>
+  </div>
+</section>
+
+<section class="principles" id="principles">
+  <div class="container">
+    <div class="section-header">
+      <h2>Three Principles</h2>
+      <p>Every design decision flows from these non-negotiable commitments.</p>
+    </div>
+    <div class="principle-grid">
+      <div class="principle-card">
+        <h3>Ephemeral by Design</h3>
+        <p>Messages are transient and never persisted. Once received, they exist only in memory. No server stores your history. No database to subpoena. No breach to disclose.</p>
+      </div>
+      <div class="principle-card">
+        <h3>Decentralized Network</h3>
+        <p>No central servers, no authority, no single point of failure. Every node contributes to the network's resilience. Peer discovery builds a diverse, adaptive connection graph.</p>
+      </div>
+      <div class="principle-card">
+        <h3>Key Sovereignty</h3>
+        <p>Your Ed25519 keypair is your identity. Private keys never leave your device. No passwords, no accounts, no third-party authentication. You control who you are.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>From bootstrap to encrypted messaging in four steps.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Bootstrap</h3>
+          <p>Visit a host node to connect to the network. Upload your config file or generate a fresh keypair with default channel subscriptions.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Peer Discovery</h3>
+          <p>Your node discovers peers and builds a diverse connection graph. The network self-organizes for resilience &mdash; no coordinator needed.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Channels &amp; Messages</h3>
+          <p>Join public channels, create private channels with AES-256 symmetric keys, or send direct messages encrypted with recipients' public keys.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Message Propagation</h3>
+          <p>Messages propagate through the network with TTL hop counts. Fixed-size padding prevents traffic analysis. Messages are signed and verified at every hop.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="architecture" id="architecture">
+  <div class="container">
+    <div class="arch-grid">
+      <div>
+        <h2>Stateless Authentication</h2>
+        <p>
+          There are no accounts. No passwords. No sessions stored on a server.
+        </p>
+        <p>
+          <span class="highlight">Your configuration file IS your identity.</span>
+          It contains your Ed25519 keypair, your channel subscriptions, your friends' public keys,
+          and your peer list. Upload it to any node and you're authenticated.
+        </p>
+        <p>
+          Download it when you leave. The node forgets you existed.
+          This is authentication without state &mdash; more secure than any password database.
+        </p>
+      </div>
+      <div class="arch-diagram">
+        <div><span class="label">Config File</span></div>
+        <div>&nbsp; <span class="arrow">|</span></div>
+        <div>&nbsp; <span class="arrow">+--</span> <span class="label">keypair</span>: Ed25519 public/private</div>
+        <div>&nbsp; <span class="arrow">+--</span> <span class="label">channels</span>: subscribed topics</div>
+        <div>&nbsp; <span class="arrow">+--</span> <span class="label">friends</span>: public keys of contacts</div>
+        <div>&nbsp; <span class="arrow">+--</span> <span class="label">peers</span>: known network nodes</div>
+        <div>&nbsp;</div>
+        <div><span class="arrow">&gt;</span> Upload to any node = authenticated</div>
+        <div><span class="arrow">&gt;</span> Download when done = node forgets you</div>
+        <div><span class="arrow">&gt;</span> No server state. No breach surface.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quickstart" id="quickstart">
+  <div class="container">
+    <div class="quickstart-grid">
+      <div>
+        <h2>Get Started</h2>
+        <p>
+          Try the live instance at <a href="https://hp2p.net">hp2p.net</a> or run your own node.
+        </p>
+        <p>
+          Self-hosting means you control the bootstrap point. Your node, your rules,
+          your contribution to network resilience.
+        </p>
+        <p style="margin-top: 24px;">
+          <a href="https://hp2p.net" class="btn btn-primary">Try Live</a>
+          <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-outline" style="margin-left: 8px;">GitHub</a>
+        </p>
+      </div>
+      <div>
+        <pre><code><span class="code-comment"># Clone and run your own node</span>
+<span class="code-cmd">git clone</span> https://github.com/jmcentire/HermesP2P.git
+<span class="code-cmd">cd</span> HermesP2P
+<span class="code-cmd">npm install</span>
+<span class="code-cmd">npm run</span> start
+
+<span class="code-comment"># Or use the live instance</span>
+<span class="code-comment"># https://hp2p.net</span></code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="book">
+  <div class="container">
+    <div class="book-inner">
+      <h2>Built on the ideas in <em>Privacy</em></h2>
+      <p>
+        HermesP2P is the practical implementation of the concepts in
+        <strong>Privacy</strong> &mdash; covering ephemeral communication,
+        key sovereignty, and decentralized trust.
+      </p>
+      <a href="https://a.co/d/05PSJFBK" class="btn btn-outline">Read the Book</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>HermesP2P License &middot; <a href="https://hp2p.net">hp2p.net</a> &middot; <a href="https://github.com/jmcentire/HermesP2P">GitHub</a> &middot; Built by <a href="https://github.com/jmcentire">Jeremy McEntire</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
