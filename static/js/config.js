@@ -33,7 +33,10 @@ export function clearEditingItem() {
 // Get configuration from sessionStorage or initialize new one
 export function getConfiguration() {
     const storedConfig = sessionStorage.getItem("hp2pConfig");
-    return storedConfig ? JSON.parse(storedConfig) : initializeNewConfig();
+    if (storedConfig) return JSON.parse(storedConfig);
+    const config = initializeNewConfig();
+    saveConfiguration(config);
+    return config;
 }
 
 // Save configuration
