@@ -6,6 +6,7 @@ import { unpadMessage } from './padding.js';
 import { isExpired, getRebroadcastProbability } from './ttl.js';
 import { isProtocolMessage, handlePeerExchangeRequest, handlePeerExchangeResponse,
          createPeerExchangeResponse, KnownPeersCache } from './discovery.js';
+import { addTrafficEntry } from './network-panel.js';
 
 // Callbacks to be set by initializeNetwork
 let handleIncomingMsgCallback = (url, msg) => console.warn("Network: Incoming message handler not set", url, msg);
@@ -204,6 +205,14 @@ function handleBinaryFrame(url, rawArrayBuffer) {
         // Pass to upper layer
         handleIncomingMsgCallback(url, messagePackage);
 
+        // Show in network traffic panel
+        addTrafficEntry(
+            messagePackage.type || 'public',
+            messagePackage.to || 'unknown',
+            messagePackage.message,
+            messagePackage.from?.name || 'Anonymous'
+        );
+
         // Rebroadcast with TTL-decayed probability, forwarding original raw binary
         const prob = getRebroadcastProbability(messagePackage);
         if (Math.random() < prob) {
@@ -252,6 +261,15 @@ function handleLegacyTextMessage(url, rawData) {
     }
 
     handleIncomingMsgCallback(url, messagePackage);
+
+    // Show in network traffic panel
+    addTrafficEntry(
+        messagePackage.type || 'public',
+        messagePackage.to || 'unknown',
+        messagePackage.message,
+        messagePackage.from?.name || 'Anonymous'
+    );
+
     rebroadcastMessage(messagePackage, url);
 }
 

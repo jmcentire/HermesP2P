@@ -180,3 +180,27 @@ h1, h2 {
     font-style: italic;
     letter-spacing: -0.5px;
 }
+
+.network-dir {
+    font-weight: bold;
+    font-size: 0.7rem;
+}
+
+.network-dir-in {
+    color: #0af;
+}
+
+.network-dir-out {
+    color: #f80;
+}
+
+.network-alias-btn {
+    color: #666;
+    cursor: pointer;
+    font-size: 0.7rem;
+    margin-left: 2px;
+}
+
+.network-alias-btn:hover {
+    color: #0f0;
+}

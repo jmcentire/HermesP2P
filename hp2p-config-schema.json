@@ -31,6 +31,10 @@
                 },
                 "required": ["name", "pubKey"]
             }
+        },
+        "aliases": {
+            "type": "object",
+            "additionalProperties": {"type": "string", "maxLength": 36}
         }
     },
     "required": ["user"]

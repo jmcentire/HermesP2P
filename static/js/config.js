@@ -46,6 +46,17 @@ function saveConfiguration(config) {
     sessionStorage.setItem("hp2pConfig", JSON.stringify(config));
 }
 
+// Set or remove a pseudonym alias
+export function setAlias(pseudonym, displayName, configuration) {
+    if (!configuration.aliases) configuration.aliases = {};
+    if (displayName) {
+        configuration.aliases[pseudonym] = displayName;
+    } else {
+        delete configuration.aliases[pseudonym];
+    }
+    saveConfiguration(configuration);
+}
+
 // Update user profile name
 export function updateProfileName(newName, configuration) {
     if (newName.length < 6 || newName.length > 36) {

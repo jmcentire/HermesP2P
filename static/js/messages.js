@@ -3,6 +3,7 @@ import { stampTTL } from './ttl.js';
 import { padMessage } from './padding.js';
 import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
 import { broadcastMessage } from './network.js';
+import { addTrafficEntry } from './network-panel.js';
 
 // Message history storage — also used by bots.js via injectBotMessage
 const messageHistory = {};
@@ -150,6 +151,7 @@ export function enableMessageInput(configuration) {
         try {
             const paddedFrame = await packageMessage(message, messageType, chatName, configuration);
             broadcastMessage(paddedFrame);
+            addTrafficEntry(messageType, chatName, messageType === 'public' ? message : null, configuration.user.name, 'out');
             messageInput.value = '';
             appendMessage(configuration.user.name, message, messageType);
 
@@ -248,7 +250,9 @@ export function handleIncomingNetworkMessage(url, messagePackage, configuration)
         }
     }
 
-    injectBotMessage(displayTarget, from?.name || 'Anonymous', content, type);
+    const senderName = from?.name || 'Anonymous';
+    const displaySender = configuration.aliases?.[senderName] || senderName;
+    injectBotMessage(displayTarget, displaySender, content, type);
 }
 
 export function disableMessageInput() {
@@ -294,6 +298,7 @@ export async function handleMessageSubmit(e, configuration) {
             }));
 
             broadcastMessage(paddedFrame);
+            addTrafficEntry(messageType, chatName, messageType === 'public' ? message : null, configuration.user.name, 'out');
             appendMessage(configuration.user.name, message, messageType);
             messageInput.value = '';
         } catch (err) {

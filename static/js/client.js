@@ -1,18 +1,21 @@
-import { getConfiguration } from './config.js';
+import { getConfiguration, setAlias } from './config.js';
 import { initializeUI } from './ui.js';
 import { initializeNetwork, getConnectedPeerCount, getConnectedPeerUrls, getConnectedPeerInfo,
          connectToNode, disconnectPeer, sendToPeer, broadcastRaw } from './network.js';
 import { initializeDiscovery } from './discovery.js';
 import { handleIncomingNetworkMessage } from './messages.js';
 import { initializeBots } from './bots.js';
-import { initializeNetworkPanel, startPhantomTraffic } from './network-panel.js';
+import { initializeNetworkPanel } from './network-panel.js';
 
 const configuration = getConfiguration();
 
 initializeUI(configuration);
 
-// Initialize network traffic panel
-initializeNetworkPanel();
+// Initialize network traffic panel with config access for alias resolution
+initializeNetworkPanel(
+    () => configuration,
+    (pseudonym, alias) => setAlias(pseudonym, alias, configuration),
+);
 
 // Initialize network with message handler and status callbacks
 initializeNetwork(
@@ -23,11 +26,9 @@ initializeNetwork(
 
 // Start demo bots
 const botCleanup = initializeBots(configuration);
-const phantomCleanup = startPhantomTraffic();
 
 window.addEventListener('beforeunload', () => {
     botCleanup();
-    phantomCleanup();
 });
 
 // Bootstrap peer discovery with dependency-injected network API

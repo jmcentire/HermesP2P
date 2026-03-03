@@ -10,11 +10,13 @@ HermesP2P is a transient communication network with a cryptographically secure m
 
 ## Key Features
 
-- **Decentralized Network**: HermesP2P leverages a peer-to-peer architecture where every node contributes to the network's resilience and scalability.
+- **Decentralized Network**: Peer-to-peer architecture where every node contributes to the network's resilience and scalability.
 - **Transient Messaging**: Messages are ephemeral and not stored on any centralized system, ensuring privacy and reducing overhead.
-- **Cryptographic Security**: All communications are secured using PGP-style encryption, with users maintaining their own key pairs.
-- **Public and Private Channels**: Support for open public discussions and encrypted private messages between individuals or groups.
-- **Self-Managed Configuration**: Users control their peer lists, channels, and key management via a simple configuration system.
+- **Cryptographic Security**: Ed25519 signatures, X25519 key exchange with XSalsa20-Poly1305 authenticated encryption (NaCl/TweetNaCl), and per-channel HKDF pseudonyms.
+- **Public and Private Channels**: Open public channels plus symmetric-key encrypted private channels (NaCl secretbox).
+- **End-to-End Encrypted DMs**: Direct messages use ephemeral X25519 keypairs for perfect forward secrecy.
+- **Self-Managed Configuration**: Users control their channels, friends, and key management via a downloadable JSON configuration file.
+- **Live Network Panel**: Real-time feed of mesh traffic with direction indicators and sender aliasing.
 - **Dynamic Peer Management**: The network adapts to maximize peer diversity and minimize redundancy for optimal performance.
 
 ## How It Works
@@ -30,7 +32,8 @@ HermesP2P is a transient communication network with a cryptographically secure m
    - Messages are broadcasted through the network with a Time-to-Live (TTL) hop count to control redundancy and ensure efficient delivery.
 
 4. **Cryptographic Security**:
-   - Messages are signed and encrypted using PGP-style public/private key pairs.
+   - Messages are signed with Ed25519 and encrypted with NaCl (X25519 + XSalsa20-Poly1305).
+   - Channel messages use symmetric secretbox encryption; DMs use ephemeral public-key box encryption.
    - Only authorized recipients can read private messages.
 
 5. **Ephemeral Design**:
@@ -39,31 +42,36 @@ HermesP2P is a transient communication network with a cryptographically secure m
 ## Getting Started
 
 ### Prerequisites
-- A modern browser with WebAssembly support (e.g., Chrome, Firefox).
-- A host node URL to bootstrap your initial connection.
+- Python 3.11+
+- A modern browser (Chrome, Firefox, Safari, Edge)
 
 ### Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/jmcentire/HermesP2P.git
+   cd HermesP2P
    ```
 2. Install dependencies:
    ```bash
-   cd hermesp2p
-   npm install
+   pip install flask flask-sock jsonschema
    ```
 
-3. Start the application:
+3. Start the server:
    ```bash
-   npm run start
+   python main.py
    ```
 
-4. Visit the provided URL in your browser to begin.
+4. Visit `http://localhost:5000` in your browser.
+
+### Deployment
+HermesP2P is deployed on [fly.io](https://fly.io) at [hp2p.net](https://hp2p.net). The included `Dockerfile` and `fly.toml` handle production deployment. The relay requires a single machine instance since peer state is held in memory.
 
 ### Usage
-- **Login**: Upload your configuration file or generate a new key pair.
-- **Send Messages**: Compose public or private messages and broadcast them across the network.
-- **Manage Peers**: Monitor your peer connections and refresh your network periodically.
+- **Join**: Upload an existing configuration file or generate a fresh identity automatically.
+- **Send Messages**: Select a channel or friend from the sidebar and type your message.
+- **Network Panel**: Open the NETWORK panel at the bottom to see real mesh traffic with direction indicators. Click the pencil icon next to a sender name to set a preferred alias.
+- **Manage Configuration**: Add/edit/remove channels and friends. Copy your public key from the profile section to share with others.
+- **Save & Exit**: Download your configuration file to preserve your identity, channels, friends, and aliases for next time.
 
 ## Project Goals
 

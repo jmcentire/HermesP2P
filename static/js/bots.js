@@ -2,8 +2,8 @@
  * Demo Bots — simulated users that post canned messages on timers.
  *
  * Bots inject messages directly into the UI via injectBotMessage() — no
- * WebSocket needed. They also push all traffic through the network panel
- * so users can see the mesh activity.
+ * WebSocket needed. They do NOT appear in the network panel (which shows
+ * only real traffic).
  *
  * Hermes responds to DMs with canned replies. Other bots ignore DMs.
  */
@@ -11,7 +11,6 @@
 import { BOT_IDENTITIES } from './bot-identities.js';
 import { injectBotMessage } from './messages.js';
 import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
-import { addTrafficEntry } from './network-panel.js';
 
 // ── Content pools ──────────────────────────────────────────────────
 
@@ -79,25 +78,6 @@ const HERMES_DM_REPLIES = [
     'Want to create a private channel? Add a channel with a key, then share that key with friends out-of-band.',
 ];
 
-/** Messages that bots post to channels the user probably doesn't have */
-const EXTRA_CHANNEL_CONTENT = {
-    Philosophy: [
-        'Is consciousness computable? Discuss.',
-        'The ship of Theseus, but for code: if you refactor every line, is it the same program?',
-        'Free will in a deterministic universe: the eternal debate.',
-    ],
-    CryptoNews: [
-        'New side-channel attack on RSA published. Ed25519 unaffected.',
-        'Post-quantum lattice-based cryptography is progressing faster than expected.',
-        'Reminder: SHA-1 has been broken for collisions since 2017. Always use SHA-256+.',
-    ],
-    'Random Thoughts': [
-        'If a tree falls in a P2P network and no peer is connected, does it make a packet?',
-        'I wonder how many messages are floating through the mesh right now.',
-        'The internet was supposed to be decentralized. We\'re just bringing it back.',
-    ],
-};
-
 // ── Bot scheduling ─────────────────────────────────────────────────
 
 const BOT_SCHEDULES = {
@@ -147,10 +127,6 @@ export function initializeBots(userConfig) {
         timers.push(initialTimer);
     }
 
-    // Start extra-channel traffic (channels user doesn't have)
-    const extraTimer = startExtraChannelTraffic(timers);
-    timers.push(extraTimer);
-
     // DM listener for Hermes
     const dmHandler = (e) => {
         const { to, type } = e.detail;
@@ -161,7 +137,6 @@ export function initializeBots(userConfig) {
         const replyTimer = setTimeout(() => {
             const reply = HERMES_DM_REPLIES[Math.floor(Math.random() * HERMES_DM_REPLIES.length)];
             injectBotMessage(BOT_IDENTITIES.hermes.name, BOT_IDENTITIES.hermes.name, reply, 'direct');
-            addTrafficEntry('direct', `Hermes\u2194You`, null, 'Hermes');
         }, delay);
         timers.push(replyTimer);
     };
@@ -207,29 +182,5 @@ async function postBotMessage(botKey, bot, botChannels, userChannels) {
         injectBotMessage(channel, senderName, content, 'public');
     }
 
-    // Always show in network panel
-    addTrafficEntry('public', channel, content, senderName);
 }
 
-function startExtraChannelTraffic(timers) {
-    const channels = Object.keys(EXTRA_CHANNEL_CONTENT);
-    const indexes = {};
-
-    function post() {
-        const ch = channels[Math.floor(Math.random() * channels.length)];
-        if (!indexes[ch]) indexes[ch] = 0;
-        const pool = EXTRA_CHANNEL_CONTENT[ch];
-        const msg = pool[indexes[ch] % pool.length];
-        indexes[ch]++;
-
-        // These channels the user doesn't have — show as readable in network panel
-        addTrafficEntry('public', ch, msg, 'Anon_' + Math.random().toString(36).slice(2, 5));
-
-        const delay = 20000 + Math.random() * 40000;
-        const timer = setTimeout(post, delay);
-        timers.push(timer);
-    }
-
-    const initial = setTimeout(post, 8000 + Math.random() * 12000);
-    return initial;
-}
