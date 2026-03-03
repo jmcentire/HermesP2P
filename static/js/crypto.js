@@ -75,6 +75,20 @@ export function verifySignature(message, signature, publicKey) {
 // --- Ed25519 <-> X25519 key conversion ---
 
 /**
+ * Modular inverse in GF(2^255-19) via Fermat's little theorem: a^(p-2) mod p.
+ * Uses the standard addition chain for p-2 = 2^255 - 21.
+ */
+function inv25519(o, a) {
+    const c = ll.gf();
+    for (let i = 0; i < 16; i++) c[i] = a[i];
+    for (let i = 253; i >= 0; i--) {
+        ll.S(c, c);
+        if (i !== 2 && i !== 4) ll.M(c, c, a);
+    }
+    for (let i = 0; i < 16; i++) o[i] = c[i];
+}
+
+/**
  * Convert Ed25519 public key (Edwards form) to X25519 public key (Montgomery form).
  * Formula: u = (1 + y) / (1 - y) mod p
  */
@@ -91,10 +105,10 @@ function ed25519PubKeyToX25519(edPubKey) {
     const denInv = ll.gf();
     const u = ll.gf();
 
-    ll.A(num, one, y);         // num = 1 + y
-    ll.Z(den, one, y);         // den = 1 - y
-    ll.inv25519(denInv, den);  // denInv = 1 / den
-    ll.M(u, num, denInv);      // u = num * denInv
+    ll.A(num, one, y);        // num = 1 + y
+    ll.Z(den, one, y);        // den = 1 - y
+    inv25519(denInv, den);    // denInv = 1 / den
+    ll.M(u, num, denInv);     // u = num * denInv
 
     const result = new Uint8Array(32);
     ll.pack25519(result, u);
