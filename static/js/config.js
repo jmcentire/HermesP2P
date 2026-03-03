@@ -46,6 +46,17 @@ function saveConfiguration(config) {
     sessionStorage.setItem("hp2pConfig", JSON.stringify(config));
 }
 
+// Update user profile name
+export function updateProfileName(newName, configuration) {
+    if (newName.length < 6 || newName.length > 36) {
+        alert("Name must be between 6 and 36 characters");
+        return false;
+    }
+    configuration.user.name = newName;
+    saveConfiguration(configuration);
+    return true;
+}
+
 // Initialize new configuration
 function initializeNewConfig() {
     const keypair = generateKeypair();

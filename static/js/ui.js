@@ -6,6 +6,7 @@ import {
     handleSaveExit,
     getEditingItem,
     clearEditingItem,
+    updateProfileName,
 } from "./config.js";
 import { generateChannelKey } from "./crypto.js";
 import {
@@ -17,6 +18,7 @@ import {
 // UI state management
 let channelModal = null;
 let friendModal = null;
+let profileModal = null;
 
 // Initialize UI components
 export function initializeUI(configuration) {
@@ -30,6 +32,12 @@ export function initializeUI(configuration) {
     friendModal = new bootstrap.Modal(
         document.getElementById("addFriendModal"),
     );
+    profileModal = new bootstrap.Modal(
+        document.getElementById("editProfileModal"),
+    );
+
+    // Populate profile display
+    updateProfileDisplay(configuration);
 
     // Initialize the sidebar
     populateSidebar(configuration);
@@ -65,6 +73,9 @@ export function setupEventListeners(configuration) {
         const channelKey = document.getElementById("channelKey");
         channelKey.value = generateChannelKey();
     });
+
+    // Profile Events
+    setupProfileEvents(configuration);
 
     // Save & Exit Button
     const saveExitBtn = document.getElementById("saveExitBtn");
@@ -160,6 +171,49 @@ function setupFriendModalEvents(configuration) {
             }
         });
     }
+}
+
+function updateProfileDisplay(configuration) {
+    document.getElementById("profileName").textContent = configuration.user.name;
+    document.getElementById("profilePubKey").textContent = configuration.user.pubKey;
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Brief visual feedback would go here
+    }).catch(() => {
+        // Fallback for older browsers
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+    });
+}
+
+function setupProfileEvents(configuration) {
+    document.getElementById("editProfileBtn").addEventListener("click", () => {
+        document.getElementById("profileNameInput").value = configuration.user.name;
+        document.getElementById("profilePubKeyDisplay").value = configuration.user.pubKey;
+        profileModal.show();
+    });
+
+    document.getElementById("copyPubKeyBtn").addEventListener("click", () => {
+        copyToClipboard(configuration.user.pubKey);
+    });
+
+    document.getElementById("copyPubKeyModalBtn").addEventListener("click", () => {
+        copyToClipboard(configuration.user.pubKey);
+    });
+
+    document.getElementById("saveProfileBtn").addEventListener("click", () => {
+        const newName = document.getElementById("profileNameInput").value.trim();
+        if (updateProfileName(newName, configuration)) {
+            updateProfileDisplay(configuration);
+            profileModal.hide();
+        }
+    });
 }
 
 export function showFriendModal() {
