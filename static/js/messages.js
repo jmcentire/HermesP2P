@@ -1,4 +1,4 @@
-import { signMessage, encryptChannelMessage, encryptDirectMessage } from './crypto.js';
+import { signMessage, encryptChannelMessage, encryptDirectMessage, decryptChannelMessage, decryptDirectMessage } from './crypto.js';
 import { stampTTL } from './ttl.js';
 import { padMessage } from './padding.js';
 import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
@@ -201,6 +201,45 @@ export function injectBotMessage(channelOrFriendName, senderName, content, type 
             displayMessages(channelOrFriendName);
         }
     }
+}
+
+/**
+ * Handle an incoming message from the network relay.
+ * Decrypts if needed and injects into the message display.
+ */
+export function handleIncomingNetworkMessage(url, messagePackage, configuration) {
+    const { type, to, from, message } = messagePackage;
+    let content = message;
+    let displayTarget = to;
+
+    if (type === 'private') {
+        const channel = configuration.channels.find(c => c.name === to);
+        if (channel?.key) {
+            try {
+                const parsed = JSON.parse(message);
+                content = decryptChannelMessage(parsed.encrypted, parsed.nonce, channel.key);
+                if (!content) return; // can't decrypt — not our channel
+            } catch {
+                return;
+            }
+        }
+    } else if (type === 'direct') {
+        if (from?.pubKey) {
+            const friend = configuration.friends.find(f => f.pubKey === from.pubKey);
+            displayTarget = friend ? friend.name : from.name;
+        } else {
+            displayTarget = from?.name || 'Unknown';
+        }
+        try {
+            const parsed = JSON.parse(message);
+            content = decryptDirectMessage(parsed.encrypted, parsed.nonce, parsed.ephemeralPubKey, configuration.user.privKey);
+            if (!content) return; // can't decrypt — not for us
+        } catch {
+            return;
+        }
+    }
+
+    injectBotMessage(displayTarget, from?.name || 'Anonymous', content, type);
 }
 
 export function disableMessageInput() {

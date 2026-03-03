@@ -80,6 +80,33 @@ export function verifySignature(message, signature, publicKey) {
     }
 }
 
+export function decryptChannelMessage(encryptedBase64, nonceBase64, channelKeyBase64) {
+    try {
+        const encrypted = base64Decode(encryptedBase64);
+        const nonce = base64Decode(nonceBase64);
+        const key = base64Decode(channelKeyBase64);
+        const decrypted = secretbox.open(encrypted, nonce, key);
+        if (!decrypted) return null;
+        return new TextDecoder().decode(decrypted);
+    } catch {
+        return null;
+    }
+}
+
+export function decryptDirectMessage(encryptedBase64, nonceBase64, ephemeralPubKeyBase64, recipientPrivKeyBase64) {
+    try {
+        const encrypted = base64Decode(encryptedBase64);
+        const nonce = base64Decode(nonceBase64);
+        const ephemeralPubKey = base64Decode(ephemeralPubKeyBase64);
+        const recipientPrivKey = base64Decode(recipientPrivKeyBase64);
+        const decrypted = box.open(encrypted, nonce, ephemeralPubKey, recipientPrivKey);
+        if (!decrypted) return null;
+        return new TextDecoder().decode(decrypted);
+    } catch {
+        return null;
+    }
+}
+
 export function encryptDirectMessage(plaintext, recipientPubKey) {
     const ephemeralKeyPair = box.keyPair();
     const nonce = randomBytes(box.nonceLength);
