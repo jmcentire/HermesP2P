@@ -1,4 +1,5 @@
 const { secretbox, box, sign, randomBytes } = window.nacl;
+const ll = window.nacl.lowlevel;
 
 export function base64Encode(uint8Array) {
     return base64js.fromByteArray(uint8Array);
@@ -28,11 +29,6 @@ export function generateChannelKey() {
     return base64Encode(randomBytes(secretbox.keyLength));
 }
 
-// Unused
-function generateNonce() {
-    return base64Encode(randomBytes(box.nonceLength));
-}
-
 export function signMessage(message, privateKey) {
     if (!message || !privateKey) {
         console.error('Message or private key is missing');
@@ -55,10 +51,6 @@ export function encryptChannelMessage(plaintext, channelKey) {
 /**
  * Verify an Ed25519 detached signature against a message and public key.
  * Fail-closed: any exception returns false.
- * @param {string} message - The message that was signed.
- * @param {string} signature - Base64-encoded Ed25519 detached signature.
- * @param {string} publicKey - Base64-encoded Ed25519 public key.
- * @returns {boolean}
  */
 export function verifySignature(message, signature, publicKey) {
     try {
@@ -80,6 +72,51 @@ export function verifySignature(message, signature, publicKey) {
     }
 }
 
+// --- Ed25519 <-> X25519 key conversion ---
+
+/**
+ * Convert Ed25519 public key (Edwards form) to X25519 public key (Montgomery form).
+ * Formula: u = (1 + y) / (1 - y) mod p
+ */
+function ed25519PubKeyToX25519(edPubKey) {
+    const edPk = new Uint8Array(edPubKey);
+    edPk[31] &= 0x7f; // clear sign bit to get y coordinate
+
+    const y = ll.gf();
+    ll.unpack25519(y, edPk);
+
+    const one = ll.gf([1]);
+    const num = ll.gf();
+    const den = ll.gf();
+    const denInv = ll.gf();
+    const u = ll.gf();
+
+    ll.A(num, one, y);         // num = 1 + y
+    ll.Z(den, one, y);         // den = 1 - y
+    ll.inv25519(denInv, den);  // denInv = 1 / den
+    ll.M(u, num, denInv);      // u = num * denInv
+
+    const result = new Uint8Array(32);
+    ll.pack25519(result, u);
+    return result;
+}
+
+/**
+ * Convert Ed25519 secret key (64 bytes: seed||pubKey) to X25519 secret key (32 bytes).
+ * Hashes the 32-byte seed with SHA-512 and clamps the first 32 bytes.
+ */
+function ed25519PrivKeyToX25519(edSecretKey) {
+    const seed = edSecretKey.slice(0, 32);
+    const hash = new Uint8Array(64);
+    ll.crypto_hash(hash, seed, 32);
+    hash[0] &= 248;
+    hash[31] &= 127;
+    hash[31] |= 64;
+    return hash.slice(0, 32);
+}
+
+// --- Channel encryption/decryption ---
+
 export function decryptChannelMessage(encryptedBase64, nonceBase64, channelKeyBase64) {
     try {
         const encrypted = base64Decode(encryptedBase64);
@@ -93,31 +130,40 @@ export function decryptChannelMessage(encryptedBase64, nonceBase64, channelKeyBa
     }
 }
 
-export function decryptDirectMessage(encryptedBase64, nonceBase64, ephemeralPubKeyBase64, recipientPrivKeyBase64) {
-    try {
-        const encrypted = base64Decode(encryptedBase64);
-        const nonce = base64Decode(nonceBase64);
-        const ephemeralPubKey = base64Decode(ephemeralPubKeyBase64);
-        const recipientPrivKey = base64Decode(recipientPrivKeyBase64);
-        const decrypted = box.open(encrypted, nonce, ephemeralPubKey, recipientPrivKey);
-        if (!decrypted) return null;
-        return new TextDecoder().decode(decrypted);
-    } catch {
-        return null;
-    }
-}
+// --- Direct message encryption/decryption ---
 
 export function encryptDirectMessage(plaintext, recipientPubKey) {
     const ephemeralKeyPair = box.keyPair();
     const nonce = randomBytes(box.nonceLength);
     const messageUint8 = new TextEncoder().encode(plaintext);
 
+    // Convert Ed25519 recipient pubkey to X25519 for box encryption
+    const x25519PubKey = ed25519PubKeyToX25519(base64Decode(recipientPubKey));
+
     const encrypted = box(
         messageUint8,
         nonce,
-        base64Decode(recipientPubKey),
+        x25519PubKey,
         ephemeralKeyPair.secretKey
     );
 
     return [base64Encode(encrypted), base64Encode(nonce), base64Encode(ephemeralKeyPair.publicKey)];
+}
+
+export function decryptDirectMessage(encryptedBase64, nonceBase64, ephemeralPubKeyBase64, recipientPrivKeyBase64) {
+    try {
+        const encrypted = base64Decode(encryptedBase64);
+        const nonce = base64Decode(nonceBase64);
+        const ephemeralPubKey = base64Decode(ephemeralPubKeyBase64);
+        const recipientEdPrivKey = base64Decode(recipientPrivKeyBase64);
+
+        // Convert Ed25519 private key to X25519 for box decryption
+        const x25519SecKey = ed25519PrivKeyToX25519(recipientEdPrivKey);
+
+        const decrypted = box.open(encrypted, nonce, ephemeralPubKey, x25519SecKey);
+        if (!decrypted) return null;
+        return new TextDecoder().decode(decrypted);
+    } catch {
+        return null;
+    }
 }
