@@ -213,16 +213,25 @@ export function handleIncomingNetworkMessage(url, messagePackage, configuration)
     let displayTarget = to;
 
     if (type === 'private') {
-        const channel = configuration.channels.find(c => c.name === to);
-        if (channel?.key) {
-            try {
-                const parsed = JSON.parse(message);
-                content = decryptChannelMessage(parsed.encrypted, parsed.nonce, channel.key);
-                if (!content) return; // can't decrypt — not our channel
-            } catch {
-                return;
+        let parsed;
+        try {
+            parsed = JSON.parse(message);
+        } catch {
+            return;
+        }
+        // Try all channel keys — the key is the channel identity, not the name
+        let matched = false;
+        for (const channel of configuration.channels) {
+            if (!channel.key) continue;
+            const decrypted = decryptChannelMessage(parsed.encrypted, parsed.nonce, channel.key);
+            if (decrypted) {
+                content = decrypted;
+                displayTarget = channel.name;
+                matched = true;
+                break;
             }
         }
+        if (!matched) return; // no key could decrypt — not our channel
     } else if (type === 'direct') {
         if (from?.pubKey) {
             const friend = configuration.friends.find(f => f.pubKey === from.pubKey);
