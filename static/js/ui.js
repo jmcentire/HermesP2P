@@ -10,7 +10,6 @@ import {
 } from "./config.js";
 import { generateChannelKey } from "./crypto.js";
 import {
-    handleMessageSubmit,
     disableMessageInput,
     displayMessages,
 } from "./messages.js";
@@ -83,15 +82,7 @@ export function setupEventListeners(configuration) {
         saveExitBtn.addEventListener("click", handleSaveExit);
     }
 
-    // Message Form
-    const messageForm = document.getElementById("messageForm");
-    if (messageForm) {
-        if (messageForm) {
-            messageForm.addEventListener("submit", (e) =>
-                handleMessageSubmit(e, configuration),
-            );
-        }
-    }
+    // Message form submit is handled by enableMessageInput() when a chat is selected
 }
 
 // Channel Modal Events Setup
