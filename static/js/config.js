@@ -8,6 +8,7 @@ import {
     generateKeypair,
     generateUsername,
     generateChannelKey,
+    base64Decode,
 } from "./crypto.js";
 import { BOT_PUBLIC_KEYS } from "./bot-identities.js";
 import {
@@ -184,10 +185,8 @@ export function addChannel(name, key = "", configuration, editingItem = getEditi
     if (key) {
         try {
             const keyUint8 = base64Decode(key);
-            if (keyUint8.length !== secretbox.keyLength) {
-                alert(
-                    `Channel key must be exactly ${secretbox.keyLength} bytes when decoded`,
-                );
+            if (keyUint8.length !== 32) {
+                alert("Channel key must be exactly 32 bytes when decoded");
                 return false;
             }
         } catch (error) {
