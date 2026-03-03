@@ -2,8 +2,9 @@
  * Demo Bots — simulated users that post canned messages on timers.
  *
  * Bots inject messages directly into the UI via injectBotMessage() — no
- * WebSocket needed. They do NOT appear in the network panel (which shows
- * only real traffic).
+ * WebSocket needed. All bot traffic also appears in the network panel.
+ * If the user has subscribed to a channel a bot posts to, the message
+ * appears in both the panel and the chat.
  *
  * Hermes responds to DMs with canned replies. Other bots ignore DMs.
  */
@@ -11,6 +12,7 @@
 import { BOT_IDENTITIES } from './bot-identities.js';
 import { injectBotMessage } from './messages.js';
 import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
+import { addTrafficEntry } from './network-panel.js';
 
 // ── Content pools ──────────────────────────────────────────────────
 
@@ -78,6 +80,25 @@ const HERMES_DM_REPLIES = [
     'Want to create a private channel? Add a channel with a key, then share that key with friends out-of-band.',
 ];
 
+/** Content for channels beyond the defaults — any user can subscribe to these */
+const EXTRA_CHANNEL_CONTENT = {
+    Philosophy: [
+        'Is consciousness computable? Discuss.',
+        'The ship of Theseus, but for code: if you refactor every line, is it the same program?',
+        'Free will in a deterministic universe: the eternal debate.',
+    ],
+    CryptoNews: [
+        'New side-channel attack on RSA published. Ed25519 unaffected.',
+        'Post-quantum lattice-based cryptography is progressing faster than expected.',
+        'Reminder: SHA-1 has been broken for collisions since 2017. Always use SHA-256+.',
+    ],
+    'Random Thoughts': [
+        'If a tree falls in a P2P network and no peer is connected, does it make a packet?',
+        'I wonder how many messages are floating through the mesh right now.',
+        'The internet was supposed to be decentralized. We\'re just bringing it back.',
+    ],
+};
+
 // ── Bot scheduling ─────────────────────────────────────────────────
 
 const BOT_SCHEDULES = {
@@ -103,13 +124,18 @@ function getNextMessage(botKey, channel) {
     return msg;
 }
 
+/** Check if the user currently has a channel (dynamic — picks up channels added after init). */
+function userHasChannel(configGetter, channelName) {
+    const config = configGetter();
+    return config?.channels?.some(c => c.name === channelName) || false;
+}
+
 /**
  * Start all demo bots. Returns a cleanup function.
- * @param {object} userConfig - The user's configuration object
+ * @param {function} configGetter - Returns the current configuration object
  */
-export function initializeBots(userConfig) {
+export function initializeBots(configGetter) {
     const timers = [];
-    const userChannels = new Set(userConfig.channels.map(c => c.name));
 
     // Start each bot's channel posting loop
     for (const [botKey, bot] of Object.entries(BOT_IDENTITIES)) {
@@ -120,12 +146,16 @@ export function initializeBots(userConfig) {
 
         // Initial delay, then recurring
         const initialTimer = setTimeout(async () => {
-            await postBotMessage(botKey, bot, botChannels, userChannels);
-            startRecurring(botKey, bot, botChannels, userChannels, schedule, timers);
+            await postBotMessage(botKey, bot, botChannels, configGetter);
+            startRecurring(botKey, bot, botChannels, configGetter, schedule, timers);
         }, schedule.initialDelay);
 
         timers.push(initialTimer);
     }
+
+    // Start extra-channel traffic
+    const extraTimer = startExtraChannelTraffic(configGetter, timers);
+    timers.push(extraTimer);
 
     // DM listener for Hermes
     const dmHandler = (e) => {
@@ -137,6 +167,7 @@ export function initializeBots(userConfig) {
         const replyTimer = setTimeout(() => {
             const reply = HERMES_DM_REPLIES[Math.floor(Math.random() * HERMES_DM_REPLIES.length)];
             injectBotMessage(BOT_IDENTITIES.hermes.name, BOT_IDENTITIES.hermes.name, reply, 'direct');
+            addTrafficEntry('direct', `Hermes\u2194You`, null, 'Hermes');
         }, delay);
         timers.push(replyTimer);
     };
@@ -150,11 +181,11 @@ export function initializeBots(userConfig) {
     };
 }
 
-function startRecurring(botKey, bot, botChannels, userChannels, schedule, timers) {
+function startRecurring(botKey, bot, botChannels, configGetter, schedule, timers) {
     function scheduleNext() {
         const delay = schedule.minInterval + Math.random() * (schedule.maxInterval - schedule.minInterval);
         const timer = setTimeout(async () => {
-            await postBotMessage(botKey, bot, botChannels, userChannels);
+            await postBotMessage(botKey, bot, botChannels, configGetter);
             scheduleNext();
         }, delay);
         timers.push(timer);
@@ -162,7 +193,7 @@ function startRecurring(botKey, bot, botChannels, userChannels, schedule, timers
     scheduleNext();
 }
 
-async function postBotMessage(botKey, bot, botChannels, userChannels) {
+async function postBotMessage(botKey, bot, botChannels, configGetter) {
     // Pick a random channel from this bot's list
     const channel = botChannels[Math.floor(Math.random() * botChannels.length)];
     const content = getNextMessage(botKey, channel);
@@ -177,10 +208,41 @@ async function postBotMessage(botKey, bot, botChannels, userChannels) {
         // Fall back to bot name
     }
 
-    // If user is in this channel, inject into message history
-    if (userChannels.has(channel)) {
+    // If user has this channel, inject into their chat
+    if (userHasChannel(configGetter, channel)) {
         injectBotMessage(channel, senderName, content, 'public');
     }
 
+    // Always show in network panel
+    addTrafficEntry('public', channel, content, senderName);
 }
 
+function startExtraChannelTraffic(configGetter, timers) {
+    const channels = Object.keys(EXTRA_CHANNEL_CONTENT);
+    const indexes = {};
+
+    function post() {
+        const ch = channels[Math.floor(Math.random() * channels.length)];
+        if (!indexes[ch]) indexes[ch] = 0;
+        const pool = EXTRA_CHANNEL_CONTENT[ch];
+        const msg = pool[indexes[ch] % pool.length];
+        indexes[ch]++;
+
+        const senderName = 'Anon_' + Math.random().toString(36).slice(2, 5);
+
+        // If user has this channel, inject into their chat
+        if (userHasChannel(configGetter, ch)) {
+            injectBotMessage(ch, senderName, msg, 'public');
+        }
+
+        // Always show in network panel
+        addTrafficEntry('public', ch, msg, senderName);
+
+        const delay = 20000 + Math.random() * 40000;
+        const timer = setTimeout(post, delay);
+        timers.push(timer);
+    }
+
+    const initial = setTimeout(post, 8000 + Math.random() * 12000);
+    return initial;
+}

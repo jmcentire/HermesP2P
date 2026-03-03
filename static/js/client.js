@@ -5,7 +5,7 @@ import { initializeNetwork, getConnectedPeerCount, getConnectedPeerUrls, getConn
 import { initializeDiscovery } from './discovery.js';
 import { handleIncomingNetworkMessage } from './messages.js';
 import { initializeBots } from './bots.js';
-import { initializeNetworkPanel } from './network-panel.js';
+import { initializeNetworkPanel, startPhantomTraffic } from './network-panel.js';
 
 const configuration = getConfiguration();
 
@@ -24,11 +24,13 @@ initializeNetwork(
     () => configuration,
 );
 
-// Start demo bots
-const botCleanup = initializeBots(configuration);
+// Start demo bots (pass getter so channel checks are dynamic)
+const botCleanup = initializeBots(() => configuration);
+const phantomCleanup = startPhantomTraffic();
 
 window.addEventListener('beforeunload', () => {
     botCleanup();
+    phantomCleanup();
 });
 
 // Bootstrap peer discovery with dependency-injected network API

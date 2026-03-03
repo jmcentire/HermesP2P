@@ -173,3 +173,38 @@ export function addTrafficEntry(type, channel, content, from, direction = 'in') 
     panelBody.appendChild(entry);
     panelBody.scrollTop = panelBody.scrollHeight;
 }
+
+/**
+ * Generate phantom encrypted traffic (DMs and private channel messages
+ * between unknown parties) to make the network feel alive.
+ * @returns {function} cleanup — call to stop generating phantom traffic
+ */
+export function startPhantomTraffic() {
+    const phantomNames = ['Anon_7kx', 'Peer_m3q', 'Node_9vb', 'Relay_4fp', 'Ghost_2jw', 'Shadow_8nc'];
+    const phantomChannels = ['Private_Room', 'Encrypted_Hub', 'Secure_Chat'];
+
+    function emitPhantom() {
+        const isDM = Math.random() < 0.4;
+        if (isDM) {
+            const from = phantomNames[Math.floor(Math.random() * phantomNames.length)];
+            const to = phantomNames[Math.floor(Math.random() * phantomNames.length)];
+            addTrafficEntry('direct', `${from}\u2194${to}`, null, from);
+        } else {
+            const ch = phantomChannels[Math.floor(Math.random() * phantomChannels.length)];
+            addTrafficEntry('private', ch, null, 'unknown');
+        }
+    }
+
+    // Random intervals between 3-12 seconds
+    let timer = null;
+    function schedule() {
+        const delay = 3000 + Math.random() * 9000;
+        timer = setTimeout(() => {
+            emitPhantom();
+            schedule();
+        }, delay);
+    }
+    schedule();
+
+    return () => clearTimeout(timer);
+}
