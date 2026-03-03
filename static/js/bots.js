@@ -60,7 +60,7 @@ const CONTENT = {
         General: [
             'Has anyone tried running HermesP2P on a local network? Curious about latency.',
             'What channels do people want to see here? I think we need a Music channel.',
-            'The peer count in the top right shows how many nodes you\'re connected to.',
+            'Open the NETWORK panel at the bottom to see mesh traffic flowing between peers.',
             'I love that there\'s no signup, no email, no phone number. Just generate keys and go.',
             'Question for the room: what\'s your favorite encryption algorithm and why?',
             'Anyone else think it\'s wild that your identity is just a keypair? Pure math.',
