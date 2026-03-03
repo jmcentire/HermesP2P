@@ -1,0 +1,8 @@
+.git
+__pycache__
+*.pyc
+.replit
+replit.nix
+.cache
+node_modules
+docs
