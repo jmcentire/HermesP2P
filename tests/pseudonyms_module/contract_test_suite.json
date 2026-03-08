@@ -1,0 +1,580 @@
+{
+  "component_id": "pseudonyms_module",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "gen_happy_path",
+      "description": "generatePseudonym returns a 44-character base64 string for valid inputs",
+      "function": "generatePseudonym",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid base64-encoded Ed25519 private key (64 bytes decoded) and a non-empty channelId",
+      "expected_output_description": "A 44-character base64 string representing 32 bytes of HMAC-SHA256 output",
+      "expected_error": "",
+      "assertions": [
+        "result is a string",
+        "result.length === 44",
+        "result matches base64 pattern /^[A-Za-z0-9+/]+=*$/"
+      ]
+    },
+    {
+      "id": "gen_determinism",
+      "description": "generatePseudonym is deterministic: identical inputs produce identical output",
+      "function": "generatePseudonym",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Same valid privateKeyBase64 and channelId called twice",
+      "expected_output_description": "Both calls return the exact same base64 string",
+      "expected_error": "",
+      "assertions": [
+        "result1 === result2"
+      ]
+    },
+    {
+      "id": "gen_channel_isolation",
+      "description": "generatePseudonym produces different pseudonyms for different channelIds (channel unlinkability)",
+      "function": "generatePseudonym",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Same privateKeyBase64 with two different channelIds",
+      "expected_output_description": "Two different base64 strings",
+      "expected_error": "",
+      "assertions": [
+        "result1 !== result2"
+      ]
+    },
+    {
+      "id": "gen_key_isolation",
+      "description": "generatePseudonym produces different pseudonyms for different private keys (identity unlinkability)",
+      "function": "generatePseudonym",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Two different privateKeyBase64 values with the same channelId",
+      "expected_output_description": "Two different base64 strings",
+      "expected_error": "",
+      "assertions": [
+        "result1 !== result2"
+      ]
+    },
+    {
+      "id": "gen_no_key_logging",
+      "description": "generatePseudonym never logs private key material to console",
+      "function": "generatePseudonym",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid privateKeyBase64 and channelId with console methods spied on",
+      "expected_output_description": "No console method is called with the private key string or key bytes",
+      "expected_error": "",
+      "assertions": [
+        "console.log not called with key material",
+        "console.warn not called with key material",
+        "console.error not called with key material"
+      ]
+    },
+    {
+      "id": "gen_error_missing_private_key_undefined",
+      "description": "generatePseudonym throws missing_private_key when privateKeyBase64 is undefined",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "privateKeyBase64": "undefined",
+        "channelId": "\"test-channel\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_private_key",
+      "assertions": [
+        "rejects with error matching missing_private_key"
+      ]
+    },
+    {
+      "id": "gen_error_missing_private_key_null",
+      "description": "generatePseudonym throws missing_private_key when privateKeyBase64 is null",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "privateKeyBase64": "null",
+        "channelId": "\"test-channel\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_private_key",
+      "assertions": [
+        "rejects with error matching missing_private_key"
+      ]
+    },
+    {
+      "id": "gen_error_missing_private_key_empty",
+      "description": "generatePseudonym throws missing_private_key when privateKeyBase64 is empty string",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "privateKeyBase64": "\"\"",
+        "channelId": "\"test-channel\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_private_key",
+      "assertions": [
+        "rejects with error matching missing_private_key"
+      ]
+    },
+    {
+      "id": "gen_error_invalid_private_key_type",
+      "description": "generatePseudonym throws invalid_private_key_type when privateKeyBase64 is not a string",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "privateKeyBase64": "12345",
+        "channelId": "\"test-channel\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_private_key_type",
+      "assertions": [
+        "rejects with error matching invalid_private_key_type"
+      ]
+    },
+    {
+      "id": "gen_error_private_key_too_short",
+      "description": "generatePseudonym throws private_key_too_short when decoded key is less than 32 bytes",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A base64 string that decodes to fewer than 32 bytes",
+      "expected_output_description": "",
+      "expected_error": "private_key_too_short",
+      "assertions": [
+        "rejects with error matching private_key_too_short"
+      ]
+    },
+    {
+      "id": "gen_error_invalid_base64_private_key",
+      "description": "generatePseudonym throws invalid_base64_private_key when base64js.toByteArray throws",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "privateKeyBase64": "\"not!!valid!!base64\"",
+        "channelId": "\"test-channel\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_base64_private_key",
+      "assertions": [
+        "rejects with error matching invalid_base64_private_key"
+      ]
+    },
+    {
+      "id": "gen_error_missing_channel_id_undefined",
+      "description": "generatePseudonym throws missing_channel_id when channelId is undefined",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "channelId": "undefined"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_channel_id",
+      "assertions": [
+        "rejects with error matching missing_channel_id"
+      ]
+    },
+    {
+      "id": "gen_error_missing_channel_id_empty",
+      "description": "generatePseudonym throws missing_channel_id when channelId is empty string",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "channelId": "\"\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_channel_id",
+      "assertions": [
+        "rejects with error matching missing_channel_id"
+      ]
+    },
+    {
+      "id": "gen_error_invalid_channel_id_type",
+      "description": "generatePseudonym throws invalid_channel_id_type when channelId is not a string",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "channelId": "42"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_channel_id_type",
+      "assertions": [
+        "rejects with error matching invalid_channel_id_type"
+      ]
+    },
+    {
+      "id": "gen_error_webcrypto_unavailable",
+      "description": "generatePseudonym throws webcrypto_unavailable when crypto.subtle is not available",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "crypto.subtle": "undefined"
+      },
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "webcrypto_unavailable",
+      "assertions": [
+        "rejects with error matching webcrypto_unavailable"
+      ]
+    },
+    {
+      "id": "gen_error_base64js_unavailable",
+      "description": "generatePseudonym throws base64js_unavailable when window.base64js is not available",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "window.base64js": "undefined"
+      },
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "base64js_unavailable",
+      "assertions": [
+        "rejects with error matching base64js_unavailable"
+      ]
+    },
+    {
+      "id": "gen_error_hkdf_import_failure",
+      "description": "generatePseudonym throws hkdf_import_failure when crypto.subtle.importKey rejects",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "crypto.subtle.importKey": "rejects with Error"
+      },
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "hkdf_import_failure",
+      "assertions": [
+        "rejects with error matching hkdf_import_failure"
+      ]
+    },
+    {
+      "id": "gen_error_key_derivation_failure",
+      "description": "generatePseudonym throws key_derivation_failure when crypto.subtle.deriveKey rejects",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "crypto.subtle.deriveKey": "rejects with Error"
+      },
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "key_derivation_failure",
+      "assertions": [
+        "rejects with error matching key_derivation_failure"
+      ]
+    },
+    {
+      "id": "gen_error_hmac_sign_failure",
+      "description": "generatePseudonym throws hmac_sign_failure when crypto.subtle.sign rejects",
+      "function": "generatePseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {
+        "crypto.subtle.sign": "rejects with Error"
+      },
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "hmac_sign_failure",
+      "assertions": [
+        "rejects with error matching hmac_sign_failure"
+      ]
+    },
+    {
+      "id": "shorten_happy_path",
+      "description": "shortenPseudonym returns first N characters of a pseudonym string",
+      "function": "shortenPseudonym",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A 44-character base64 pseudonym string and length=8",
+      "expected_output_description": "An 8-character string that is the prefix of the input",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 8",
+        "input.startsWith(result)"
+      ]
+    },
+    {
+      "id": "shorten_default_length",
+      "description": "shortenPseudonym defaults to length 8 when length is omitted",
+      "function": "shortenPseudonym",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A 44-character base64 string with no length argument",
+      "expected_output_description": "An 8-character string",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 8"
+      ]
+    },
+    {
+      "id": "shorten_length_zero",
+      "description": "shortenPseudonym returns empty string when length is 0",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "length": "0"
+      },
+      "input_description": "",
+      "expected_output_description": "Empty string",
+      "expected_error": "",
+      "assertions": [
+        "result === ''"
+      ]
+    },
+    {
+      "id": "shorten_negative_length",
+      "description": "shortenPseudonym returns empty string when length is negative",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "length": "-5"
+      },
+      "input_description": "",
+      "expected_output_description": "Empty string",
+      "expected_error": "",
+      "assertions": [
+        "result === ''"
+      ]
+    },
+    {
+      "id": "shorten_length_one",
+      "description": "shortenPseudonym returns single character when length is 1",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "length": "1"
+      },
+      "input_description": "",
+      "expected_output_description": "Single character string",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 1",
+        "result === input[0]"
+      ]
+    },
+    {
+      "id": "shorten_full_length",
+      "description": "shortenPseudonym returns full string when length equals string length",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "length set to pseudonymBase64.length",
+      "expected_output_description": "The full input string",
+      "expected_error": "",
+      "assertions": [
+        "result === input"
+      ]
+    },
+    {
+      "id": "shorten_exceeds_length",
+      "description": "shortenPseudonym returns full string when length exceeds string length",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "length": "1000"
+      },
+      "input_description": "",
+      "expected_output_description": "The full input string (clamped)",
+      "expected_error": "",
+      "assertions": [
+        "result === input"
+      ]
+    },
+    {
+      "id": "shorten_empty_string",
+      "description": "shortenPseudonym returns empty string when input is empty",
+      "function": "shortenPseudonym",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "\"\"",
+        "length": "8"
+      },
+      "input_description": "",
+      "expected_output_description": "Empty string",
+      "expected_error": "",
+      "assertions": [
+        "result === ''"
+      ]
+    },
+    {
+      "id": "shorten_error_missing_pseudonym_undefined",
+      "description": "shortenPseudonym throws missing_pseudonym when pseudonymBase64 is undefined",
+      "function": "shortenPseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "undefined"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_pseudonym",
+      "assertions": [
+        "throws error matching missing_pseudonym"
+      ]
+    },
+    {
+      "id": "shorten_error_missing_pseudonym_null",
+      "description": "shortenPseudonym throws missing_pseudonym when pseudonymBase64 is null",
+      "function": "shortenPseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "null"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_pseudonym",
+      "assertions": [
+        "throws error matching missing_pseudonym"
+      ]
+    },
+    {
+      "id": "shorten_error_invalid_pseudonym_type",
+      "description": "shortenPseudonym throws invalid_pseudonym_type when pseudonymBase64 is not a string",
+      "function": "shortenPseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "12345"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_pseudonym_type",
+      "assertions": [
+        "throws error matching invalid_pseudonym_type"
+      ]
+    },
+    {
+      "id": "shorten_error_invalid_length_type",
+      "description": "shortenPseudonym throws invalid_length_type when length is not an integer",
+      "function": "shortenPseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "\"abc\"",
+        "length": "\"not-a-number\""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_length_type",
+      "assertions": [
+        "throws error matching invalid_length_type"
+      ]
+    },
+    {
+      "id": "shorten_error_invalid_length_type_float",
+      "description": "shortenPseudonym throws invalid_length_type when length is a float",
+      "function": "shortenPseudonym",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pseudonymBase64": "\"abc\"",
+        "length": "3.5"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_length_type",
+      "assertions": [
+        "throws error matching invalid_length_type"
+      ]
+    },
+    {
+      "id": "shorten_synchronous",
+      "description": "shortenPseudonym returns a string synchronously (not a Promise)",
+      "function": "shortenPseudonym",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid pseudonym string",
+      "expected_output_description": "A plain string, not a Promise",
+      "expected_error": "",
+      "assertions": [
+        "typeof result === 'string'",
+        "result is not a Promise"
+      ]
+    },
+    {
+      "id": "module_exports",
+      "description": "Module exports exactly generatePseudonym and shortenPseudonym as named exports",
+      "function": "module",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Module has generatePseudonym and shortenPseudonym as named exports, no default export",
+      "expected_error": "",
+      "assertions": [
+        "typeof generatePseudonym === 'function'",
+        "typeof shortenPseudonym === 'function'"
+      ]
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport * as base64js from 'base64-js';\nimport nacl from 'tweetnacl';\n\n// We dynamically import the module under test after setting up globals\n// The module is at static/js/pseudonyms.js\n// Adjust the import path to match your project structure\nimport { generatePseudonym, shortenPseudonym } from '../static/js/pseudonyms.js';\n\n// Helper: generate a valid Ed25519 keypair and return the secret key as base64\nfunction makeKeyBase64(): string {\n  const keyPair = nacl.sign.keyPair();\n  // keyPair.secretKey is 64 bytes (32 seed + 32 public key) — standard Ed25519 format\n  return base64js.fromByteArray(keyPair.secretKey);\n}\n\n// Helper: generate a second distinct keypair\nfunction makeSecondKeyBase64(): string {\n  const keyPair = nacl.sign.keyPair();\n  return base64js.fromByteArray(keyPair.secretKey);\n}\n\n// Helper: create a short base64 key (less than 32 bytes decoded)\nfunction makeShortKeyBase64(): string {\n  const shortBytes = new Uint8Array(16); // Only 16 bytes — too short\n  return base64js.fromByteArray(shortBytes);\n}\n\n// A sample 44-char base64 pseudonym for shortenPseudonym tests\nconst SAMPLE_PSEUDONYM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefgh';\n\ndescribe('generatePseudonym', () => {\n  let testKeyBase64: string;\n\n  beforeEach(() => {\n    // Stub base64js as a global (simulating window.base64js)\n    vi.stubGlobal('base64js', base64js);\n    testKeyBase64 = makeKeyBase64();\n  });\n\n  afterEach(() => {\n    vi.restoreAllMocks();\n    vi.unstubAllGlobals();\n  });\n\n  // --- Happy Path ---\n\n  it('should return a 44-character base64 string for valid inputs', async () => {\n    const result = await generatePseudonym(testKeyBase64, 'test-channel');\n\n    expect(typeof result).toBe('string');\n    expect(result).toHaveLength(44);\n    // Verify it's valid base64 (standard base64 alphabet + padding)\n    expect(result).toMatch(/^[A-Za-z0-9+/]+=*$/);\n  });\n\n  // --- Determinism ---\n\n  it('should be deterministic: identical inputs always produce identical output', async () => {\n    const result1 = await generatePseudonym(testKeyBase64, 'determinism-channel');\n    const result2 = await generatePseudonym(testKeyBase64, 'determinism-channel');\n\n    expect(result1).toBe(result2);\n  });\n\n  // --- Channel Isolation (Unlinkability) ---\n\n  it('should produce different pseudonyms for different channelIds', async () => {\n    const result1 = await generatePseudonym(testKeyBase64, 'channel-alpha');\n    const result2 = await generatePseudonym(testKeyBase64, 'channel-beta');\n\n    expect(result1).not.toBe(result2);\n  });\n\n  // --- Key Isolation (Identity Unlinkability) ---\n\n  it('should produce different pseudonyms for different private keys on the same channel', async () => {\n    const keyA = makeKeyBase64();\n    const keyB = makeSecondKeyBase64();\n    const channel = 'shared-channel';\n\n    const result1 = await generatePseudonym(keyA, channel);\n    const result2 = await generatePseudonym(keyB, channel);\n\n    expect(result1).not.toBe(result2);\n  });\n\n  // --- No Key Material Logging ---\n\n  it('should never log private key material to console', async () => {\n    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});\n    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});\n    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});\n\n    await generatePseudonym(testKeyBase64, 'log-test-channel');\n\n    // Check that no console call includes the private key material\n    const allCalls = [\n      ...logSpy.mock.calls,\n      ...warnSpy.mock.calls,\n      ...errorSpy.mock.calls,\n      ...debugSpy.mock.calls,\n    ];\n\n    for (const callArgs of allCalls) {\n      const callStr = callArgs.map((a: unknown) => String(a)).join(' ');\n      expect(callStr).not.toContain(testKeyBase64);\n    }\n  });\n\n  // --- Input Validation: Private Key ---\n\n  it('should reject with missing_private_key when privateKeyBase64 is undefined', async () => {\n    await expect(\n      generatePseudonym(undefined as unknown as string, 'channel')\n    ).rejects.toThrow(/missing_private_key/);\n  });\n\n  it('should reject with missing_private_key when privateKeyBase64 is null', async () => {\n    await expect(\n      generatePseudonym(null as unknown as string, 'channel')\n    ).rejects.toThrow(/missing_private_key/);\n  });\n\n  it('should reject with missing_private_key when privateKeyBase64 is empty string', async () => {\n    await expect(\n      generatePseudonym('', 'channel')\n    ).rejects.toThrow(/missing_private_key/);\n  });\n\n  it('should reject with invalid_private_key_type when privateKeyBase64 is not a string', async () => {\n    await expect(\n      generatePseudonym(12345 as unknown as string, 'channel')\n    ).rejects.toThrow(/invalid_private_key_type/);\n  });\n\n  it('should reject with private_key_too_short when decoded key is less than 32 bytes', async () => {\n    const shortKey = makeShortKeyBase64();\n    await expect(\n      generatePseudonym(shortKey, 'channel')\n    ).rejects.toThrow(/private_key_too_short/);\n  });\n\n  it('should reject with invalid_base64_private_key when base64 is invalid and toByteArray throws', async () => {\n    // base64js.toByteArray will throw on truly invalid base64 input\n    await expect(\n      generatePseudonym('not!!valid!!base64@@', 'channel')\n    ).rejects.toThrow(/invalid_base64_private_key/);\n  });\n\n  // --- Input Validation: Channel ID ---\n\n  it('should reject with missing_channel_id when channelId is undefined', async () => {\n    await expect(\n      generatePseudonym(testKeyBase64, undefined as unknown as string)\n    ).rejects.toThrow(/missing_channel_id/);\n  });\n\n  it('should reject with missing_channel_id when channelId is null', async () => {\n    await expect(\n      generatePseudonym(testKeyBase64, null as unknown as string)\n    ).rejects.toThrow(/missing_channel_id/);\n  });\n\n  it('should reject with missing_channel_id when channelId is empty string', async () => {\n    await expect(\n      generatePseudonym(testKeyBase64, '')\n    ).rejects.toThrow(/missing_channel_id/);\n  });\n\n  it('should reject with invalid_channel_id_type when channelId is not a string', async () => {\n    await expect(\n      generatePseudonym(testKeyBase64, 42 as unknown as string)\n    ).rejects.toThrow(/invalid_channel_id_type/);\n  });\n\n  // --- Crypto Failure Paths ---\n\n  it('should reject with webcrypto_unavailable when crypto.subtle is not available', async () => {\n    const originalCrypto = globalThis.crypto;\n    try {\n      // Remove crypto.subtle\n      Object.defineProperty(globalThis, 'crypto', {\n        value: { subtle: undefined },\n        writable: true,\n        configurable: true,\n      });\n\n      await expect(\n        generatePseudonym(testKeyBase64, 'channel')\n      ).rejects.toThrow(/webcrypto_unavailable/);\n    } finally {\n      Object.defineProperty(globalThis, 'crypto', {\n        value: originalCrypto,\n        writable: true,\n        configurable: true,\n      });\n    }\n  });\n\n  it('should reject with base64js_unavailable when window.base64js is not available', async () => {\n    // Remove the base64js global\n    vi.stubGlobal('base64js', undefined);\n\n    await expect(\n      generatePseudonym(testKeyBase64, 'channel')\n    ).rejects.toThrow(/base64js_unavailable/);\n  });\n\n  it('should reject with hkdf_import_failure when crypto.subtle.importKey rejects', async () => {\n    const originalImportKey = crypto.subtle.importKey.bind(crypto.subtle);\n    const importKeySpy = vi.spyOn(crypto.subtle, 'importKey').mockRejectedValue(\n      new Error('import failed')\n    );\n\n    await expect(\n      generatePseudonym(testKeyBase64, 'channel')\n    ).rejects.toThrow(/hkdf_import_failure/);\n\n    importKeySpy.mockRestore();\n  });\n\n  it('should reject with key_derivation_failure when crypto.subtle.deriveKey rejects', async () => {\n    const deriveKeySpy = vi.spyOn(crypto.subtle, 'deriveKey').mockRejectedValue(\n      new Error('derive failed')\n    );\n\n    await expect(\n      generatePseudonym(testKeyBase64, 'channel')\n    ).rejects.toThrow(/key_derivation_failure/);\n\n    deriveKeySpy.mockRestore();\n  });\n\n  it('should reject with hmac_sign_failure when crypto.subtle.sign rejects', async () => {\n    const signSpy = vi.spyOn(crypto.subtle, 'sign').mockRejectedValue(\n      new Error('sign failed')\n    );\n\n    await expect(\n      generatePseudonym(testKeyBase64, 'channel')\n    ).rejects.toThrow(/hmac_sign_failure/);\n\n    signSpy.mockRestore();\n  });\n});\n\ndescribe('shortenPseudonym', () => {\n  beforeEach(() => {\n    vi.stubGlobal('base64js', base64js);\n  });\n\n  afterEach(() => {\n    vi.restoreAllMocks();\n    vi.unstubAllGlobals();\n  });\n\n  // --- Happy Path ---\n\n  it('should return first N characters of a pseudonym string', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, 8);\n\n    expect(typeof result).toBe('string');\n    expect(result).toHaveLength(8);\n    expect(result).toBe(SAMPLE_PSEUDONYM.substring(0, 8));\n    expect(SAMPLE_PSEUDONYM.startsWith(result)).toBe(true);\n  });\n\n  it('should default to length 8 when length is omitted', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM);\n\n    expect(result).toHaveLength(8);\n    expect(result).toBe(SAMPLE_PSEUDONYM.substring(0, 8));\n  });\n\n  // --- Boundary / Edge Cases ---\n\n  it('should return empty string when length is 0', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, 0);\n    expect(result).toBe('');\n  });\n\n  it('should return empty string when length is negative', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, -5);\n    expect(result).toBe('');\n  });\n\n  it('should return single character when length is 1', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, 1);\n    expect(result).toHaveLength(1);\n    expect(result).toBe(SAMPLE_PSEUDONYM[0]);\n  });\n\n  it('should return the full string when length equals the string length', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, SAMPLE_PSEUDONYM.length);\n    expect(result).toBe(SAMPLE_PSEUDONYM);\n  });\n\n  it('should return the full string when length exceeds string length (clamped)', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, 1000);\n    expect(result).toBe(SAMPLE_PSEUDONYM);\n  });\n\n  it('should return empty string when input pseudonym is empty', () => {\n    const result = shortenPseudonym('', 8);\n    expect(result).toBe('');\n  });\n\n  // --- Input Validation ---\n\n  it('should throw missing_pseudonym when pseudonymBase64 is undefined', () => {\n    expect(() =>\n      shortenPseudonym(undefined as unknown as string)\n    ).toThrow(/missing_pseudonym/);\n  });\n\n  it('should throw missing_pseudonym when pseudonymBase64 is null', () => {\n    expect(() =>\n      shortenPseudonym(null as unknown as string)\n    ).toThrow(/missing_pseudonym/);\n  });\n\n  it('should throw invalid_pseudonym_type when pseudonymBase64 is not a string', () => {\n    expect(() =>\n      shortenPseudonym(12345 as unknown as string)\n    ).toThrow(/invalid_pseudonym_type/);\n  });\n\n  it('should throw invalid_length_type when length is not a number', () => {\n    expect(() =>\n      shortenPseudonym('abc', 'not-a-number' as unknown as number)\n    ).toThrow(/invalid_length_type/);\n  });\n\n  it('should throw invalid_length_type when length is a float (not integer)', () => {\n    expect(() =>\n      shortenPseudonym('abc', 3.5)\n    ).toThrow(/invalid_length_type/);\n  });\n\n  // --- Synchronous Return ---\n\n  it('should return a plain string synchronously, not a Promise', () => {\n    const result = shortenPseudonym(SAMPLE_PSEUDONYM, 8);\n\n    expect(typeof result).toBe('string');\n    // Ensure it's not a Promise (duck-type check)\n    expect(result).not.toBeInstanceOf(Promise);\n    expect((result as any).then).toBeUndefined();\n  });\n});\n\ndescribe('Module exports', () => {\n  it('should export generatePseudonym as a named function', () => {\n    expect(typeof generatePseudonym).toBe('function');\n  });\n\n  it('should export shortenPseudonym as a named function', () => {\n    expect(typeof shortenPseudonym).toBe('function');\n  });\n\n  it('should not have a default export (module exports only named functions)', async () => {\n    const mod = await import('../static/js/pseudonyms.js');\n    // The module should only have generatePseudonym and shortenPseudonym as exports\n    // No default export\n    expect((mod as any).default).toBeUndefined();\n  });\n});\n"
+}

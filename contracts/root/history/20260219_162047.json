@@ -1,0 +1,2898 @@
+{
+  "component_id": "root",
+  "name": "Root",
+  "description": "HermesP2P Protocol Alignment — Phase 1 Root Contract. Defines the canonical type system, error handling conventions, pipeline envelope progression, serialization boundaries, constants conventions, and module independence rules for the HermesP2P peer-to-peer encrypted messaging protocol. This root contract establishes shared vocabulary and invariants consumed by all six sub-components: crypto_verify, discovery_module, integration, padding_module, pseudonyms_module, and ttl_module. All leaf modules (padding, ttl, pseudonyms, crypto_verify, discovery) are independently testable and do NOT import each other — only the integration module imports from leaf modules.",
+  "version": 1,
+  "types": [
+    {
+      "name": "str",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript string type. UTF-16 internally, UTF-8 when encoded via TextEncoder."
+    },
+    {
+      "name": "int",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript number used as an integer. Safe integer range: -(2^53-1) to 2^53-1."
+    },
+    {
+      "name": "float",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript IEEE 754 double-precision floating point number."
+    },
+    {
+      "name": "bool",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript boolean: true or false."
+    },
+    {
+      "name": "bytes",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Uint8Array — raw byte buffer. Used for all binary data throughout the protocol: keys, signatures, padded frames, encoded messages."
+    },
+    {
+      "name": "any",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Any JavaScript value. Used sparingly for DOM events, callback functions, and WebSocket frame data before type discrimination."
+    },
+    {
+      "name": "None",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript undefined or null. Indicates a function returns no meaningful value."
+    },
+    {
+      "name": "Base64String",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A string containing valid base64-encoded data per RFC 4648 standard alphabet (A-Z, a-z, 0-9, +, /) with = padding. Encoded/decoded via window.base64js (fromByteArray / toByteArray). All base64 in the protocol uses standard encoding with padding — never base64url."
+    },
+    {
+      "name": "SecretKeyBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A base64-encoded Ed25519 secret key (64 bytes decoded). TweetNaCl format: first 32 bytes are the raw seed/key material, last 32 bytes are the corresponding public key. Canonical naming convention: use 'SecretKey' not 'PrivateKey' to match TweetNaCl terminology. NEVER log this value."
+    },
+    {
+      "name": "PublicKeyBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A base64-encoded Ed25519 public key (32 bytes decoded). Used with TweetNaCl nacl.sign.detached.verify and nacl.box operations. Canonical naming: 'PublicKeyBase64' with 'Base64' suffix indicating encoded form."
+    },
+    {
+      "name": "SignatureBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A base64-encoded Ed25519 detached signature (64 bytes decoded). Produced by nacl.sign.detached(messageBytes, secretKey). Covers the pre-padding JSON bytes of the message — the signature is computed over the UTF-8 encoded JSON string BEFORE padding is applied."
+    },
+    {
+      "name": "ChannelId",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A non-empty string identifying a channel. Used as HMAC-SHA256 input for pseudonym generation. UTF-8 encoded before cryptographic operations."
+    },
+    {
+      "name": "PseudonymBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A 44-character base64 string representing 32 bytes of HMAC-SHA256 output. Deterministic per (SecretKey, ChannelId) pair. Unlinkable across channels and across identities."
+    },
+    {
+      "name": "WebSocketUrl",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A string containing a valid WebSocket URL starting with 'ws://' or 'wss://'. Used for peer connection addresses."
+    },
+    {
+      "name": "EpochMilliseconds",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A JavaScript number representing milliseconds since Unix epoch (1970-01-01T00:00:00Z). Produced by Date.now(). Used for all timestamps in the protocol."
+    },
+    {
+      "name": "TTLSeconds",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A positive integer representing time-to-live in seconds. Stamped on messages during the send pipeline. Values: direct=300, private=3600, public=86400."
+    },
+    {
+      "name": "CleanupFunction",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A no-argument function that clears all timers or resources started by an initialization routine. Safe to call multiple times (idempotent cleanup)."
+    },
+    {
+      "name": "MessageType",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "direct",
+        "private",
+        "public"
+      ],
+      "inner_types": [],
+      "description": "The three recognized message types in the HermesP2P protocol. Determines TTL defaults, pseudonym behavior, and signature verification policy."
+    },
+    {
+      "name": "ReceivePipelineResult",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "delivered",
+        "protocol_routed",
+        "expired_dropped",
+        "duplicate_dropped",
+        "signature_failed_dropped",
+        "malformed_dropped",
+        "pubkey_without_signature_dropped"
+      ],
+      "inner_types": [],
+      "description": "Outcome classification of processing a received frame through the receive pipeline. Used for logging, metrics, and testing."
+    },
+    {
+      "name": "FrameSizeEnum",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "1024",
+        "4096",
+        "16384",
+        "65536"
+      ],
+      "inner_types": [],
+      "description": "The set of allowed fixed frame sizes in bytes. Every padded user message will have byte length equal to exactly one of these values."
+    },
+    {
+      "name": "SideEffectKindEnum",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "none",
+        "logging",
+        "network_call",
+        "mutates_state"
+      ],
+      "inner_types": [],
+      "description": "Categorized side effect types used in error handling conventions. Leaf functions produce 'none'; integration functions may produce 'logging' or 'network_call'."
+    },
+    {
+      "name": "FromField",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Display name or shortened pseudonym. For channel messages: first 16 characters of PseudonymBase64 via shortenPseudonym(pseudonym, 16). For DM/public: user's configured display name.",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "PublicKeyBase64",
+          "required": false,
+          "default": "",
+          "description": "Base64-encoded Ed25519 public key. Present for direct and public messages. ABSENT (not set, omitted from JSON) for channel (private) messages to preserve pseudonymity. Absence signals to the receive pipeline that signature verification should be skipped.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Sender identity block attached to every message package. For channel (private) messages: name is a shortened pseudonym (16 chars) and pubKey is absent/undefined (omitted from JSON serialization). For direct and public messages: name is the user's display name and pubKey is present. The presence or absence of pubKey drives signature verification policy on receive."
+    },
+    {
+      "name": "MessagePackage",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "id",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Unique message identifier. UUID v4 or equivalent. Used for deduplication on receive.",
+          "validators": []
+        },
+        {
+          "name": "type",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "Message type: 'direct', 'private', or 'public'. Determines TTL, pseudonym, and verification behavior.",
+          "validators": []
+        },
+        {
+          "name": "from",
+          "type_ref": "FromField",
+          "required": true,
+          "default": "",
+          "description": "Sender identity block. Modified by pseudonym stage for channel messages.",
+          "validators": []
+        },
+        {
+          "name": "message",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The message content. May be encrypted (for direct/private) or plaintext (for public). The signature is computed over this field's value.",
+          "validators": []
+        },
+        {
+          "name": "signature",
+          "type_ref": "SignatureBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 detached signature over the UTF-8 encoding of the 'message' field. Computed BEFORE padding. Channel messages ARE signed on send but verification is skipped on receive (from.pubKey absent).",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "EpochMilliseconds",
+          "required": true,
+          "default": "",
+          "description": "Message creation time via Date.now(). Used for TTL expiry computation and age-based ordering.",
+          "validators": []
+        },
+        {
+          "name": "ttl",
+          "type_ref": "TTLSeconds",
+          "required": false,
+          "default": "",
+          "description": "Time-to-live in seconds. Added by stampTTL stage. Values: direct=300, private=3600, public=86400.",
+          "validators": []
+        },
+        {
+          "name": "hops",
+          "type_ref": "int",
+          "required": false,
+          "default": "",
+          "description": "Hop count. Added by stampTTL stage alongside ttl. Tracks how many relay hops this message has traversed.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "The full message object constructed during the send pipeline. Fields are progressively added: base fields at compose, ttl at stampTTL, pseudonym modifications at pseudonym stage, signature at sign stage. This object is JSON.stringify'd to produce the wire format before padding. The signature covers the 'message' field content (the encrypted or plaintext message body), NOT the entire package JSON."
+    },
+    {
+      "name": "MessageEnvelope",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "rawFrame",
+          "type_ref": "bytes",
+          "required": false,
+          "default": "",
+          "description": "Raw binary frame as received from WebSocket (ArrayBuffer converted to Uint8Array). Present at receive stage entry. Preserved for rebroadcast (never re-encoded).",
+          "validators": []
+        },
+        {
+          "name": "unpaddedBytes",
+          "type_ref": "bytes",
+          "required": false,
+          "default": "",
+          "description": "Bytes after unpadMessage removes padding. Present after unpad stage.",
+          "validators": []
+        },
+        {
+          "name": "jsonString",
+          "type_ref": "str",
+          "required": false,
+          "default": "",
+          "description": "UTF-8 decoded JSON string from unpaddedBytes. Present after deserialize stage.",
+          "validators": []
+        },
+        {
+          "name": "parsedMessage",
+          "type_ref": "MessagePackage",
+          "required": false,
+          "default": "",
+          "description": "Parsed MessagePackage object from JSON.parse(jsonString). Present after deserialize stage.",
+          "validators": []
+        },
+        {
+          "name": "paddedFrame",
+          "type_ref": "bytes",
+          "required": false,
+          "default": "",
+          "description": "Padded binary frame ready for broadcast. Present after pad stage on send path.",
+          "validators": []
+        },
+        {
+          "name": "pipelineResult",
+          "type_ref": "ReceivePipelineResult",
+          "required": false,
+          "default": "",
+          "description": "Final outcome classification of receive pipeline processing.",
+          "validators": []
+        },
+        {
+          "name": "senderUrl",
+          "type_ref": "WebSocketUrl",
+          "required": false,
+          "default": "",
+          "description": "WebSocket URL of the peer that sent this frame. Present on receive path.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Progressive accumulation type representing a message as it flows through send/receive pipeline stages. Each stage reads the minimum fields it needs and adds its output fields. Send order: compose → encrypt → stampTTL → pseudonym → package → sign → serialize → pad → broadcast. Receive order: receive → classify → unpad → deserialize → TTL check → dedup → verify sig → decrypt → display. The integration module maps between leaf function inputs/outputs and envelope fields."
+    },
+    {
+      "name": "PaddedFrame",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "messageRegion",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "Bytes [0, originalLength): the original unpadded message content copied verbatim.",
+          "validators": []
+        },
+        {
+          "name": "randomPaddingRegion",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "Bytes [originalLength, frameSize-2): filled with cryptographically random bytes via crypto.getRandomValues(). May be zero-length if message exactly fills available space.",
+          "validators": []
+        },
+        {
+          "name": "lengthSuffix",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Last 2 bytes of the frame: original message length as big-endian unsigned 16-bit integer (0..65534). Read/written via DataView.getUint16/setUint16.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Logical structure of a padded frame (physically stored as a flat Uint8Array). Layout: [message_bytes (0..originalLength) | random_padding (originalLength..frameSize-2) | length_suffix (last 2 bytes, big-endian uint16)]. The frame size is always one of FRAME_SIZES: 1024, 4096, 16384, 65536. Random padding uses crypto.getRandomValues() exclusively."
+    },
+    {
+      "name": "PeerEntry",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "url",
+          "type_ref": "WebSocketUrl",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the peer (e.g., 'wss://example.com/ws').",
+          "validators": []
+        },
+        {
+          "name": "lastSeen",
+          "type_ref": "EpochMilliseconds",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds of when this peer was last seen or added/updated.",
+          "validators": []
+        },
+        {
+          "name": "lastLatency",
+          "type_ref": "OptionalFloat",
+          "required": true,
+          "default": "",
+          "description": "Last measured round-trip latency in milliseconds, or null if not yet measured.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A single peer record stored in KnownPeersCache. Represents a known peer with its URL, last-seen timestamp, and optional latency measurement."
+    },
+    {
+      "name": "OptionalFloat",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "float",
+      "variants": [],
+      "inner_types": [],
+      "description": "A float value or null. Used for optional latency measurements."
+    },
+    {
+      "name": "OptionalStr",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "str",
+      "variants": [],
+      "inner_types": [],
+      "description": "A string value or null. Used for optional pubKey, channelId, and peer selection results."
+    },
+    {
+      "name": "OptionalInt",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "int",
+      "variants": [],
+      "inner_types": [],
+      "description": "An integer value or null."
+    },
+    {
+      "name": "OptionalMessagePackage",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "MessagePackage",
+      "variants": [],
+      "inner_types": [],
+      "description": "A MessagePackage or null. Used when parsing may fail."
+    },
+    {
+      "name": "OptionalPeerEntry",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "PeerEntry",
+      "variants": [],
+      "inner_types": [],
+      "description": "A PeerEntry or undefined. Returned by KnownPeersCache.get() when URL is not found."
+    },
+    {
+      "name": "PeerEntryList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "PeerEntry",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of PeerEntry objects. Returned by KnownPeersCache.getAll()."
+    },
+    {
+      "name": "StrList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "str",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of strings. Used for peer URL lists, bootstrap nodes, etc."
+    },
+    {
+      "name": "FrameSizesArray",
+      "kind": "list",
+      "fields": [],
+      "item_type": "int",
+      "variants": [],
+      "inner_types": [],
+      "description": "Frozen array of allowed frame sizes in ascending order: [1024, 4096, 16384, 65536]. Exported as FRAME_SIZES constant. Object.freeze() prevents mutation."
+    },
+    {
+      "name": "ConnectedPeerInfoList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "ConnectedPeerInfo",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of ConnectedPeerInfo objects. Used by selectPeerForRotation."
+    },
+    {
+      "name": "PeerIdentity",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "pubKey",
+          "type_ref": "PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded public key of the sender.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Identity block included in peer exchange messages, containing the sender's public key."
+    },
+    {
+      "name": "PeerExchangeRequest",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'peer_exchange_request'.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "value === 'peer_exchange_request'",
+              "error_message": "type must be 'peer_exchange_request'"
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type_ref": "PeerIdentity",
+          "required": true,
+          "default": "",
+          "description": "Identity of the requesting peer.",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "EpochMilliseconds",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when the request was created.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A peer exchange request message. Sent as plain JSON text frame over WebSocket. NOT padded, TTL-stamped, or signed — separate protocol layer."
+    },
+    {
+      "name": "PeerExchangeResponse",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'peer_exchange_response'.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "value === 'peer_exchange_response'",
+              "error_message": "type must be 'peer_exchange_response'"
+            }
+          ]
+        },
+        {
+          "name": "peers",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of peer WebSocket URLs to share (max 5).",
+          "validators": [
+            {
+              "kind": "length",
+              "expression": "0..5",
+              "error_message": "peers array must contain 0-5 URLs"
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type_ref": "PeerIdentity",
+          "required": true,
+          "default": "",
+          "description": "Identity of the responding peer.",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "EpochMilliseconds",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when the response was created.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A peer exchange response message containing a list of known peer URLs. Sent as plain JSON text frame over WebSocket. NOT padded, TTL-stamped, or signed."
+    },
+    {
+      "name": "PeerExchangeMessage",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "PeerExchangeRequest",
+        "PeerExchangeResponse"
+      ],
+      "description": "Either a PeerExchangeRequest or PeerExchangeResponse. Discriminated by the 'type' field."
+    },
+    {
+      "name": "ConnectedPeerInfo",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "url",
+          "type_ref": "WebSocketUrl",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the connected peer.",
+          "validators": []
+        },
+        {
+          "name": "connectedAt",
+          "type_ref": "EpochMilliseconds",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when this peer connection was established.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Information about a currently connected peer, including connection establishment time. Used by selectPeerForRotation to identify the longest-connected peer."
+    },
+    {
+      "name": "IsProtocolResult",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "isProtocol",
+          "type_ref": "bool",
+          "required": true,
+          "default": "",
+          "description": "True if the data is a valid peer exchange protocol message (type starts with 'peer_exchange_').",
+          "validators": []
+        },
+        {
+          "name": "parsed",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "The parsed JSON object if isProtocol is true, null otherwise.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Result of checking whether raw WebSocket data is a peer exchange protocol message. Never throws — always returns a valid result object."
+    },
+    {
+      "name": "NetworkAPI",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "getConnectedPeerCount",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: () => int. Returns current number of connected peers.",
+          "validators": []
+        },
+        {
+          "name": "getConnectedPeerUrls",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: () => StrList. Returns URLs of all currently connected peers.",
+          "validators": []
+        },
+        {
+          "name": "connectToPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (url: str) => void. Initiates a WebSocket connection to the given peer URL.",
+          "validators": []
+        },
+        {
+          "name": "disconnectPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (url: str) => void. Closes the WebSocket connection to the given peer URL.",
+          "validators": []
+        },
+        {
+          "name": "sendToPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (url: str, data: str) => void. Sends a text frame to a specific connected peer.",
+          "validators": []
+        },
+        {
+          "name": "broadcastRaw",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (data: str) => void. Broadcasts a text frame to all connected peers.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Dependency-injected network API object passed to initializeDiscovery. Provides accessor functions for peer state without exposing internal WebSocket data structures. Constructed in client.js from network.js exports to avoid circular imports."
+    },
+    {
+      "name": "PeerMetadata",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "lastLatency",
+          "type_ref": "OptionalFloat",
+          "required": false,
+          "default": "null",
+          "description": "Measured latency in ms, or null/undefined to keep existing or default to null.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Optional metadata provided when adding a peer to the cache. All fields are optional with defaults."
+    },
+    {
+      "name": "UserConfig",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "privKey",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "User's Ed25519 secret key as Uint8Array (64 bytes, TweetNaCl format). NEVER log this value.",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "User's base64-encoded Ed25519 public key (32 bytes decoded).",
+          "validators": []
+        },
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "User's chosen display name.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "User identity configuration containing cryptographic keys and display name. Available in module scope of messages.js via the configuration object."
+    },
+    {
+      "name": "Configuration",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "user",
+          "type_ref": "UserConfig",
+          "required": true,
+          "default": "",
+          "description": "Current user configuration including keys and display name.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Application configuration object available in module scope. Contains user identity and other settings."
+    },
+    {
+      "name": "DefaultTTLs",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "direct",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "TTL for direct messages: 300 seconds (5 minutes).",
+          "validators": []
+        },
+        {
+          "name": "private",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "TTL for private/channel messages: 3600 seconds (1 hour).",
+          "validators": []
+        },
+        {
+          "name": "public",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "TTL for public broadcast messages: 86400 seconds (24 hours).",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Frozen constant mapping MessageType strings to default TTL in seconds. Defined at module top level in ttl.js as DEFAULT_TTLS."
+    },
+    {
+      "name": "TTLMessage",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "timestamp",
+          "type_ref": "Timestamp",
+          "required": true,
+          "default": "",
+          "description": "Message creation time as ISO 8601 string or epoch milliseconds.",
+          "validators": []
+        },
+        {
+          "name": "ttl",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Original total time-to-live in seconds, as stamped at creation time.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Minimal message shape required by TTL functions (isExpired, getRemainingTTL, getRebroadcastProbability). Must contain timestamp and ttl fields."
+    },
+    {
+      "name": "Timestamp",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "str",
+        "int"
+      ],
+      "description": "A timestamp value: either an epoch milliseconds number or an ISO 8601 date string. parseTimestamp normalizes both forms to epoch milliseconds."
+    },
+    {
+      "name": "WebSocketFrame",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "str",
+        "bytes"
+      ],
+      "description": "Data received from or sent to a WebSocket. Text frames arrive as strings; binary frames arrive as ArrayBuffer (converted to Uint8Array). The frame type discriminates protocol messages (text/JSON) from user messages (binary/padded)."
+    },
+    {
+      "name": "HkdfParams",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'HKDF'.",
+          "validators": []
+        },
+        {
+          "name": "hash",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'SHA-256'.",
+          "validators": []
+        },
+        {
+          "name": "salt",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "Always empty Uint8Array (new Uint8Array(0)). Empty salt per HKDF spec defaults to hash-length zero bytes.",
+          "validators": []
+        },
+        {
+          "name": "info",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "UTF-8 encoding of the constant string 'hermes-pseudonym'. Domain separation parameter.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Fixed HKDF parameters used internally by pseudonym generation. Not exported from pseudonyms.js — documented for contract completeness and auditability."
+    },
+    {
+      "name": "DerivedHmacKeyParams",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'HMAC'.",
+          "validators": []
+        },
+        {
+          "name": "hash",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'SHA-256'.",
+          "validators": []
+        },
+        {
+          "name": "length",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Always 256 (bits).",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Fixed parameters for the HMAC key derived via HKDF in pseudonym generation. Not exported — documented for contract completeness."
+    },
+    {
+      "name": "ModuleConstants",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "INFO_STRING",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Domain separation string: 'hermes-pseudonym'.",
+          "validators": []
+        },
+        {
+          "name": "SALT",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "Empty salt: new Uint8Array(0).",
+          "validators": []
+        },
+        {
+          "name": "IKM_LENGTH",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Number of bytes taken from Ed25519 secret key as input key material: 32.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Module-level constants for pseudonyms.js defined at the top of the file."
+    },
+    {
+      "name": "DiscoveryConstants",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "MIN_PEERS",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Minimum desired connected peer count: 3.",
+          "validators": []
+        },
+        {
+          "name": "KNOWN_PEERS_MAX",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Maximum entries in KnownPeersCache: 50.",
+          "validators": []
+        },
+        {
+          "name": "ROTATION_INTERVAL",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Peer rotation interval in milliseconds: 300000 (5 minutes).",
+          "validators": []
+        },
+        {
+          "name": "DISCOVERY_INTERVAL",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Health check / discovery interval in milliseconds: 30000 (30 seconds).",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Module-level constants for discovery.js. Defined at module top level."
+    },
+    {
+      "name": "TTLConstants",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "DEFAULT_TTLS",
+          "type_ref": "DefaultTTLs",
+          "required": true,
+          "default": "",
+          "description": "Frozen object: { direct: 300, private: 3600, public: 86400 }.",
+          "validators": []
+        },
+        {
+          "name": "BASE_REBROADCAST_PROBABILITY",
+          "type_ref": "float",
+          "required": true,
+          "default": "",
+          "description": "Maximum rebroadcast probability: 0.6. Decays linearly as TTL is consumed.",
+          "validators": []
+        },
+        {
+          "name": "CLOCK_SKEW_TOLERANCE_MS",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Maximum allowed clock skew in milliseconds: 30000 (30 seconds). Ages that compute as negative (future timestamps) are clamped to 0 when within this tolerance.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Module-level constants for ttl.js. Defined at module top level."
+    },
+    {
+      "name": "PaddingConstants",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "FRAME_SIZES",
+          "type_ref": "FrameSizesArray",
+          "required": true,
+          "default": "",
+          "description": "Frozen array: [1024, 4096, 16384, 65536]. Immutable.",
+          "validators": []
+        },
+        {
+          "name": "MAX_PAYLOAD_SIZE",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Maximum message payload before padding: 65534 bytes (65536 - 2 byte length suffix).",
+          "validators": []
+        },
+        {
+          "name": "LENGTH_SUFFIX_SIZE",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Size of the big-endian uint16 length suffix: 2 bytes.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Module-level constants for padding.js."
+    },
+    {
+      "name": "VerificationResult",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "valid",
+          "type_ref": "bool",
+          "required": true,
+          "default": "",
+          "description": "True if and only if nacl.sign.detached.verify returned true with correctly decoded inputs. False in all other cases including exceptions.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Conceptual result of verifySignature — always a plain boolean. Documented as a struct for contract completeness. True means the signature is valid for the given message and public key. False means invalid, malformed, or any error occurred (fail-closed)."
+    },
+    {
+      "name": "ErrorConvention",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "throw_on_invalid",
+        "return_failsafe",
+        "catch_and_log",
+        "early_return"
+      ],
+      "inner_types": [],
+      "description": "Error handling conventions used across modules. Leaf functions in the receive pipeline never throw on bad input — they return fail-safe values. Leaf functions in the send pipeline may throw to surface bugs. Integration layer catches and routes all errors."
+    }
+  ],
+  "functions": [
+    {
+      "name": "base64Encode",
+      "description": "Encode a Uint8Array to a base64 string using window.base64js.fromByteArray. Existing module-scoped function in crypto.js promoted to a named export. No functional or signature change. Part of crypto_verify component.",
+      "inputs": [
+        {
+          "name": "uint8Array",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "The raw bytes to encode.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "uint8Array instanceof Uint8Array",
+              "error_message": "Input must be a Uint8Array"
+            }
+          ]
+        }
+      ],
+      "output_type": "Base64String",
+      "error_cases": [
+        {
+          "name": "invalid_input_type",
+          "condition": "uint8Array is not a Uint8Array instance",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Input must be a Uint8Array"
+          }
+        },
+        {
+          "name": "missing_base64js_global",
+          "condition": "window.base64js is undefined or does not have fromByteArray method",
+          "error_type": "ReferenceError",
+          "error_data": {
+            "message": "window.base64js global not available"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.base64js global is available and provides fromByteArray function",
+        "uint8Array is a valid Uint8Array instance"
+      ],
+      "postconditions": [
+        "Returned string is valid base64 encoding of the input bytes per RFC 4648",
+        "base64Decode(base64Encode(input)) produces a Uint8Array with identical content to input (round-trip identity)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "base64Decode",
+      "description": "Decode a base64 string to a Uint8Array using window.base64js.toByteArray. Existing module-scoped function in crypto.js promoted to a named export. No functional or signature change. Part of crypto_verify component.",
+      "inputs": [
+        {
+          "name": "base64String",
+          "type_ref": "Base64String",
+          "required": true,
+          "default": "",
+          "description": "A valid base64-encoded string to decode.",
+          "validators": [
+            {
+              "kind": "regex",
+              "expression": "^[A-Za-z0-9+/]*={0,2}$",
+              "error_message": "Invalid base64 characters or padding"
+            }
+          ]
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "invalid_base64",
+          "condition": "base64String contains characters outside the base64 alphabet or has invalid padding",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid base64 string"
+          }
+        },
+        {
+          "name": "missing_base64js_global",
+          "condition": "window.base64js is undefined or does not have toByteArray method",
+          "error_type": "ReferenceError",
+          "error_data": {
+            "message": "window.base64js global not available"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.base64js global is available and provides toByteArray function",
+        "base64String is a valid base64-encoded string"
+      ],
+      "postconditions": [
+        "Returned Uint8Array contains the decoded bytes from the base64 input",
+        "base64Encode(base64Decode(validBase64)) returns a string equal to the input (modulo padding normalization)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "verifySignature",
+      "description": "Verify an Ed25519 detached signature against a message string and public key. Decodes base64 signature and publicKey via base64Decode, encodes message via TextEncoder, then calls window.nacl.sign.detached.verify. Returns boolean. Entire function body wrapped in try/catch: any exception returns false (fail-closed). MUST NOT be called on channel messages — channel messages lack from.pubKey for pseudonymity; the integration layer must skip verification for channel messages. Part of crypto_verify component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The message content string to verify. Will be UTF-8 encoded via TextEncoder.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof message === 'string'",
+              "error_message": "message must be a string"
+            }
+          ]
+        },
+        {
+          "name": "signature",
+          "type_ref": "SignatureBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 detached signature (64 bytes decoded).",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof signature === 'string'",
+              "error_message": "signature must be a string"
+            }
+          ]
+        },
+        {
+          "name": "publicKey",
+          "type_ref": "PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 public key (32 bytes decoded).",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof publicKey === 'string'",
+              "error_message": "publicKey must be a string"
+            }
+          ]
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "malformed_signature_base64",
+          "condition": "signature parameter is not valid base64",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "malformed_publickey_base64",
+          "condition": "publicKey parameter is not valid base64",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "wrong_signature_length",
+          "condition": "Decoded signature is not exactly 64 bytes",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "wrong_publickey_length",
+          "condition": "Decoded publicKey is not exactly 32 bytes",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "signature_mismatch",
+          "condition": "Signature does not match the message under the given public key",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "non_string_input",
+          "condition": "Any parameter is not a string (null, undefined, number, etc.)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        },
+        {
+          "name": "missing_nacl_global",
+          "condition": "window.nacl is not available at runtime",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.nacl global is available and provides nacl.sign.detached.verify function",
+        "window.base64js global is available for base64Decode",
+        "All three parameters are strings",
+        "This function MUST NOT be called on channel messages (channel messages lack from.pubKey)"
+      ],
+      "postconditions": [
+        "Returns true if and only if: signature base64-decodes to valid 64-byte Ed25519 signature, publicKey base64-decodes to valid 32-byte Ed25519 public key, and nacl.sign.detached.verify confirms the signature for the UTF-8 encoded message bytes",
+        "Returns false for any invalid, malformed, or mismatched inputs",
+        "Returns false on any thrown exception (fail-closed)",
+        "Never throws an exception to the caller",
+        "Never logs message content, private keys, or secret key material"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "padMessage",
+      "description": "Takes an unpadded message as a Uint8Array and returns a new Uint8Array padded to the smallest canonical frame size (1024, 4096, 16384, 65536) that fits the message plus a 2-byte big-endian length suffix. Message copied to position 0, gap filled with crypto.getRandomValues(), original length written as big-endian uint16 in last 2 bytes. Part of padding_module component.",
+      "inputs": [
+        {
+          "name": "messageBytes",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "The raw message bytes to pad. Must be a Uint8Array with length <= 65534.",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "messageBytes.length >= 0 && messageBytes.length <= 65534",
+              "error_message": "Message payload must be 0-65534 bytes"
+            }
+          ]
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "message_too_large",
+          "condition": "messageBytes.length > 65534",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Message too large for any frame size: maximum payload is 65534 bytes"
+          }
+        }
+      ],
+      "preconditions": [
+        "messageBytes is a Uint8Array instance",
+        "messageBytes.length <= 65534",
+        "crypto.getRandomValues is available as a global function"
+      ],
+      "postconditions": [
+        "Returned Uint8Array has length equal to one of FRAME_SIZES: 1024, 4096, 16384, or 65536",
+        "Returned frame size is the smallest FRAME_SIZES entry >= messageBytes.length + 2",
+        "result.slice(0, messageBytes.length) is byte-equal to messageBytes",
+        "Last 2 bytes encode messageBytes.length as big-endian uint16",
+        "Bytes in [messageBytes.length, result.length - 2) are filled by crypto.getRandomValues()",
+        "unpadMessage(padMessage(messageBytes)) is byte-equal to messageBytes (round-trip invariant)",
+        "Result is a new Uint8Array — no aliasing with input buffer"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "unpadMessage",
+      "description": "Extracts the original message from a padded frame by reading the big-endian uint16 length suffix from the last 2 bytes and returning a slice copy of bytes [0, originalLength). Validates consistency of encoded length with frame size. Part of padding_module component.",
+      "inputs": [
+        {
+          "name": "paddedBytes",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "A padded frame previously produced by padMessage.",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "paddedBytes.length >= 2",
+              "error_message": "Frame must be at least 2 bytes"
+            }
+          ]
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "frame_too_short",
+          "condition": "paddedBytes.length < 2",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Padded frame too short: must be at least 2 bytes to contain the length suffix"
+          }
+        },
+        {
+          "name": "corrupted_length",
+          "condition": "Decoded length from last 2 bytes exceeds paddedBytes.length - 2",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Decoded message length exceeds available frame space — corrupted or invalid frame"
+          }
+        }
+      ],
+      "preconditions": [
+        "paddedBytes is a Uint8Array instance",
+        "paddedBytes.length >= 2",
+        "Big-endian uint16 from last 2 bytes must be <= paddedBytes.length - 2"
+      ],
+      "postconditions": [
+        "Returned Uint8Array has length equal to the big-endian uint16 decoded from the last 2 bytes",
+        "Returned bytes are a copy (slice) of paddedBytes[0..decodedLength) — no aliasing",
+        "If paddedBytes was produced by padMessage(m), result is byte-equal to m"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "generatePseudonym",
+      "description": "Generates a deterministic, channel-specific pseudonym from an Ed25519 secret key and a channel identifier. Uses HKDF to derive a per-purpose HMAC-SHA256 key from the first 32 bytes of the secret key, then signs the UTF-8-encoded channelId. Returns a 44-character base64 string. Async (uses crypto.subtle). NEVER logs key material. Part of pseudonyms_module component.",
+      "inputs": [
+        {
+          "name": "privateKeyBase64",
+          "type_ref": "SecretKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 secret key (64 bytes decoded). Only first 32 bytes used as HKDF IKM.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof privateKeyBase64 === 'string' && privateKeyBase64.length > 0",
+              "error_message": "privateKeyBase64 must be a non-empty string"
+            }
+          ]
+        },
+        {
+          "name": "channelId",
+          "type_ref": "ChannelId",
+          "required": true,
+          "default": "",
+          "description": "Non-empty string identifying the channel. UTF-8 encoded before HMAC signing.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof channelId === 'string' && channelId.length > 0",
+              "error_message": "channelId must be a non-empty string"
+            }
+          ]
+        }
+      ],
+      "output_type": "PseudonymBase64",
+      "error_cases": [
+        {
+          "name": "missing_private_key",
+          "condition": "privateKeyBase64 is undefined, null, or empty string",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "privateKeyBase64 is required and must be a non-empty string"
+          }
+        },
+        {
+          "name": "private_key_too_short",
+          "condition": "Decoded privateKeyBase64 is less than 32 bytes",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "privateKeyBase64 must decode to at least 32 bytes"
+          }
+        },
+        {
+          "name": "missing_channel_id",
+          "condition": "channelId is undefined, null, or empty string",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "channelId is required and must be a non-empty string"
+          }
+        },
+        {
+          "name": "webcrypto_unavailable",
+          "condition": "crypto.subtle is not available",
+          "error_type": "Error",
+          "error_data": {
+            "message": "crypto.subtle is required but not available"
+          }
+        },
+        {
+          "name": "base64js_unavailable",
+          "condition": "window.base64js is not available",
+          "error_type": "Error",
+          "error_data": {
+            "message": "window.base64js is required but not available"
+          }
+        },
+        {
+          "name": "hkdf_import_failure",
+          "condition": "crypto.subtle.importKey rejects",
+          "error_type": "DOMException",
+          "error_data": {
+            "message": "Failed to import key material as HKDF key"
+          }
+        },
+        {
+          "name": "key_derivation_failure",
+          "condition": "crypto.subtle.deriveKey rejects",
+          "error_type": "DOMException",
+          "error_data": {
+            "message": "Failed to derive HMAC key from HKDF key"
+          }
+        },
+        {
+          "name": "hmac_sign_failure",
+          "condition": "crypto.subtle.sign rejects",
+          "error_type": "DOMException",
+          "error_data": {
+            "message": "Failed to sign channelId with derived HMAC key"
+          }
+        }
+      ],
+      "preconditions": [
+        "privateKeyBase64 is a non-empty string containing valid base64 data",
+        "Decoded privateKeyBase64 is at least 32 bytes long",
+        "channelId is a non-empty string",
+        "window.base64js global is available",
+        "crypto.subtle global is available",
+        "TextEncoder global is available"
+      ],
+      "postconditions": [
+        "Returns a 44-character base64 string representing 32 bytes of HMAC-SHA256 output",
+        "Return value is deterministic: identical inputs always produce identical output",
+        "Return value differs when channelId differs (unlinkability across channels)",
+        "Return value differs when privateKeyBase64 differs (unlinkability across identities)",
+        "No private key material is logged to console at any point"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "shortenPseudonym",
+      "description": "Returns the first `length` characters of a base64-encoded pseudonym string for display. Clamps length to [0, pseudonymBase64.length] so it never throws on out-of-range values. Synchronous, pure function. Part of pseudonyms_module component.",
+      "inputs": [
+        {
+          "name": "pseudonymBase64",
+          "type_ref": "Base64String",
+          "required": true,
+          "default": "",
+          "description": "The full base64-encoded pseudonym string.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof pseudonymBase64 === 'string'",
+              "error_message": "pseudonymBase64 must be a string"
+            }
+          ]
+        },
+        {
+          "name": "length",
+          "type_ref": "int",
+          "required": false,
+          "default": "8",
+          "description": "Number of characters to return. Defaults to 8. Clamped to [0, pseudonymBase64.length].",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof length === 'number' && Number.isInteger(length)",
+              "error_message": "length must be an integer"
+            }
+          ]
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "missing_pseudonym",
+          "condition": "pseudonymBase64 is undefined or null",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "pseudonymBase64 is required and must be a string"
+          }
+        },
+        {
+          "name": "invalid_pseudonym_type",
+          "condition": "pseudonymBase64 is not a string",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "pseudonymBase64 must be a string"
+          }
+        },
+        {
+          "name": "invalid_length_type",
+          "condition": "length is provided but is not a number or not an integer",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "length must be an integer"
+          }
+        }
+      ],
+      "preconditions": [
+        "pseudonymBase64 is a string (may be empty)",
+        "length is an integer (or omitted, defaulting to 8)"
+      ],
+      "postconditions": [
+        "Return value length equals Math.min(Math.max(0, length), pseudonymBase64.length)",
+        "Return value is a substring starting at index 0 of pseudonymBase64",
+        "When called with default length on a 44-character pseudonym, returns an 8-character string",
+        "When length exceeds pseudonymBase64.length, returns the full string",
+        "When length is 0 or negative, returns an empty string"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "parseTimestamp",
+      "description": "Parses a timestamp value into epoch milliseconds. Accepts number (returned as-is) or string (parsed via new Date(ts).getTime()). Throws on unparseable input to surface malformed data early. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "ts",
+          "type_ref": "Timestamp",
+          "required": true,
+          "default": "",
+          "description": "Timestamp as epoch milliseconds number or ISO 8601 date string.",
+          "validators": []
+        }
+      ],
+      "output_type": "int",
+      "error_cases": [
+        {
+          "name": "invalid_timestamp_type",
+          "condition": "ts is not a number and not a string",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid timestamp: expected number or string"
+          }
+        },
+        {
+          "name": "unparseable_string",
+          "condition": "ts is a string but new Date(ts).getTime() returns NaN",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid timestamp: unparseable date string"
+          }
+        }
+      ],
+      "preconditions": [
+        "ts is not null and not undefined"
+      ],
+      "postconditions": [
+        "Return value is a finite number representing epoch milliseconds",
+        "Return value is not NaN"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getDefaultTTL",
+      "description": "Returns the default TTL in seconds for a given message type. Looks up type in DEFAULT_TTLS constant. Throws for unknown types to surface integration bugs. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "messageType",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "One of 'direct', 'private', or 'public'.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "messageType in {'direct', 'private', 'public'}",
+              "error_message": "Unknown message type"
+            }
+          ]
+        }
+      ],
+      "output_type": "int",
+      "error_cases": [
+        {
+          "name": "unknown_message_type",
+          "condition": "messageType is not one of 'direct', 'private', 'public'",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Unknown message type: <messageType>"
+          }
+        }
+      ],
+      "preconditions": [
+        "messageType is a non-empty string"
+      ],
+      "postconditions": [
+        "Return value is a positive integer",
+        "Return value is one of: 300, 3600, 86400",
+        "getDefaultTTL('direct') === 300",
+        "getDefaultTTL('private') === 3600",
+        "getDefaultTTL('public') === 86400"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "isExpired",
+      "description": "Checks whether a message has exceeded its TTL. Computes age, clamps to 0 for clock-skew safety, returns age >= ttl. Fail-safe: returns true (drop) if timestamp or ttl is missing/invalid. Never throws. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "malformed_message_failsafe",
+          "condition": "message is missing timestamp or ttl, or parseTimestamp throws, or ttl is not a positive number",
+          "error_type": "none",
+          "error_data": {
+            "behavior": "Returns true (fail-safe: treat malformed messages as expired)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Always returns a boolean, never throws",
+        "Returns true if message.timestamp or message.ttl is missing or invalid (fail-safe drop)",
+        "Returns true if computed age >= message.ttl",
+        "Returns false if computed age < message.ttl",
+        "Future timestamps (negative raw age) are clamped to age=0, so message is not expired"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getRemainingTTL",
+      "description": "Returns seconds remaining before message expires, clamped to 0. Computes Math.max(0, message.ttl - age) with age clamped to 0 for clock-skew safety. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "float",
+      "error_cases": [
+        {
+          "name": "invalid_timestamp",
+          "condition": "message.timestamp cannot be parsed by parseTimestamp",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Propagates Error from parseTimestamp"
+          }
+        },
+        {
+          "name": "missing_ttl",
+          "condition": "message.ttl is undefined, null, or not a number",
+          "error_type": "Error",
+          "error_data": {
+            "message": "message.ttl must be a number"
+          }
+        }
+      ],
+      "preconditions": [
+        "message.timestamp is a valid Timestamp parseable by parseTimestamp",
+        "message.ttl is a non-negative number"
+      ],
+      "postconditions": [
+        "Return value >= 0",
+        "Return value <= message.ttl",
+        "If isExpired(message) is true, return value is 0",
+        "If message has future timestamp, return value equals message.ttl (age clamped to 0)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getRebroadcastProbability",
+      "description": "Computes rebroadcast probability using linear decay from BASE_REBROADCAST_PROBABILITY (0.6) based on remaining TTL fraction: 0.6 * (remainingTTL / message.ttl). Fail-safe: returns 0.0 for any edge case. Never throws. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "float",
+      "error_cases": [
+        {
+          "name": "any_error_failsafe",
+          "condition": "Any exception during computation",
+          "error_type": "none",
+          "error_data": {
+            "behavior": "Returns 0.0 (fail-safe: do not rebroadcast on error)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Return value >= 0.0",
+        "Return value <= 0.6 (BASE_REBROADCAST_PROBABILITY)",
+        "If message.ttl <= 0, return value is 0.0",
+        "If isExpired(message), return value is 0.0",
+        "If full TTL remaining (freshly created), return value is 0.6",
+        "Never throws — returns 0.0 on any error"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "stampTTL",
+      "description": "Adds the ttl field to a message package based on message type. Mutates in-place: messagePackage.ttl = getDefaultTTL(messageType). Returns same object reference for pipeline chaining. Part of ttl_module component.",
+      "inputs": [
+        {
+          "name": "messagePackage",
+          "type_ref": "MessagePackage",
+          "required": true,
+          "default": "",
+          "description": "Mutable message package object to stamp.",
+          "validators": []
+        },
+        {
+          "name": "messageType",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "One of 'direct', 'private', 'public'.",
+          "validators": []
+        }
+      ],
+      "output_type": "MessagePackage",
+      "error_cases": [
+        {
+          "name": "unknown_message_type",
+          "condition": "messageType is not one of 'direct', 'private', 'public'",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Propagates Error from getDefaultTTL: Unknown message type"
+          }
+        },
+        {
+          "name": "null_package",
+          "condition": "messagePackage is null or undefined",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Cannot set property 'ttl' of null/undefined"
+          }
+        }
+      ],
+      "preconditions": [
+        "messagePackage is a non-null object",
+        "messageType is one of 'direct', 'private', 'public'"
+      ],
+      "postconditions": [
+        "Return value is the same object reference as messagePackage (===)",
+        "messagePackage.ttl is set to getDefaultTTL(messageType)",
+        "All other fields on messagePackage are preserved unchanged",
+        "If messagePackage already had a ttl field, it is overwritten"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "messagePackage.ttl",
+          "description": "Sets the ttl field on the passed-in messagePackage object"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "getBootstrapNodes",
+      "description": "Returns a hardcoded array of bootstrap WebSocket URLs. For Phase 1, derives a single WebSocket URL from the provided origin. Converts https:// to wss:// and http:// to ws://, appending /ws path. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "origin",
+          "type_ref": "str",
+          "required": false,
+          "default": "window.location.origin",
+          "description": "Origin URL to derive WebSocket URL from. Defaults to window.location.origin for browser use.",
+          "validators": []
+        }
+      ],
+      "output_type": "StrList",
+      "error_cases": [
+        {
+          "name": "missing_origin",
+          "condition": "origin is undefined/null AND window.location is not available",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Cannot determine origin: no origin parameter and window.location is unavailable"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returned array has at least 1 element",
+        "Each element is a valid WebSocket URL string starting with 'ws://' or 'wss://'"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "createPeerExchangeRequest",
+      "description": "Creates a peer exchange request message object. Plain JSON-serializable, intended to be sent as a text frame. NOT padded, signed, or TTL-stamped. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "pubKey",
+          "type_ref": "PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Public key of the requesting peer.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof pubKey === 'string' && pubKey.length > 0",
+              "error_message": "pubKey must be a non-empty string"
+            }
+          ]
+        }
+      ],
+      "output_type": "PeerExchangeRequest",
+      "error_cases": [],
+      "preconditions": [
+        "pubKey is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned object has type === 'peer_exchange_request'",
+        "Returned object has from.pubKey === pubKey",
+        "Returned object has timestamp approximately equal to Date.now()"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "createPeerExchangeResponse",
+      "description": "Creates a peer exchange response message containing peer URLs. Plain JSON-serializable, sent as text frame. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "peerUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of peer WebSocket URLs to share.",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Public key of the responding peer.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof pubKey === 'string' && pubKey.length > 0",
+              "error_message": "pubKey must be a non-empty string"
+            }
+          ]
+        }
+      ],
+      "output_type": "PeerExchangeResponse",
+      "error_cases": [],
+      "preconditions": [
+        "peerUrls is an array of strings",
+        "pubKey is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned object has type === 'peer_exchange_response'",
+        "Returned object has peers array equal to peerUrls",
+        "Returned object has from.pubKey === pubKey",
+        "Returned object has timestamp approximately equal to Date.now()"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "handlePeerExchangeRequest",
+      "description": "Handles incoming peer exchange request by returning up to 5 connected peer URLs excluding the requester. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "PeerExchangeRequest",
+          "required": true,
+          "default": "",
+          "description": "The incoming peer exchange request.",
+          "validators": []
+        },
+        {
+          "name": "connectedPeerUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "URLs of all currently connected peers.",
+          "validators": []
+        },
+        {
+          "name": "requesterUrl",
+          "type_ref": "WebSocketUrl",
+          "required": true,
+          "default": "",
+          "description": "URL of the peer that sent the request (excluded from response).",
+          "validators": []
+        }
+      ],
+      "output_type": "StrList",
+      "error_cases": [
+        {
+          "name": "invalid_message",
+          "condition": "message is null, undefined, or missing type field",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns empty array []"
+          }
+        },
+        {
+          "name": "invalid_connected_peers",
+          "condition": "connectedPeerUrls is not an array",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns empty array []"
+          }
+        }
+      ],
+      "preconditions": [
+        "message is a valid PeerExchangeRequest object",
+        "connectedPeerUrls is an array of strings"
+      ],
+      "postconditions": [
+        "Returned array has length <= 5",
+        "Returned array does not contain requesterUrl",
+        "All returned URLs are from connectedPeerUrls"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "handlePeerExchangeResponse",
+      "description": "Handles incoming peer exchange response by adding each peer URL to the KnownPeersCache. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "PeerExchangeResponse",
+          "required": true,
+          "default": "",
+          "description": "The incoming peer exchange response.",
+          "validators": []
+        },
+        {
+          "name": "cache",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "KnownPeersCache instance to populate.",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "invalid_message",
+          "condition": "message is null, undefined, or message.peers is not an array",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns immediately without modifying cache"
+          }
+        },
+        {
+          "name": "invalid_cache",
+          "condition": "cache is null, undefined, or not a KnownPeersCache instance",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns immediately"
+          }
+        }
+      ],
+      "preconditions": [
+        "message is a valid PeerExchangeResponse with a peers array",
+        "cache is a KnownPeersCache instance"
+      ],
+      "postconditions": [
+        "Each URL in message.peers has been added to cache",
+        "Cache size does not exceed maxSize (eviction may have occurred)"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "KnownPeersCache",
+          "description": "Adds peer URLs from message.peers to the cache"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "selectPeerForRotation",
+      "description": "Selects the longest-connected peer (lowest connectedAt) for rotation/disconnection. Returns URL or null if empty. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "connectedPeers",
+          "type_ref": "ConnectedPeerInfoList",
+          "required": true,
+          "default": "",
+          "description": "Array of connected peer info objects.",
+          "validators": []
+        }
+      ],
+      "output_type": "OptionalStr",
+      "error_cases": [
+        {
+          "name": "empty_list",
+          "condition": "connectedPeers is empty or not an array",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "If connectedPeers is non-empty, returned URL has the lowest connectedAt value",
+        "If connectedPeers is empty, returns null",
+        "Returned URL (if not null) exists in connectedPeers"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "selectPeerForConnection",
+      "description": "Selects a random peer URL from cache not already connected. Uses crypto.getRandomValues() for secure random selection. Returns null if none eligible. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "cache",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "KnownPeersCache instance.",
+          "validators": []
+        },
+        {
+          "name": "connectedUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "URLs of currently connected peers (to exclude).",
+          "validators": []
+        }
+      ],
+      "output_type": "OptionalStr",
+      "error_cases": [
+        {
+          "name": "no_eligible_peers",
+          "condition": "All cached peer URLs are in connectedUrls, or cache is empty",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        },
+        {
+          "name": "invalid_cache",
+          "condition": "cache is null or undefined",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        }
+      ],
+      "preconditions": [
+        "cache is a KnownPeersCache instance",
+        "connectedUrls is an array of strings"
+      ],
+      "postconditions": [
+        "If returned value is not null, it exists in cache.getAll() but not in connectedUrls",
+        "If all cached peers are already connected, returns null",
+        "If cache is empty, returns null"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "isProtocolMessage",
+      "description": "Checks if raw WebSocket data is a peer exchange protocol message. Checks string type, attempts JSON.parse, verifies 'type' starts with 'peer_exchange_'. Never throws. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "data",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Raw WebSocket message data. May be string, ArrayBuffer, Uint8Array, or any other type.",
+          "validators": []
+        }
+      ],
+      "output_type": "IsProtocolResult",
+      "error_cases": [
+        {
+          "name": "non_string_data",
+          "condition": "data is not a string",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        },
+        {
+          "name": "invalid_json",
+          "condition": "data is a string but not valid JSON",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        },
+        {
+          "name": "non_protocol_json",
+          "condition": "data is valid JSON but type does not start with 'peer_exchange_'",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "If isProtocol is true, parsed is a non-null object with type starting with 'peer_exchange_'",
+        "If isProtocol is false, parsed is null",
+        "Function never throws — all parse errors caught internally"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "initializeDiscovery",
+      "description": "Starts periodic peer discovery (30s) and rotation (5min) timers. Returns a cleanup function that clears both intervals. Safe to call cleanup multiple times. Part of discovery_module component.",
+      "inputs": [
+        {
+          "name": "networkApi",
+          "type_ref": "NetworkAPI",
+          "required": true,
+          "default": "",
+          "description": "Dependency-injected network API object providing peer accessors and connection functions.",
+          "validators": []
+        }
+      ],
+      "output_type": "CleanupFunction",
+      "error_cases": [
+        {
+          "name": "invalid_network_api",
+          "condition": "networkApi is null, undefined, or missing required methods",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "networkApi must provide getConnectedPeerCount, getConnectedPeerUrls, connectToPeer, disconnectPeer, sendToPeer, and broadcastRaw functions"
+          }
+        }
+      ],
+      "preconditions": [
+        "networkApi is an object with all required function properties",
+        "networkApi.getConnectedPeerCount returns a non-negative integer",
+        "networkApi.getConnectedPeerUrls returns an array of strings"
+      ],
+      "postconditions": [
+        "Two setInterval timers are running: one at 30000ms, one at 300000ms",
+        "Returned function, when called, clears both intervals",
+        "No timers remain active after cleanup function is called"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Starts two setInterval timers that persist until cleanup is called",
+        "Timer callbacks invoke networkApi methods"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "Global timer registry",
+          "description": "Creates two setInterval timers for discovery and rotation"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "getConnectedPeerCount",
+      "description": "Returns the number of currently connected WebSocket peers. Pure accessor over the internal peers Map in network.js. Part of integration component.",
+      "inputs": [],
+      "output_type": "int",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Return value >= 0",
+        "Return value equals internal peers.size at time of call"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getConnectedPeerUrls",
+      "description": "Returns an array of URLs for all currently connected WebSocket peers. Pure accessor over internal peers Map keys in network.js. Part of integration component.",
+      "inputs": [],
+      "output_type": "StrList",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Return value is a new array (not a reference to internal state)",
+        "Length equals getConnectedPeerCount()",
+        "Each element is a valid WebSocket URL string"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "packageMessage",
+      "description": "Async function that builds, stamps, signs, serializes, and pads a message for broadcast. Steps: (1) build message object, (2) stampTTL, (3) pseudonym for channels or keep identity for DM/public, (4) sign, (5) JSON.stringify, (6) padMessage(TextEncoder.encode(json)). Returns padded Uint8Array. Part of integration component.",
+      "inputs": [
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The message content to send.",
+          "validators": []
+        },
+        {
+          "name": "type",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "Message type: 'direct', 'private', or 'public'.",
+          "validators": []
+        },
+        {
+          "name": "channelId",
+          "type_ref": "OptionalStr",
+          "required": false,
+          "default": "null",
+          "description": "Channel identifier. Required when type is 'private'.",
+          "validators": []
+        },
+        {
+          "name": "recipientPubKey",
+          "type_ref": "OptionalStr",
+          "required": false,
+          "default": "null",
+          "description": "Recipient public key for direct messages.",
+          "validators": []
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "message_too_long",
+          "condition": "Serialized JSON exceeds maximum padded frame size (64KB)",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Message too long (max 64KB)"
+          }
+        },
+        {
+          "name": "missing_channel_id",
+          "condition": "type is 'private' but channelId is null or undefined",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "channelId required for channel messages"
+          }
+        }
+      ],
+      "preconditions": [
+        "configuration.user.privKey is available in module scope",
+        "channelId must be provided when type is 'private'",
+        "content is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned bytes is a padded Uint8Array with length that is a power of 2 in FRAME_SIZES",
+        "Returned bytes length <= 65536 (64KB max after padding)",
+        "Embedded message has ttl field set by stampTTL",
+        "For type='private': from.pubKey is absent in the serialized message",
+        "For type='private': from.name is a 16-character shortened pseudonym",
+        "For type='direct' or 'public': from.pubKey is present",
+        "Embedded message has a valid Ed25519 signature over message content"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "handleMessageSubmit",
+      "description": "Async event handler for message submission. Calls event.preventDefault() BEFORE any await. Wraps packageMessage in try/catch to surface padding errors as UI warnings. On success, passes padded frame to broadcastMessage. Part of integration component.",
+      "inputs": [
+        {
+          "name": "event",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "DOM Event with preventDefault method.",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "message_too_long_ui",
+          "condition": "packageMessage throws RangeError due to message exceeding 64KB",
+          "error_type": "RangeError",
+          "error_data": {
+            "ui_feedback": "appendMessage('System', 'Message too long (max 64KB)', 'error')"
+          }
+        },
+        {
+          "name": "unexpected_send_error",
+          "condition": "Any non-RangeError exception during packageMessage or broadcast",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error('Failed to send message:', error)"
+          }
+        }
+      ],
+      "preconditions": [
+        "event is a valid DOM Event with preventDefault method",
+        "User has entered message content in UI input field",
+        "Network is initialized and broadcastMessage is available"
+      ],
+      "postconditions": [
+        "event.preventDefault() was called synchronously (before any await)",
+        "On success: padded binary frame was passed to broadcastMessage",
+        "On success: UI input field is cleared",
+        "On padding error: UI displays 'Message too long (max 64KB)' warning",
+        "On other errors: error is logged via console.error"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Calls broadcastMessage to send padded frame to all peers",
+        "Updates DOM: clears input field or shows error message"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "broadcastMessage",
+          "description": "Sends padded binary frame to all connected WebSocket peers"
+        },
+        {
+          "kind": "mutates_state",
+          "target": "DOM",
+          "description": "Clears input field on success or displays error message on failure"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "handleIncomingFrame",
+      "description": "Restructured WebSocket onmessage handler. Discriminates text (protocol) from binary (user message) frames. Text: routes to discovery handler. Binary: unpad → deserialize → TTL check → dedup → signature verify → decrypt → display. Rebroadcasts valid messages using original raw frame bytes. Part of integration component.",
+      "inputs": [
+        {
+          "name": "rawFrame",
+          "type_ref": "WebSocketFrame",
+          "required": true,
+          "default": "",
+          "description": "Raw data from WebSocket onmessage event.",
+          "validators": []
+        },
+        {
+          "name": "senderUrl",
+          "type_ref": "WebSocketUrl",
+          "required": true,
+          "default": "",
+          "description": "URL of the WebSocket peer that sent this frame.",
+          "validators": []
+        }
+      ],
+      "output_type": "ReceivePipelineResult",
+      "error_cases": [
+        {
+          "name": "malformed_binary_frame",
+          "condition": "Binary frame cannot be unpadded, decoded as UTF-8, or parsed as JSON",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error, return 'malformed_dropped'"
+          }
+        },
+        {
+          "name": "expired_message",
+          "condition": "isExpired(message) returns true",
+          "error_type": "none",
+          "error_data": {
+            "handling": "console.warn, return 'expired_dropped'"
+          }
+        },
+        {
+          "name": "duplicate_message",
+          "condition": "Message ID already in dedup set",
+          "error_type": "none",
+          "error_data": {
+            "handling": "return 'duplicate_dropped'"
+          }
+        },
+        {
+          "name": "signature_verification_failed",
+          "condition": "Message has from.pubKey but verifySignature returns false",
+          "error_type": "none",
+          "error_data": {
+            "handling": "console.warn, return 'signature_failed_dropped'"
+          }
+        },
+        {
+          "name": "pubkey_without_signature",
+          "condition": "Message has from.pubKey but signature field is missing/empty",
+          "error_type": "none",
+          "error_data": {
+            "handling": "console.warn, return 'pubkey_without_signature_dropped'"
+          }
+        }
+      ],
+      "preconditions": [
+        "WebSocket binaryType is set to 'arraybuffer'",
+        "Message handler callback is registered",
+        "Deduplication set is available in module scope"
+      ],
+      "postconditions": [
+        "Text frames matching isProtocolMessage are routed to discovery handler",
+        "Expired messages are dropped with console.warn",
+        "Duplicate messages are dropped silently",
+        "Messages with from.pubKey but invalid/missing signature are dropped with console.warn",
+        "Messages without from.pubKey (channel) skip signature verification",
+        "Valid messages are passed to message handler callback",
+        "Valid messages are rebroadcast with probability from getRebroadcastProbability using ORIGINAL raw frame bytes",
+        "Malformed binary frames are caught, logged via console.error, and dropped"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "May rebroadcast original raw frame to connected peers",
+        "Calls message handler callback for valid messages",
+        "Routes protocol messages to discovery handler"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "broadcastMessage",
+          "description": "Rebroadcasts original raw binary frame with probability from getRebroadcastProbability"
+        },
+        {
+          "kind": "logging",
+          "target": "console",
+          "description": "console.warn for security drops, console.error for malformed data"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "broadcastMessage",
+      "description": "Sends a frame to all connected peers. Accepts both string (backward compat) and Uint8Array/ArrayBuffer (new pipeline). Binary sent as binary frames, string as text frames. Part of integration component.",
+      "inputs": [
+        {
+          "name": "frame",
+          "type_ref": "WebSocketFrame",
+          "required": true,
+          "default": "",
+          "description": "Frame to broadcast. String for text, Uint8Array/ArrayBuffer for binary.",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "send_failure",
+          "condition": "WebSocket.send() throws for a specific peer",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "Log error for that peer, continue sending to remaining peers"
+          }
+        }
+      ],
+      "preconditions": [
+        "frame is a string, Uint8Array, or ArrayBuffer"
+      ],
+      "postconditions": [
+        "Frame is sent to all currently connected peers",
+        "Binary frames sent as WebSocket binary frames",
+        "String frames sent as WebSocket text frames",
+        "No encoding or transformation applied to the frame"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Sends frame to all connected WebSocket peers"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "WebSocket.send()",
+          "description": "Sends frame to each connected peer's WebSocket"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "initializeWebSocket",
+      "description": "Creates WebSocket connection with binaryType='arraybuffer'. Minimal modification to existing connection setup in network.js. Part of integration component.",
+      "inputs": [
+        {
+          "name": "url",
+          "type_ref": "WebSocketUrl",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL to connect to (ws:// or wss://).",
+          "validators": []
+        }
+      ],
+      "output_type": "any",
+      "error_cases": [
+        {
+          "name": "connection_failed",
+          "condition": "WebSocket constructor throws or connection fails",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "Existing error handling preserved via onerror/onclose"
+          }
+        }
+      ],
+      "preconditions": [
+        "url is a valid WebSocket URL"
+      ],
+      "postconditions": [
+        "Returned WebSocket has binaryType set to 'arraybuffer'",
+        "onmessage handler uses restructured handleIncomingFrame logic",
+        "All existing WebSocket event handlers preserved"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Creates a new WebSocket connection"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "new WebSocket(url)",
+          "description": "Initiates WebSocket connection to the specified URL"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "initializeDiscoveryBootstrap",
+      "description": "Wires discovery module to network module via dependency injection. Constructs NetworkAPI from network.js exports and passes to initializeDiscovery. Called in client.js after initializeNetwork(). Part of integration component.",
+      "inputs": [],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "network_not_initialized",
+          "condition": "Called before initializeNetwork()",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error('Cannot initialize discovery: network not ready')"
+          }
+        }
+      ],
+      "preconditions": [
+        "initializeNetwork() has already been called and completed",
+        "getConnectedPeerCount, getConnectedPeerUrls, broadcastMessage, connectToPeer available from network.js",
+        "initializeDiscovery available from discovery.js"
+      ],
+      "postconditions": [
+        "Discovery module is initialized with valid NetworkAPI object",
+        "Discovery timers are started",
+        "No circular module dependencies are created"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Starts discovery timers that periodically exchange peer information"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "Discovery timer registry",
+          "description": "Starts peer exchange and rotation interval timers"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "FRAME_SIZES",
+      "description": "Exported frozen constant array Object.freeze([1024, 4096, 16384, 65536]). Defines canonical padded frame sizes. Immutable. Documented as a named export of padding_module. This is a constant, not a function.",
+      "inputs": [],
+      "output_type": "FrameSizesArray",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returned array is frozen (Object.isFrozen() === true)",
+        "Array has exactly 4 elements: [1024, 4096, 16384, 65536]",
+        "Elements are in strictly ascending order"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "crypto_verify",
+    "discovery_module",
+    "integration",
+    "padding_module",
+    "pseudonyms_module",
+    "ttl_module"
+  ],
+  "dependency_contracts": {
+    "crypto_verify": [
+      "base64Encode",
+      "base64Decode",
+      "verifySignature"
+    ],
+    "discovery_module": [
+      "KnownPeersCache",
+      "getBootstrapNodes",
+      "createPeerExchangeRequest",
+      "createPeerExchangeResponse",
+      "handlePeerExchangeRequest",
+      "handlePeerExchangeResponse",
+      "selectPeerForRotation",
+      "selectPeerForConnection",
+      "isProtocolMessage",
+      "initializeDiscovery"
+    ],
+    "integration": [
+      "getConnectedPeerCount",
+      "getConnectedPeerUrls",
+      "packageMessage",
+      "handleMessageSubmit",
+      "handleIncomingFrame",
+      "broadcastMessage",
+      "initializeWebSocket",
+      "initializeDiscoveryBootstrap"
+    ],
+    "padding_module": [
+      "FRAME_SIZES",
+      "padMessage",
+      "unpadMessage"
+    ],
+    "pseudonyms_module": [
+      "generatePseudonym",
+      "shortenPseudonym"
+    ],
+    "ttl_module": [
+      "parseTimestamp",
+      "getDefaultTTL",
+      "isExpired",
+      "getRemainingTTL",
+      "getRebroadcastProbability",
+      "stampTTL"
+    ]
+  },
+  "invariants": [
+    "PILLAR 1 — CANONICAL TYPE DEFINITIONS: All shared types use consistent naming: 'PublicKeyBase64' / 'SecretKeyBase64' (matching TweetNaCl terminology), 'Base64' suffix for encoded strings, 'Bytes' or Uint8Array for raw byte buffers. Base64 is always standard RFC 4648 with padding — never base64url.",
+    "PILLAR 2 — ERROR HANDLING CONVENTION: Leaf functions in the receive pipeline (isExpired, verifySignature, isProtocolMessage, unpadMessage) return fail-safe values on bad input (true/false/null) rather than throwing. Leaf functions in the send pipeline (padMessage, generatePseudonym, getDefaultTTL, parseTimestamp) throw on invalid input to surface bugs early. The integration layer catches all exceptions and routes to console.warn (security drops) or console.error (actual errors). console.warn for: expired TTL, failed signature, missing pubKey with signature. console.error for: malformed frames, missing dependencies.",
+    "PILLAR 3 — PIPELINE ENVELOPE: The send pipeline order is: compose → encrypt → stampTTL → pseudonym (channels) → package → sign → serialize → pad → broadcast. The receive pipeline order is: receive → classify (protocol shortcut for text frames) → unpad → deserialize → TTL check → dedup → verify sig (if pubKey present) → decrypt → display. Each leaf function accepts minimum required input and returns specific output; the integration module maps between them via the MessageEnvelope progression.",
+    "PILLAR 4 — SERIALIZATION BOUNDARIES: User message wire format is binary: JSON.stringify(MessagePackage) → TextEncoder.encode() → padMessage() → Uint8Array sent as WebSocket binary frame. Peer exchange wire format is plain JSON text (no padding, no TTL, no signing). WebSocket binaryType MUST be 'arraybuffer' for all connections. Text frames are routed to protocol/discovery handler; binary frames to user message pipeline. Frame type discrimination happens first in onmessage.",
+    "PILLAR 5 — CONSTANTS CONVENTION: Each module defines its own constants at the top of the file. padding_module owns: FRAME_SIZES=[1024,4096,16384,65536], MAX_PAYLOAD_SIZE=65534, LENGTH_SUFFIX_SIZE=2. ttl_module owns: DEFAULT_TTLS={direct:300,private:3600,public:86400}, BASE_REBROADCAST_PROBABILITY=0.6, CLOCK_SKEW_TOLERANCE_MS=30000. discovery_module owns: MIN_PEERS=3, KNOWN_PEERS_MAX=50, ROTATION_INTERVAL=300000, DISCOVERY_INTERVAL=30000. pseudonyms_module owns: INFO_STRING='hermes-pseudonym', SALT=new Uint8Array(0), IKM_LENGTH=32. Constants are frozen where applicable (Object.freeze).",
+    "PILLAR 6 — MODULE INDEPENDENCE: Leaf modules (padding.js, ttl.js, pseudonyms.js, crypto.js, discovery.js) do NOT import each other. Only the integration module (network.js, messages.js, client.js) imports from leaf modules. This ensures each leaf is independently testable and prevents circular dependencies. Discovery receives network capabilities via dependency injection (NetworkAPI object) rather than importing network.js directly.",
+    "The signature (Ed25519 detached via nacl.sign.detached) covers the 'message' field content string encoded as UTF-8 bytes — NOT the entire MessagePackage JSON. The signature is computed BEFORE padding is applied.",
+    "Channel messages (type='private') ARE signed on send (signature is computed over message content) but signature verification is SKIPPED on receive because from.pubKey is absent. The integration layer enforces this skip: if from.pubKey is not present, verifySignature is not called.",
+    "Messages with from.pubKey present but missing or invalid signature are always dropped (security invariant). Messages with from.pubKey present but empty signature field are dropped with 'pubkey_without_signature_dropped'.",
+    "Raw binary frames are rebroadcast as-is — the original bytes from the sender are forwarded without re-encoding, re-padding, or re-serialization. This preserves padding integrity and prevents relay nodes from introducing distinguishable re-padded frames.",
+    "event.preventDefault() is always called synchronously in handleMessageSubmit BEFORE any await expression to prevent form submission race conditions.",
+    "Private keys, secret keys, HKDF-derived key material, and decrypted message content are NEVER logged to any output channel (console.log, console.warn, console.error). Only message IDs and metadata may be logged.",
+    "All modules use ES6 import/export syntax with named exports only — no default exports, no CommonJS require/module.exports.",
+    "All exported functions have JSDoc comments with @param and @returns annotations.",
+    "Each module file is located at static/js/<module>.js and remains under 300 lines.",
+    "crypto.getRandomValues() is used for all cryptographic random bytes — never Math.random().",
+    "Date.now() is used for all timestamps (EpochMilliseconds).",
+    "For padded frames: the last 2 bytes always encode the original message length as big-endian unsigned 16-bit integer. For any Uint8Array m where m.length <= 65534: unpadMessage(padMessage(m)) is byte-equal to m (round-trip correctness).",
+    "For pseudonyms: generatePseudonym is deterministic for fixed (SecretKeyBase64, ChannelId) pairs. Different channelIds produce different pseudonyms. Different secret keys produce different pseudonyms for the same channel. HKDF info is always UTF-8 of 'hermes-pseudonym', salt is always empty Uint8Array.",
+    "For TTL: age is always clamped to >= 0 to handle clock skew (future timestamps). Rebroadcast probability decays linearly from 0.6 to 0.0 as remaining TTL fraction decreases from 1.0 to 0.0.",
+    "For discovery: KnownPeersCache uses Map-based LRU eviction by lowest lastSeen. Cache size never exceeds configured maxSize. Peer exchange messages are plain JSON — never padded, TTL-stamped, signed, or encrypted.",
+    "For crypto_verify: verifySignature NEVER throws — all exceptions caught internally, returns false (fail-closed). base64Decode(base64Encode(x)) === x for any valid Uint8Array x.",
+    "broadcastMessage in network.js accepts both string (backward compatibility) and Uint8Array/ArrayBuffer (new binary pipeline) without breaking existing callers."
+  ],
+  "requires": [
+    "Browser runtime with window.nacl (TweetNaCl.js) global",
+    "Browser runtime with window.base64js (base64-js) global",
+    "Web Crypto API (crypto.subtle) for HMAC-SHA256 and HKDF operations",
+    "crypto.getRandomValues() for cryptographic random byte generation",
+    "TextEncoder and TextDecoder globals for UTF-8 encoding/decoding",
+    "WebSocket API with binaryType='arraybuffer' support",
+    "ES6 module support (import/export syntax)",
+    "Date.now() for epoch millisecond timestamps"
+  ]
+}

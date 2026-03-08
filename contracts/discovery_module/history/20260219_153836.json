@@ -1,0 +1,1101 @@
+{
+  "component_id": "discovery_module",
+  "name": "Peer Discovery",
+  "description": "ES6 module `static/js/discovery.js` implementing peer discovery via bootstrap nodes, peer exchange protocol, self-healing, and peer rotation. Provides a KnownPeersCache class for stateful peer tracking, pure functions for composing/handling peer exchange protocol messages (sent as plain JSON text frames, outside the padded/signed message pipeline), and an initializeDiscovery function that manages periodic health-check and rotation timers. Peer exchange messages are a separate protocol layer — NOT padded, TTL-stamped, or signed.",
+  "version": 1,
+  "types": [
+    {
+      "name": "int",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Integer number (JavaScript number used as integer)"
+    },
+    {
+      "name": "float",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Floating point number (JavaScript number)"
+    },
+    {
+      "name": "str",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript string"
+    },
+    {
+      "name": "bool",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript boolean"
+    },
+    {
+      "name": "None",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript undefined or null (function returns nothing meaningful)"
+    },
+    {
+      "name": "any",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Any JavaScript value"
+    },
+    {
+      "name": "PeerEntry",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the peer (e.g., 'wss://example.com/ws')",
+          "validators": []
+        },
+        {
+          "name": "lastSeen",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds (from Date.now()) of when this peer was last seen or added/updated",
+          "validators": []
+        },
+        {
+          "name": "lastLatency",
+          "type_ref": "OptionalFloat",
+          "required": true,
+          "default": "",
+          "description": "Last measured round-trip latency in milliseconds, or null if not yet measured",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A single peer record stored in KnownPeersCache. Represents a known peer with its URL, last-seen timestamp, and optional latency measurement."
+    },
+    {
+      "name": "OptionalFloat",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "float",
+      "variants": [],
+      "inner_types": [],
+      "description": "A float value or null"
+    },
+    {
+      "name": "OptionalStr",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "str",
+      "variants": [],
+      "inner_types": [],
+      "description": "A string value or null"
+    },
+    {
+      "name": "OptionalPeerEntry",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "PeerEntry",
+      "variants": [],
+      "inner_types": [],
+      "description": "A PeerEntry or undefined"
+    },
+    {
+      "name": "PeerEntryList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "PeerEntry",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of PeerEntry objects"
+    },
+    {
+      "name": "StrList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "str",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of strings"
+    },
+    {
+      "name": "PeerMetadata",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "lastLatency",
+          "type_ref": "OptionalFloat",
+          "required": false,
+          "default": "null",
+          "description": "Measured latency in ms, or null/undefined to keep existing or default to null",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Optional metadata provided when adding a peer to the cache. All fields are optional; missing fields use defaults."
+    },
+    {
+      "name": "PeerIdentity",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "pubKey",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded public key of the sender",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Identity block included in peer exchange messages, containing the sender's public key."
+    },
+    {
+      "name": "PeerExchangeRequest",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'peer_exchange_request'",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "value === 'peer_exchange_request'",
+              "error_message": "type must be 'peer_exchange_request'"
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type_ref": "PeerIdentity",
+          "required": true,
+          "default": "",
+          "description": "Identity of the requesting peer",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when the request was created (Date.now())",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A peer exchange request message. Sent as plain JSON text frame over WebSocket."
+    },
+    {
+      "name": "PeerExchangeResponse",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "type",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Always 'peer_exchange_response'",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "value === 'peer_exchange_response'",
+              "error_message": "type must be 'peer_exchange_response'"
+            }
+          ]
+        },
+        {
+          "name": "peers",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of peer WebSocket URLs to share (max 5)",
+          "validators": [
+            {
+              "kind": "length",
+              "expression": "0..5",
+              "error_message": "peers array must contain 0 to 5 URLs"
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type_ref": "PeerIdentity",
+          "required": true,
+          "default": "",
+          "description": "Identity of the responding peer",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when the response was created (Date.now())",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A peer exchange response message containing a list of known peer URLs. Sent as plain JSON text frame over WebSocket."
+    },
+    {
+      "name": "PeerExchangeMessage",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "PeerExchangeRequest",
+        "PeerExchangeResponse"
+      ],
+      "description": "Either a peer exchange request or response"
+    },
+    {
+      "name": "ConnectedPeerInfo",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the connected peer",
+          "validators": []
+        },
+        {
+          "name": "connectedAt",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds when this peer connection was established",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Information about a currently connected peer, including when the connection was established. Used by selectPeerForRotation."
+    },
+    {
+      "name": "ConnectedPeerInfoList",
+      "kind": "list",
+      "fields": [],
+      "item_type": "ConnectedPeerInfo",
+      "variants": [],
+      "inner_types": [],
+      "description": "Array of ConnectedPeerInfo objects"
+    },
+    {
+      "name": "IsProtocolResult",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "isProtocol",
+          "type_ref": "bool",
+          "required": true,
+          "default": "",
+          "description": "True if the data is a valid peer exchange protocol message",
+          "validators": []
+        },
+        {
+          "name": "parsed",
+          "type_ref": "OptionalParsedMessage",
+          "required": true,
+          "default": "",
+          "description": "The parsed JSON object if isProtocol is true, null otherwise",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Result of checking whether raw WebSocket data is a peer exchange protocol message."
+    },
+    {
+      "name": "OptionalParsedMessage",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "PeerExchangeMessage",
+      "variants": [],
+      "inner_types": [],
+      "description": "A parsed peer exchange message object or null"
+    },
+    {
+      "name": "NetworkApi",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "getConnectedPeerCount",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function () => int — returns current number of connected peers",
+          "validators": []
+        },
+        {
+          "name": "getConnectedPeerUrls",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function () => StrList — returns URLs of all currently connected peers",
+          "validators": []
+        },
+        {
+          "name": "connectToPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function (url: str) => void — initiates a WebSocket connection to the given peer URL",
+          "validators": []
+        },
+        {
+          "name": "disconnectPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function (url: str) => void — closes the WebSocket connection to the given peer URL",
+          "validators": []
+        },
+        {
+          "name": "sendToPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function (url: str, data: str) => void — sends a text frame to a specific connected peer",
+          "validators": []
+        },
+        {
+          "name": "broadcastRaw",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function (data: str) => void — broadcasts a text frame to all connected peers",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Interface object providing network operations to initializeDiscovery. Passed by the caller to decouple discovery logic from WebSocket implementation."
+    },
+    {
+      "name": "CleanupFunction",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A no-argument function that clears all timers started by initializeDiscovery. Calling it multiple times is safe."
+    },
+    {
+      "name": "KnownPeersCache",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "maxSize",
+          "type_ref": "int",
+          "required": true,
+          "default": "50",
+          "description": "Maximum number of entries the cache can hold. Set at construction time.",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "1..10000",
+              "error_message": "maxSize must be a positive integer"
+            }
+          ]
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Class managing a bounded set of known peers with LRU-style eviction based on lastSeen timestamp. Uses an internal Map<string, PeerEntry>. Acceptable as a class per SOPs because it manages stateful lifecycle."
+    }
+  ],
+  "functions": [
+    {
+      "name": "KnownPeersCache.constructor",
+      "description": "Creates a new KnownPeersCache instance with the given maximum capacity. Initializes an empty internal Map.",
+      "inputs": [
+        {
+          "name": "maxSize",
+          "type_ref": "int",
+          "required": false,
+          "default": "50",
+          "description": "Maximum number of peer entries to store. Defaults to KNOWN_PEERS_MAX (50).",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "1..10000",
+              "error_message": "maxSize must be a positive integer between 1 and 10000"
+            }
+          ]
+        }
+      ],
+      "output_type": "KnownPeersCache",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returned cache has size() === 0",
+        "Returned cache has maxSize set to the provided value or 50"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "KnownPeersCache.add",
+      "description": "Adds a new peer entry or updates an existing one. Sets lastSeen to Date.now() on every call. If the cache is at maxSize and the URL is new, evicts the entry with the lowest (oldest) lastSeen value before inserting the new entry.",
+      "inputs": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the peer to add or update",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof url === 'string' && url.length > 0",
+              "error_message": "url must be a non-empty string"
+            }
+          ]
+        },
+        {
+          "name": "metadata",
+          "type_ref": "PeerMetadata",
+          "required": false,
+          "default": "{}",
+          "description": "Optional metadata to merge into the peer entry",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "invalid_url",
+          "condition": "url is not a non-empty string",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns immediately without modifying cache"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "cache.get(url) returns a PeerEntry with lastSeen approximately equal to Date.now()",
+        "cache.size() <= maxSize",
+        "If url was new and cache was at maxSize, the entry with the lowest lastSeen was evicted"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "KnownPeersCache internal Map",
+          "description": "Inserts or updates a PeerEntry, may evict oldest entry"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "KnownPeersCache.get",
+      "description": "Returns the PeerEntry for the given URL, or undefined if not found. Does NOT update lastSeen (read-only operation).",
+      "inputs": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL to look up",
+          "validators": []
+        }
+      ],
+      "output_type": "OptionalPeerEntry",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "If URL exists in cache, returns the corresponding PeerEntry",
+        "If URL does not exist, returns undefined",
+        "Cache state is not modified"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "KnownPeersCache.getAll",
+      "description": "Returns a shallow copy array of all PeerEntry objects currently in the cache.",
+      "inputs": [],
+      "output_type": "PeerEntryList",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returned array length equals cache.size()",
+        "Returned array is a new array (not the internal data structure)",
+        "Each element is a PeerEntry with url, lastSeen, and lastLatency fields"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "KnownPeersCache.remove",
+      "description": "Removes the peer entry for the given URL from the cache. No-op if the URL is not present.",
+      "inputs": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "WebSocket URL of the peer to remove",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "cache.get(url) returns undefined after removal",
+        "cache.size() decreased by 1 if url was present, unchanged otherwise"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "KnownPeersCache internal Map",
+          "description": "Deletes the entry for the given URL if it exists"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "KnownPeersCache.size",
+      "description": "Returns the current number of entries in the cache.",
+      "inputs": [],
+      "output_type": "int",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returned value is >= 0 and <= maxSize"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getBootstrapNodes",
+      "description": "Returns a hardcoded array of bootstrap WebSocket URLs. For Phase 1, derives a single WebSocket URL from the provided origin (or window.location.origin). Converts 'https://' to 'wss://' and 'http://' to 'ws://', appending '/ws' path. Accepts optional origin parameter for testability.",
+      "inputs": [
+        {
+          "name": "origin",
+          "type_ref": "str",
+          "required": false,
+          "default": "window.location.origin",
+          "description": "The origin URL to derive the WebSocket bootstrap URL from. Defaults to window.location.origin in browser context.",
+          "validators": []
+        }
+      ],
+      "output_type": "StrList",
+      "error_cases": [
+        {
+          "name": "missing_origin",
+          "condition": "origin is undefined/null AND window.location is not available",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Cannot determine origin: no origin parameter and window.location is unavailable"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Returned array has at least 1 element",
+        "Each element is a valid WebSocket URL string starting with 'ws://' or 'wss://'"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "reads_file",
+          "target": "window.location.origin",
+          "description": "Reads browser global window.location.origin if no origin parameter is provided"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "createPeerExchangeRequest",
+      "description": "Creates a peer exchange request message object. The message is a plain JSON-serializable object intended to be sent as a text frame.",
+      "inputs": [
+        {
+          "name": "pubKey",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded public key of the requesting peer",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof pubKey === 'string' && pubKey.length > 0",
+              "error_message": "pubKey must be a non-empty string"
+            }
+          ]
+        }
+      ],
+      "output_type": "PeerExchangeRequest",
+      "error_cases": [],
+      "preconditions": [
+        "pubKey is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned object has type === 'peer_exchange_request'",
+        "Returned object has from.pubKey === pubKey",
+        "Returned object has timestamp approximately equal to Date.now()"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": null,
+        "complexity": "O(1)"
+      }
+    },
+    {
+      "name": "createPeerExchangeResponse",
+      "description": "Creates a peer exchange response message object containing a list of known peer URLs. The message is a plain JSON-serializable object intended to be sent as a text frame.",
+      "inputs": [
+        {
+          "name": "peerUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of peer WebSocket URLs to include in the response",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded public key of the responding peer",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof pubKey === 'string' && pubKey.length > 0",
+              "error_message": "pubKey must be a non-empty string"
+            }
+          ]
+        }
+      ],
+      "output_type": "PeerExchangeResponse",
+      "error_cases": [],
+      "preconditions": [
+        "peerUrls is an array of strings",
+        "pubKey is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned object has type === 'peer_exchange_response'",
+        "Returned object has peers array equal to peerUrls",
+        "Returned object has from.pubKey === pubKey",
+        "Returned object has timestamp approximately equal to Date.now()"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": null,
+        "complexity": "O(1)"
+      }
+    },
+    {
+      "name": "handlePeerExchangeRequest",
+      "description": "Handles an incoming peer exchange request by producing a peer exchange response. Returns up to 5 connected peer URLs, excluding the requester's URL. Uses the requesting peer's pubKey as the 'from' identity in the response would be wrong — uses the local peer's list of connected URLs instead. The caller is responsible for sending the response.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "PeerExchangeRequest",
+          "required": true,
+          "default": "",
+          "description": "The incoming peer exchange request message (already parsed)",
+          "validators": []
+        },
+        {
+          "name": "connectedPeerUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of URLs of all currently connected peers (from networkApi.getConnectedPeerUrls)",
+          "validators": []
+        },
+        {
+          "name": "requesterUrl",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The WebSocket URL of the peer that sent the request (used to exclude from response)",
+          "validators": []
+        }
+      ],
+      "output_type": "StrList",
+      "error_cases": [
+        {
+          "name": "invalid_message",
+          "condition": "message is null, undefined, or missing type field",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns empty array []"
+          }
+        },
+        {
+          "name": "invalid_connected_peers",
+          "condition": "connectedPeerUrls is not an array",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns empty array []"
+          }
+        }
+      ],
+      "preconditions": [
+        "message is a valid PeerExchangeRequest object",
+        "connectedPeerUrls is an array of strings"
+      ],
+      "postconditions": [
+        "Returned array has length <= 5",
+        "Returned array does not contain requesterUrl",
+        "All returned URLs are from connectedPeerUrls"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": 1,
+        "max_memory_mb": null,
+        "complexity": "O(n)"
+      }
+    },
+    {
+      "name": "handlePeerExchangeResponse",
+      "description": "Handles an incoming peer exchange response by adding each received peer URL to the KnownPeersCache. Each URL is added with default metadata (lastLatency: null).",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "PeerExchangeResponse",
+          "required": true,
+          "default": "",
+          "description": "The incoming peer exchange response message (already parsed)",
+          "validators": []
+        },
+        {
+          "name": "cache",
+          "type_ref": "KnownPeersCache",
+          "required": true,
+          "default": "",
+          "description": "The KnownPeersCache instance to add discovered peers to",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "invalid_message",
+          "condition": "message is null, undefined, or message.peers is not an array",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns immediately without modifying cache"
+          }
+        },
+        {
+          "name": "invalid_cache",
+          "condition": "cache is null, undefined, or not a KnownPeersCache instance",
+          "error_type": "early_return",
+          "error_data": {
+            "behavior": "Returns immediately"
+          }
+        }
+      ],
+      "preconditions": [
+        "message is a valid PeerExchangeResponse object with a peers array",
+        "cache is a KnownPeersCache instance"
+      ],
+      "postconditions": [
+        "Each URL in message.peers has been added to cache (cache.get(url) is defined for each)",
+        "Cache size does not exceed maxSize (eviction may have occurred)"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "KnownPeersCache",
+          "description": "Adds each peer URL from the response to the cache"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "selectPeerForRotation",
+      "description": "Selects the peer that has been connected the longest (lowest connectedAt timestamp) for rotation/disconnection. Returns the URL of that peer, or null if the list is empty.",
+      "inputs": [
+        {
+          "name": "connectedPeers",
+          "type_ref": "ConnectedPeerInfoList",
+          "required": true,
+          "default": "",
+          "description": "Array of currently connected peers with their connection timestamps",
+          "validators": []
+        }
+      ],
+      "output_type": "OptionalStr",
+      "error_cases": [
+        {
+          "name": "empty_list",
+          "condition": "connectedPeers is empty or not an array",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "If connectedPeers is non-empty, returned URL is the one with the lowest connectedAt value",
+        "If connectedPeers is empty, returns null",
+        "Returned URL (if not null) exists in the connectedPeers array"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": null,
+        "complexity": "O(n)"
+      }
+    },
+    {
+      "name": "selectPeerForConnection",
+      "description": "Selects a random peer URL from the cache that is not already in the connected set. Uses crypto.getRandomValues() for secure random index selection. Returns null if no eligible peers are available.",
+      "inputs": [
+        {
+          "name": "cache",
+          "type_ref": "KnownPeersCache",
+          "required": true,
+          "default": "",
+          "description": "The KnownPeersCache to select from",
+          "validators": []
+        },
+        {
+          "name": "connectedUrls",
+          "type_ref": "StrList",
+          "required": true,
+          "default": "",
+          "description": "Array of currently connected peer URLs to exclude from selection",
+          "validators": []
+        }
+      ],
+      "output_type": "OptionalStr",
+      "error_cases": [
+        {
+          "name": "no_eligible_peers",
+          "condition": "All cached peer URLs are in connectedUrls, or cache is empty",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        },
+        {
+          "name": "invalid_cache",
+          "condition": "cache is null or undefined",
+          "error_type": "returns_null",
+          "error_data": {
+            "behavior": "Returns null"
+          }
+        }
+      ],
+      "preconditions": [
+        "cache is a KnownPeersCache instance",
+        "connectedUrls is an array of strings"
+      ],
+      "postconditions": [
+        "If returned value is not null, it exists in cache.getAll() but not in connectedUrls",
+        "If all cached peers are already connected, returns null",
+        "If cache is empty, returns null"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": null,
+        "complexity": "O(n)"
+      }
+    },
+    {
+      "name": "isProtocolMessage",
+      "description": "Checks if raw WebSocket data is a peer exchange protocol message. First checks if data is a string (binary frames are not protocol messages). Then attempts JSON.parse in a try/catch. If parsed successfully, checks if the 'type' property is a string starting with 'peer_exchange_'. Returns an object with isProtocol boolean and the parsed message (or null).",
+      "inputs": [
+        {
+          "name": "data",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Raw WebSocket message data — could be a string (text frame) or ArrayBuffer/Uint8Array (binary frame)",
+          "validators": []
+        }
+      ],
+      "output_type": "IsProtocolResult",
+      "error_cases": [
+        {
+          "name": "non_string_data",
+          "condition": "data is not a string (e.g., ArrayBuffer, Uint8Array, number)",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        },
+        {
+          "name": "invalid_json",
+          "condition": "data is a string but not valid JSON",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        },
+        {
+          "name": "non_protocol_json",
+          "condition": "data is valid JSON but type field does not start with 'peer_exchange_'",
+          "error_type": "returns_false_result",
+          "error_data": {
+            "behavior": "Returns {isProtocol: false, parsed: null}"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "If isProtocol is true, parsed is a non-null object with a type field starting with 'peer_exchange_'",
+        "If isProtocol is false, parsed is null",
+        "Function never throws — all parse errors are caught internally"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": {
+        "p95_latency_ms": 1,
+        "max_memory_mb": null,
+        "complexity": "O(n)"
+      }
+    },
+    {
+      "name": "initializeDiscovery",
+      "description": "Starts periodic peer discovery and rotation timers. Sets up a DISCOVERY_INTERVAL (30s) health check that: (1) checks if connected peer count is below MIN_PEERS, (2) if so, attempts to connect to a peer from the cache or bootstrap nodes, and (3) broadcasts peer exchange requests. Sets up a ROTATION_INTERVAL (5min) rotation that: (1) selects the longest-connected peer for disconnection, (2) disconnects it, and (3) connects a new peer from cache. Returns a cleanup function that clears both intervals. The cleanup function is safe to call multiple times.",
+      "inputs": [
+        {
+          "name": "networkApi",
+          "type_ref": "NetworkApi",
+          "required": true,
+          "default": "",
+          "description": "Object providing network operation callbacks for connecting, disconnecting, and messaging peers",
+          "validators": []
+        }
+      ],
+      "output_type": "CleanupFunction",
+      "error_cases": [
+        {
+          "name": "invalid_network_api",
+          "condition": "networkApi is null, undefined, or missing required methods",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "networkApi must provide getConnectedPeerCount, getConnectedPeerUrls, connectToPeer, disconnectPeer, sendToPeer, and broadcastRaw functions"
+          }
+        }
+      ],
+      "preconditions": [
+        "networkApi is an object with all required function properties",
+        "networkApi.getConnectedPeerCount returns a non-negative integer",
+        "networkApi.getConnectedPeerUrls returns an array of strings"
+      ],
+      "postconditions": [
+        "Two setInterval timers are running: one at DISCOVERY_INTERVAL, one at ROTATION_INTERVAL",
+        "Returned function, when called, clears both intervals",
+        "No timers remain active after cleanup function is called"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Starts two setInterval timers that persist until cleanup is called",
+        "Timer callbacks invoke networkApi methods (connectToPeer, disconnectPeer, broadcastRaw, etc.)"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "Global timer registry (setInterval)",
+          "description": "Registers two periodic intervals for discovery health check and peer rotation"
+        },
+        {
+          "kind": "network_call",
+          "target": "networkApi methods",
+          "description": "Timer callbacks invoke networkApi.connectToPeer, disconnectPeer, broadcastRaw, sendToPeer"
+        },
+        {
+          "kind": "logging",
+          "target": "console.warn",
+          "description": "Logs warnings when peer count drops below MIN_PEERS"
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [],
+  "dependency_contracts": {},
+  "invariants": [
+    "MIN_PEERS is always 3",
+    "KNOWN_PEERS_MAX is always 50",
+    "ROTATION_INTERVAL is always 300000 (5 minutes in ms)",
+    "DISCOVERY_INTERVAL is always 30000 (30 seconds in ms)",
+    "KnownPeersCache internal Map size never exceeds the configured maxSize",
+    "Peer exchange messages are plain JSON objects — never padded, TTL-stamped, signed, or encrypted",
+    "Peer exchange messages always have a type field starting with 'peer_exchange_'",
+    "LRU eviction removes the entry with the lowest lastSeen value when cache is at max capacity",
+    "All exported functions use named exports only — no default export",
+    "No private keys, secret keys, or decrypted message content are ever logged"
+  ],
+  "requires": [
+    "Browser runtime with window.location available for getBootstrapNodes default",
+    "crypto.getRandomValues() available for secure random index selection",
+    "Date.now() available for timestamps"
+  ]
+}

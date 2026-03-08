@@ -1,0 +1,274 @@
+{
+  "problem": "The HermesP2P proof-of-concept chat application lacks five critical protocol features specified in chapters 8-9 of \"Privacy: Architecture of Forgetting\": (1) incoming messages are accepted without cryptographic signature verification, allowing spoofed/tampered messages; (2) message sizes leak metadata enabling traffic analysis because there is no fixed-frame padding; (3) messages live forever in the gossip network with no TTL enforcement or expiry-based rebroadcast decay; (4) users are globally identifiable across channels via their username and public key, destroying cross-channel unlinkability; (5) peer discovery is static with no peer exchange, self-healing, or mesh rotation, leading to fragile clique topologies. Together these gaps mean the PoC cannot demonstrate the core privacy and resilience properties of the HermesP2P protocol.",
+  "appetite": "big",
+  "solution_breadboard": {
+    "places": [
+      {
+        "name": "Compose Box",
+        "description": "Where the user types and submits a message (existing UI)"
+      },
+      {
+        "name": "Send Pipeline",
+        "description": "Internal processing chain: encrypt → stampTTL → pseudonym (channels) → package → sign → serialize → pad → broadcast"
+      },
+      {
+        "name": "WebSocket Transport",
+        "description": "Existing WebSocket connections to peers; now carries binary padded frames for user messages and JSON text frames for peer exchange"
+      },
+      {
+        "name": "Receive Pipeline",
+        "description": "Internal processing chain: classify frame → (peer exchange shortcut) OR unpad → deserialize → TTL check → dedup → verify signature → decrypt → display"
+      },
+      {
+        "name": "Message Display",
+        "description": "Existing chat area where verified, decrypted messages appear with pseudonym (channel) or username (DM)"
+      },
+      {
+        "name": "Peer Exchange Layer",
+        "description": "Separate protocol layer handling peer_exchange_request and peer_exchange_response messages, bypassing crypto pipeline"
+      },
+      {
+        "name": "Known Peers Cache",
+        "description": "LRU cache (max 50) of discovered peer URLs with lastSeen and latency metadata"
+      },
+      {
+        "name": "Discovery Manager",
+        "description": "Periodic timers for health checks (30s), peer rotation (5min), and bootstrap fallback"
+      }
+    ],
+    "affordances": [
+      {
+        "name": "padMessage",
+        "description": "Pads serialized message bytes to nearest frame size (1KB/4KB/16KB/64KB) with random fill and 2-byte length suffix"
+      },
+      {
+        "name": "unpadMessage",
+        "description": "Reads 2-byte big-endian length suffix from padded frame and extracts original message bytes"
+      },
+      {
+        "name": "stampTTL",
+        "description": "Adds ttl field to message package based on type: direct=300s, private=3600s, public=86400s"
+      },
+      {
+        "name": "isExpired",
+        "description": "Compares message timestamp + ttl against current time; returns true if message has expired"
+      },
+      {
+        "name": "getRebroadcastProbability",
+        "description": "Calculates decay probability: 0.6 × (remainingTTL / totalTTL) for gossip rebroadcast decisions"
+      },
+      {
+        "name": "verifySignature",
+        "description": "Verifies Ed25519 detached signature using nacl.sign.detached.verify; returns boolean"
+      },
+      {
+        "name": "generatePseudonym",
+        "description": "Async: HKDF(privKey, 'hermes-pseudonym') → HMAC-SHA256(derivedKey, channelId) → base64 pseudonym"
+      },
+      {
+        "name": "shortenPseudonym",
+        "description": "Truncates base64 pseudonym to first N characters (default 8) for display"
+      },
+      {
+        "name": "sendPeerExchangeRequest",
+        "description": "Sends peer_exchange_request JSON to all connected peers"
+      },
+      {
+        "name": "handlePeerExchangeRequest",
+        "description": "Responds with up to 5 known peer URLs (excluding requester)"
+      },
+      {
+        "name": "handlePeerExchangeResponse",
+        "description": "Adds received peer URLs to known peers cache and connects if below MIN_PEERS"
+      },
+      {
+        "name": "rotatePeer",
+        "description": "Disconnects longest-connected peer (at MAX_PEERS) and connects to random cached peer"
+      },
+      {
+        "name": "selfHeal",
+        "description": "Checks connected peer count; if below MIN_PEERS triggers peer exchange and cache-based connections"
+      },
+      {
+        "name": "classifyFrame",
+        "description": "Attempts JSON.parse on incoming frame; if valid JSON with peer exchange type, routes to Peer Exchange Layer; otherwise routes to unpad"
+      },
+      {
+        "name": "throwMessageTooLong",
+        "description": "Throws error caught at UI level when serialized message exceeds 65534 bytes, showing warning to user"
+      }
+    ],
+    "connections": [
+      {
+        "from_place": "Compose Box",
+        "to_place": "Send Pipeline",
+        "affordance": "handleMessageSubmit",
+        "description": "User submits message; triggers async send pipeline"
+      },
+      {
+        "from_place": "Send Pipeline",
+        "to_place": "Send Pipeline",
+        "affordance": "stampTTL",
+        "description": "TTL field added to message package based on message type"
+      },
+      {
+        "from_place": "Send Pipeline",
+        "to_place": "Send Pipeline",
+        "affordance": "generatePseudonym",
+        "description": "For channel messages: replaces from.name with pseudonym and removes from.pubKey"
+      },
+      {
+        "from_place": "Send Pipeline",
+        "to_place": "Send Pipeline",
+        "affordance": "padMessage",
+        "description": "Serialized signed message padded to fixed frame size"
+      },
+      {
+        "from_place": "Send Pipeline",
+        "to_place": "Send Pipeline",
+        "affordance": "throwMessageTooLong",
+        "description": "If serialized bytes exceed 65534, error thrown and user warned"
+      },
+      {
+        "from_place": "Send Pipeline",
+        "to_place": "WebSocket Transport",
+        "affordance": "broadcastMessage",
+        "description": "Padded binary frame sent to all connected peers"
+      },
+      {
+        "from_place": "WebSocket Transport",
+        "to_place": "Receive Pipeline",
+        "affordance": "classifyFrame",
+        "description": "Incoming frame classified as peer exchange (text JSON) or user message (binary padded)"
+      },
+      {
+        "from_place": "Receive Pipeline",
+        "to_place": "Peer Exchange Layer",
+        "affordance": "classifyFrame",
+        "description": "Peer exchange messages routed to separate handler bypassing crypto pipeline"
+      },
+      {
+        "from_place": "Receive Pipeline",
+        "to_place": "Receive Pipeline",
+        "affordance": "unpadMessage",
+        "description": "Padded frame stripped to original serialized bytes"
+      },
+      {
+        "from_place": "Receive Pipeline",
+        "to_place": "Receive Pipeline",
+        "affordance": "isExpired",
+        "description": "TTL checked first (cheapest); expired messages discarded with console.warn"
+      },
+      {
+        "from_place": "Receive Pipeline",
+        "to_place": "Receive Pipeline",
+        "affordance": "verifySignature",
+        "description": "Ed25519 signature verified after dedup; invalid messages silently dropped with console.warn"
+      },
+      {
+        "from_place": "Receive Pipeline",
+        "to_place": "Message Display",
+        "affordance": "shortenPseudonym",
+        "description": "Channel messages displayed with shortened pseudonym; DMs displayed with username"
+      },
+      {
+        "from_place": "Peer Exchange Layer",
+        "to_place": "Known Peers Cache",
+        "affordance": "handlePeerExchangeResponse",
+        "description": "Discovered peer URLs added to LRU cache"
+      },
+      {
+        "from_place": "Peer Exchange Layer",
+        "to_place": "WebSocket Transport",
+        "affordance": "handlePeerExchangeRequest",
+        "description": "Responds with known peer URLs to requesting peer"
+      },
+      {
+        "from_place": "Discovery Manager",
+        "to_place": "WebSocket Transport",
+        "affordance": "sendPeerExchangeRequest",
+        "description": "Periodic health check triggers peer exchange requests when below MIN_PEERS"
+      },
+      {
+        "from_place": "Discovery Manager",
+        "to_place": "Known Peers Cache",
+        "affordance": "selfHeal",
+        "description": "Attempts connections from cache when peer count drops below MIN_PEERS"
+      },
+      {
+        "from_place": "Discovery Manager",
+        "to_place": "WebSocket Transport",
+        "affordance": "rotatePeer",
+        "description": "Every 5 minutes, rotates one peer to evolve mesh topology"
+      },
+      {
+        "from_place": "Discovery Manager",
+        "to_place": "Receive Pipeline",
+        "affordance": "getRebroadcastProbability",
+        "description": "TTL-decayed probability used for rebroadcast decisions instead of fixed constant"
+      }
+    ]
+  },
+  "solution_region_map": null,
+  "rabbit_holes": [
+    {
+      "description": "Channel messages have from.pubKey removed for pseudonymity, but signature verification requires the sender's public key. Without the public key, verifySignature() cannot run on channel messages. The interview did not directly resolve this contradiction.",
+      "status": "patched",
+      "mitigation": "Channel messages are verified by recipients who share the channel key — the channel key itself provides authentication of membership. Skip Ed25519 signature verification for messages where from.pubKey is absent (channel messages). Only verify signatures on DMs and public messages where pubKey is present. Document this as a known trade-off: pseudonymity and per-message signature verification are in tension; channel key possession is the trust boundary."
+    },
+    {
+      "description": "Making packageMessage() and handleMessageSubmit() async could break existing synchronous call sites in client.js or event handlers that don't await the result, potentially causing messages to be sent before encryption/pseudonym generation completes.",
+      "status": "patched",
+      "mitigation": "Audit all call sites of packageMessage() and handleMessageSubmit() in client.js and messages.js. The interview confirmed async is acceptable. Event handlers calling handleMessageSubmit should use async/await or .catch() to handle errors. Add the padding overflow error catch at the handleMessageSubmit level to show UI warning."
+    },
+    {
+      "description": "The Flask WebSocket relay may not transparently forward binary frames. If it only handles text frames, padded Uint8Array frames will fail silently or error on send.",
+      "status": "patched",
+      "mitigation": "Interview answer: relay forwards both text and binary. Fallback plan documented: base64-encode padded frames and send as text with an encoding wrapper. Implement binary first; if integration testing reveals relay issues, wrap with base64 text encoding. This fallback is a small scope addition."
+    },
+    {
+      "description": "Distinguishing peer exchange messages from padded user messages at the receive side is fragile. Attempting JSON.parse on every incoming binary frame is wasteful, and padded random bytes could theoretically parse as valid JSON with a type field.",
+      "status": "patched",
+      "mitigation": "Use WebSocket message type as discriminator: peer exchange messages are sent as text frames (ws.send(JSON.stringify(...))), while padded user messages are sent as binary frames (ws.send(uint8Array)). Check `typeof event.data === 'string'` vs `event.data instanceof ArrayBuffer` before routing. This is reliable and avoids the JSON.parse-on-binary-data problem."
+    },
+    {
+      "description": "Web Crypto API's HKDF and HMAC operations are async and relatively slow. If generatePseudonym() is called on every outgoing channel message, it could introduce noticeable latency on rapid message sending.",
+      "status": "patched",
+      "mitigation": "Add a simple in-memory cache (Map) inside pseudonyms.js keyed by `${privateKeyBase64}:${channelId}` that stores the computed pseudonym. Since derivation is deterministic, the cache is safe. Cache is bounded by number of channels (small). Invalidate on channel rename (channelId changes)."
+    },
+    {
+      "description": "The KnownPeersCache LRU implementation could become a scope creep rabbit hole if over-engineered with proper LRU eviction, sorted access patterns, and concurrency considerations.",
+      "status": "patched",
+      "mitigation": "Keep it simple: use a Map (which preserves insertion order in JS). On add(), if size exceeds KNOWN_PEERS_MAX, delete the first (oldest) entry via Map.keys().next().value. On get(), delete and re-insert to move to end (most recent). This is a ~20 line implementation, not a production LRU library."
+    },
+    {
+      "description": "Peer rotation (disconnecting longest-connected peer) could disrupt active conversations or disconnect from the only peer that has a route to certain other nodes, causing message delivery failures.",
+      "status": "patched",
+      "mitigation": "Only rotate when at MAX_PEERS (5 connections) — never rotate below that. The self-healing mechanism ensures replacement connections are attempted immediately. Also, messages in the gossip protocol are rebroadcast by multiple peers, so losing one peer doesn't prevent delivery. Add a 1-second delay between disconnect and new connection attempt to avoid race conditions."
+    },
+    {
+      "description": "Clock skew between peers could cause TTL checks to incorrectly expire valid messages or accept expired ones. A peer with a clock 10 minutes ahead would see all 5-minute TTL direct messages as expired.",
+      "status": "out_of_bounds",
+      "mitigation": "Out of scope for Phase 1. Document as a known limitation. A future phase could add a lightweight clock-skew estimation via timestamp exchange during peer handshake. For now, the 5-minute minimum TTL (direct messages) provides some buffer, and most modern devices have reasonably synchronized clocks via NTP."
+    },
+    {
+      "description": "Tests for pseudonyms.js require Web Crypto API (crypto.subtle) with HKDF support. While Node.js 18+ has crypto.subtle, HKDF support quality varies and test setup may be complex.",
+      "status": "patched",
+      "mitigation": "Node.js 18+ supports HKDF via crypto.subtle natively — verify in CI. If issues arise, use Node.js `crypto` module to create a test-only HKDF helper for verification. Write tests that assert determinism (same input → same output) and unlinkability (different channelId → different pseudonym) without needing to match a specific test vector."
+    }
+  ],
+  "no_gos": [
+    "No message fragmentation — messages exceeding 65534 bytes throw an error; no multi-frame support in Phase 1",
+    "No backward compatibility with non-upgraded peers — all peers must run Phase 1 code simultaneously",
+    "No changes to the Flask backend (main.py) — all work is client-side JavaScript",
+    "No new npm production dependencies — only vitest (already installed) for testing",
+    "No TypeScript in production code — tests may use TypeScript",
+    "No persistent storage of pseudonym mappings — pseudonyms are derived on the fly",
+    "No UI redesign — existing Bootstrap modals and sidebar stay as-is; pseudonyms appear in place of usernames for channel messages",
+    "No formal key exchange or trust-on-first-use protocol — peer exchange messages are unsigned and unpadded",
+    "No NAT traversal, STUN/TURN, or WebRTC — stays on WebSocket relay topology",
+    "No config schema migration — bootstrap URLs are hardcoded constants, not added to the config object"
+  ],
+  "fit_check": null,
+  "status": "shaped"
+}

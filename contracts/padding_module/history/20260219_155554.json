@@ -1,0 +1,247 @@
+{
+  "component_id": "padding_module",
+  "name": "Fixed-Size Message Padding",
+  "description": "ES6 module `static/js/padding.js` implementing fixed-frame-size padding to prevent traffic analysis. All outgoing messages are padded to one of four canonical frame sizes (1024, 4096, 16384, 65536 bytes) using random fill bytes and a 2-byte big-endian length suffix. This ensures all transmitted frames are indistinguishable in size, defeating length-based traffic analysis. Pure leaf module with no project dependencies; uses only browser-global `crypto.getRandomValues()` for random fill.",
+  "version": 1,
+  "types": [
+    {
+      "name": "Uint8Array",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Browser/JS typed array of unsigned 8-bit integers, used for all byte buffer operations in this module."
+    },
+    {
+      "name": "FrameSizeEnum",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "1024",
+        "4096",
+        "16384",
+        "65536"
+      ],
+      "inner_types": [],
+      "description": "The set of allowed fixed frame sizes in bytes. Every padded message will have a byte length equal to exactly one of these values."
+    },
+    {
+      "name": "FrameSizesArray",
+      "kind": "list",
+      "fields": [],
+      "item_type": "int",
+      "variants": [],
+      "inner_types": [],
+      "description": "Frozen array of allowed frame sizes in ascending order: [1024, 4096, 16384, 65536]. Exported as the FRAME_SIZES constant. Object.freeze() prevents mutation."
+    },
+    {
+      "name": "PaddedFrame",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "message_region",
+          "type_ref": "Uint8Array",
+          "required": true,
+          "default": "",
+          "description": "Bytes [0, originalLength): the original unpadded message content copied verbatim.",
+          "validators": []
+        },
+        {
+          "name": "random_padding_region",
+          "type_ref": "Uint8Array",
+          "required": true,
+          "default": "",
+          "description": "Bytes [originalLength, frameSize-2): filled with cryptographically random bytes via crypto.getRandomValues(). May be zero-length if message exactly fills available space.",
+          "validators": []
+        },
+        {
+          "name": "length_suffix",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Last 2 bytes of the frame: the original message length encoded as a big-endian unsigned 16-bit integer (0..65534 inclusive). Read/written via DataView.getUint16/setUint16 with byteOffset = frameSize - 2.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Logical structure of a padded frame (physically stored as a flat Uint8Array). Layout: [message_bytes (0..originalLength) | random_padding (originalLength..frameSize-2) | length_suffix (last 2 bytes, big-endian uint16)]."
+    }
+  ],
+  "functions": [
+    {
+      "name": "FRAME_SIZES",
+      "description": "Exported frozen constant array `Object.freeze([1024, 4096, 16384, 65536])`. Defines the canonical set of allowed padded frame sizes in ascending order. Immutable — any attempt to mutate throws in strict mode or silently fails. This is a constant, not a function, but is documented here as a named export of the module.",
+      "inputs": [],
+      "output_type": "FrameSizesArray",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Returned array is frozen (Object.isFrozen() === true)",
+        "Array has exactly 4 elements: [1024, 4096, 16384, 65536]",
+        "Elements are in strictly ascending order",
+        "All elements are powers of 2 (or at minimum fixed positive integers)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "padMessage",
+      "description": "Takes an unpadded message as a Uint8Array and returns a new Uint8Array padded to the smallest canonical frame size that can fit the message plus a 2-byte big-endian length suffix. The message is copied to position 0, the gap between message end and the length suffix is filled with cryptographically random bytes via crypto.getRandomValues(), and the original message length is written as a big-endian uint16 in the last 2 bytes of the frame. JSDoc: /** @param {Uint8Array} messageBytes - The raw message bytes to pad. @returns {Uint8Array} A new Uint8Array of a canonical frame size containing the padded message. @throws {RangeError} If messageBytes.length > 65534. */",
+      "inputs": [
+        {
+          "name": "messageBytes",
+          "type_ref": "Uint8Array",
+          "required": true,
+          "default": "",
+          "description": "The raw unpadded message bytes. May be empty (length 0). Maximum allowed length is 65534 bytes (65536 - 2 bytes reserved for length suffix).",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "messageBytes.length >= 0 && messageBytes.length <= 65534",
+              "error_message": "Message too large for any frame size: maximum payload is 65534 bytes (frame 65536 minus 2-byte length suffix)"
+            }
+          ]
+        }
+      ],
+      "output_type": "Uint8Array",
+      "error_cases": [
+        {
+          "name": "message_too_large",
+          "condition": "messageBytes.length > 65534",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Message too large for any frame size: maximum payload is 65534 bytes"
+          }
+        }
+      ],
+      "preconditions": [
+        "messageBytes is a Uint8Array instance",
+        "messageBytes.length <= 65534",
+        "crypto.getRandomValues is available as a global function"
+      ],
+      "postconditions": [
+        "Returned Uint8Array has length equal to one of FRAME_SIZES: 1024, 4096, 16384, or 65536",
+        "Returned frame size is the smallest FRAME_SIZES entry >= messageBytes.length + 2",
+        "result.slice(0, messageBytes.length) is byte-equal to messageBytes (message copied verbatim at offset 0)",
+        "Last 2 bytes of result encode messageBytes.length as big-endian uint16: result[result.length-2] === (messageBytes.length >> 8) & 0xFF, result[result.length-1] === messageBytes.length & 0xFF",
+        "Bytes in range [messageBytes.length, result.length - 2) are filled by crypto.getRandomValues() (not deterministically zero unless the range is empty)",
+        "unpadMessage(padMessage(messageBytes)) is byte-equal to messageBytes (round-trip invariant)",
+        "Result is a new Uint8Array — no aliasing with the input buffer"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": "Pure computation aside from crypto.getRandomValues() call which reads from system CSPRNG but has no observable side effects beyond the returned buffer."
+        }
+      ],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": 1,
+        "complexity": "O(n)"
+      }
+    },
+    {
+      "name": "unpadMessage",
+      "description": "Extracts the original message from a padded frame by reading the big-endian uint16 length suffix from the last 2 bytes and returning a slice copy of bytes [0, originalLength). Validates that the encoded length is consistent with the frame size. JSDoc: /** @param {Uint8Array} paddedBytes - A padded frame previously produced by padMessage. @returns {Uint8Array} A new Uint8Array containing only the original message bytes. @throws {RangeError} If paddedBytes.length < 2 or decoded length exceeds available space. */",
+      "inputs": [
+        {
+          "name": "paddedBytes",
+          "type_ref": "Uint8Array",
+          "required": true,
+          "default": "",
+          "description": "A padded frame Uint8Array, typically one of the canonical frame sizes (1024, 4096, 16384, 65536) as produced by padMessage. Must be at least 2 bytes to contain the length suffix.",
+          "validators": [
+            {
+              "kind": "range",
+              "expression": "paddedBytes.length >= 2",
+              "error_message": "Padded frame too short: must be at least 2 bytes to contain the length suffix"
+            },
+            {
+              "kind": "custom",
+              "expression": "decodedLength <= paddedBytes.length - 2, where decodedLength is the big-endian uint16 from the last 2 bytes",
+              "error_message": "Decoded message length exceeds available frame space — corrupted or invalid frame"
+            }
+          ]
+        }
+      ],
+      "output_type": "Uint8Array",
+      "error_cases": [
+        {
+          "name": "frame_too_short",
+          "condition": "paddedBytes.length < 2",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Padded frame too short: must be at least 2 bytes to contain the length suffix"
+          }
+        },
+        {
+          "name": "corrupted_length",
+          "condition": "Decoded big-endian uint16 length from last 2 bytes exceeds paddedBytes.length - 2",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Decoded message length exceeds available frame space — corrupted or invalid frame"
+          }
+        }
+      ],
+      "preconditions": [
+        "paddedBytes is a Uint8Array instance",
+        "paddedBytes.length >= 2",
+        "The big-endian uint16 value encoded in paddedBytes[paddedBytes.length-2..paddedBytes.length] must be <= paddedBytes.length - 2"
+      ],
+      "postconditions": [
+        "Returned Uint8Array has length equal to the big-endian uint16 decoded from the last 2 bytes of paddedBytes",
+        "Returned bytes are a copy (slice) of paddedBytes[0..decodedLength) — no aliasing with input",
+        "If paddedBytes was produced by padMessage(m), result is byte-equal to m"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": "Pure computation — reads input bytes and returns a new Uint8Array slice."
+        }
+      ],
+      "performance_budget": {
+        "p95_latency_ms": null,
+        "max_memory_mb": 1,
+        "complexity": "O(n)"
+      }
+    }
+  ],
+  "dependencies": [],
+  "dependency_contracts": {},
+  "invariants": [
+    "FRAME_SIZES is always [1024, 4096, 16384, 65536] and frozen — never mutated at runtime",
+    "For any Uint8Array m where m.length <= 65534: unpadMessage(padMessage(m)) is byte-equal to m (round-trip correctness)",
+    "padMessage always returns a Uint8Array whose length is exactly one of {1024, 4096, 16384, 65536}",
+    "The frame size selected by padMessage is the smallest FRAME_SIZES entry >= messageBytes.length + 2",
+    "The last 2 bytes of any padded frame encode the original message length as a big-endian unsigned 16-bit integer",
+    "Random padding bytes are sourced exclusively from crypto.getRandomValues() — never from Math.random()",
+    "padMessage never aliases its return buffer with the input — always allocates a new Uint8Array",
+    "unpadMessage never aliases its return buffer with the input — always returns a .slice() copy",
+    "No private keys, secret keys, or decrypted content are ever logged by this module",
+    "Module uses named exports only — no default export",
+    "Module has zero imports from other project modules — it is a pure leaf dependency"
+  ],
+  "requires": [
+    "crypto.getRandomValues() must be available as a global (browser or Node.js 18+ environment)",
+    "DataView must be available for big-endian uint16 read/write",
+    "Uint8Array must be available for byte buffer manipulation"
+  ]
+}

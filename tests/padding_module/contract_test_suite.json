@@ -1,0 +1,477 @@
+{
+  "component_id": "padding_module",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "frame_sizes_frozen",
+      "description": "FRAME_SIZES is a frozen array (Object.isFrozen() === true)",
+      "function": "FRAME_SIZES",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Object.isFrozen(FRAME_SIZES) === true"
+      ]
+    },
+    {
+      "id": "frame_sizes_values",
+      "description": "FRAME_SIZES contains exactly [1024, 4096, 16384, 65536]",
+      "function": "FRAME_SIZES",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "FRAME_SIZES deep equals [1024, 4096, 16384, 65536]"
+      ]
+    },
+    {
+      "id": "frame_sizes_ascending",
+      "description": "FRAME_SIZES elements are in strictly ascending order",
+      "function": "FRAME_SIZES",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Each element is strictly greater than the previous"
+      ]
+    },
+    {
+      "id": "frame_sizes_powers_of_two",
+      "description": "All FRAME_SIZES elements are powers of 2",
+      "function": "FRAME_SIZES",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "(n & (n - 1)) === 0 for each element n"
+      ]
+    },
+    {
+      "id": "frame_sizes_immutable",
+      "description": "Attempting to mutate FRAME_SIZES does not change it (frozen)",
+      "function": "FRAME_SIZES",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "push/assignment/pop have no effect, array stays [1024, 4096, 16384, 65536]"
+      ]
+    },
+    {
+      "id": "frame_sizes_stable_reference",
+      "description": "FRAME_SIZES is the same reference across multiple accesses",
+      "function": "FRAME_SIZES",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "FRAME_SIZES === FRAME_SIZES (same object reference)"
+      ]
+    },
+    {
+      "id": "pad_message_empty",
+      "description": "padMessage with empty Uint8Array returns frame of size 1024 and round-trips",
+      "function": "padMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "new Uint8Array(0)",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 1024",
+        "unpadMessage(result) deep equals empty Uint8Array"
+      ]
+    },
+    {
+      "id": "pad_message_small",
+      "description": "padMessage with a small message (10 bytes) returns 1024-byte frame with message at offset 0",
+      "function": "padMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of 10 bytes with known content",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 1024",
+        "result.slice(0, 10) equals input",
+        "last 2 bytes encode 10 as big-endian uint16"
+      ]
+    },
+    {
+      "id": "pad_message_frame_selection_1024",
+      "description": "Messages up to 1022 bytes select the 1024-byte frame (1022 + 2 = 1024)",
+      "function": "padMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 1022",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 1024"
+      ]
+    },
+    {
+      "id": "pad_message_frame_boundary_1023",
+      "description": "Message of 1023 bytes exceeds 1024 frame capacity, selects 4096-byte frame",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 1023",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 4096"
+      ]
+    },
+    {
+      "id": "pad_message_frame_selection_4096",
+      "description": "Message of 4094 bytes exactly fills 4096-byte frame",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 4094",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 4096"
+      ]
+    },
+    {
+      "id": "pad_message_frame_boundary_4095",
+      "description": "Message of 4095 bytes exceeds 4096 frame capacity, selects 16384-byte frame",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 4095",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 16384"
+      ]
+    },
+    {
+      "id": "pad_message_frame_selection_16384",
+      "description": "Message of 16382 bytes exactly fills 16384-byte frame",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 16382",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 16384"
+      ]
+    },
+    {
+      "id": "pad_message_frame_boundary_16383",
+      "description": "Message of 16383 bytes exceeds 16384 frame capacity, selects 65536-byte frame",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 16383",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 65536"
+      ]
+    },
+    {
+      "id": "pad_message_frame_selection_65536",
+      "description": "Message of 65534 bytes exactly fills 65536-byte frame (max allowed)",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 65534",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.length === 65536"
+      ]
+    },
+    {
+      "id": "pad_message_length_suffix_encoding",
+      "description": "Last 2 bytes of padded frame encode the original message length as big-endian uint16",
+      "function": "padMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 300",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result[result.length - 2] === (300 >> 8) & 0xFF",
+        "result[result.length - 1] === 300 & 0xFF"
+      ]
+    },
+    {
+      "id": "pad_message_no_aliasing",
+      "description": "padMessage returns a new Uint8Array that does not alias the input buffer",
+      "function": "padMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.buffer !== input.buffer"
+      ]
+    },
+    {
+      "id": "pad_message_output_size_in_frame_sizes",
+      "description": "padMessage output length is always one of the FRAME_SIZES values",
+      "function": "padMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "FRAME_SIZES.includes(result.length) for various input sizes"
+      ]
+    },
+    {
+      "id": "pad_message_randomness",
+      "description": "Padding two identical messages produces different padding bytes (probabilistic)",
+      "function": "padMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Same short message padded twice",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Padding regions differ between two calls (with very high probability)"
+      ]
+    },
+    {
+      "id": "pad_message_binary_safety",
+      "description": "Messages containing 0x00 bytes round-trip correctly",
+      "function": "padMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array with embedded zero bytes like [0, 1, 0, 2, 0]",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "unpadMessage(padMessage(input)) deep equals input"
+      ]
+    },
+    {
+      "id": "pad_message_roundtrip_fuzz",
+      "description": "Round-trip property: unpadMessage(padMessage(m)) equals m for many random inputs",
+      "function": "padMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "unpadMessage(padMessage(m)) deep equals m for 50 random messages of varying sizes"
+      ]
+    },
+    {
+      "id": "pad_message_message_too_large",
+      "description": "padMessage throws RangeError when messageBytes.length > 65534",
+      "function": "padMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 65535",
+      "expected_output_description": "",
+      "expected_error": "RangeError",
+      "assertions": [
+        "Throws RangeError"
+      ]
+    },
+    {
+      "id": "pad_message_message_way_too_large",
+      "description": "padMessage throws RangeError for message length 65536 (above max)",
+      "function": "padMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array of length 65536",
+      "expected_output_description": "",
+      "expected_error": "RangeError",
+      "assertions": [
+        "Throws RangeError"
+      ]
+    },
+    {
+      "id": "unpad_message_happy",
+      "description": "unpadMessage correctly extracts message from a valid padded frame",
+      "function": "unpadMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Returned Uint8Array matches the original message"
+      ]
+    },
+    {
+      "id": "unpad_message_no_aliasing",
+      "description": "unpadMessage returns a new Uint8Array that does not alias the input buffer",
+      "function": "unpadMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "result.buffer !== paddedBytes.buffer"
+      ]
+    },
+    {
+      "id": "unpad_message_frame_too_short_empty",
+      "description": "unpadMessage throws RangeError when paddedBytes is empty (length 0)",
+      "function": "unpadMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "new Uint8Array(0)",
+      "expected_output_description": "",
+      "expected_error": "RangeError",
+      "assertions": [
+        "Throws RangeError"
+      ]
+    },
+    {
+      "id": "unpad_message_frame_too_short_one_byte",
+      "description": "unpadMessage throws RangeError when paddedBytes has only 1 byte",
+      "function": "unpadMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "new Uint8Array(1)",
+      "expected_output_description": "",
+      "expected_error": "RangeError",
+      "assertions": [
+        "Throws RangeError"
+      ]
+    },
+    {
+      "id": "unpad_message_corrupted_length",
+      "description": "unpadMessage throws RangeError when length suffix claims more bytes than available",
+      "function": "unpadMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "4-byte frame with last 2 bytes encoding length 5 (exceeds 4 - 2 = 2 available bytes)",
+      "expected_output_description": "",
+      "expected_error": "RangeError",
+      "assertions": [
+        "Throws RangeError"
+      ]
+    },
+    {
+      "id": "unpad_message_tampered_length_suffix",
+      "description": "Modifying the length suffix of a valid padded frame causes unpadMessage to return wrong data or throw",
+      "function": "unpadMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid padded frame with last 2 bytes modified to claim length > actual message",
+      "expected_output_description": "",
+      "expected_error": "RangeError or incorrect extraction detected",
+      "assertions": [
+        "Either throws RangeError or returned bytes differ from original message"
+      ]
+    },
+    {
+      "id": "unpad_message_minimal_frame",
+      "description": "unpadMessage works correctly on a 2-byte frame encoding length 0 (empty message)",
+      "function": "unpadMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "new Uint8Array([0, 0])",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Returns empty Uint8Array of length 0"
+      ]
+    },
+    {
+      "id": "unpad_message_length_equals_capacity",
+      "description": "unpadMessage works when decoded length equals paddedBytes.length - 2 (no padding gap)",
+      "function": "unpadMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Frame where message fills all space except the 2-byte suffix",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "Returns Uint8Array with correct message bytes"
+      ]
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "import { describe, it, expect } from 'vitest';\nimport { FRAME_SIZES, padMessage, unpadMessage } from '../src/padding_module';\n\ndescribe('FRAME_SIZES', () => {\n  it('should be a frozen array (Object.isFrozen() === true)', () => {\n    expect(Object.isFrozen(FRAME_SIZES)).toBe(true);\n  });\n\n  it('should contain exactly [1024, 4096, 16384, 65536]', () => {\n    expect(FRAME_SIZES).toEqual([1024, 4096, 16384, 65536]);\n  });\n\n  it('should have exactly 4 elements', () => {\n    expect(FRAME_SIZES).toHaveLength(4);\n  });\n\n  it('should have elements in strictly ascending order', () => {\n    for (let i = 1; i < FRAME_SIZES.length; i++) {\n      expect(FRAME_SIZES[i]).toBeGreaterThan(FRAME_SIZES[i - 1]);\n    }\n  });\n\n  it('should have all elements as powers of 2', () => {\n    for (const n of FRAME_SIZES) {\n      expect(n).toBeGreaterThan(0);\n      expect(n & (n - 1)).toBe(0);\n    }\n  });\n\n  it('should not be mutatable (push, assignment, pop have no effect)', () => {\n    const originalLength = FRAME_SIZES.length;\n    const originalValues = [...FRAME_SIZES];\n\n    // Attempts to mutate should either throw or silently fail\n    try {\n      (FRAME_SIZES as number[]).push(131072);\n    } catch {\n      // Expected in strict mode\n    }\n    try {\n      (FRAME_SIZES as number[])[0] = 999;\n    } catch {\n      // Expected in strict mode\n    }\n    try {\n      (FRAME_SIZES as number[]).pop();\n    } catch {\n      // Expected in strict mode\n    }\n\n    expect(FRAME_SIZES).toHaveLength(originalLength);\n    expect(FRAME_SIZES).toEqual(originalValues);\n  });\n\n  it('should be the same reference across multiple accesses', () => {\n    const ref1 = FRAME_SIZES;\n    const ref2 = FRAME_SIZES;\n    expect(ref1).toBe(ref2);\n  });\n});\n\ndescribe('padMessage', () => {\n  it('should pad an empty message to a 1024-byte frame and round-trip correctly', () => {\n    const input = new Uint8Array(0);\n    const result = padMessage(input);\n\n    expect(result).toBeInstanceOf(Uint8Array);\n    expect(result.length).toBe(1024);\n\n    const recovered = unpadMessage(result);\n    expect(recovered).toEqual(input);\n  });\n\n  it('should pad a small message (10 bytes) to 1024-byte frame with message at offset 0', () => {\n    const input = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);\n    const result = padMessage(input);\n\n    expect(result.length).toBe(1024);\n    expect(result.slice(0, 10)).toEqual(input);\n\n    // Last 2 bytes encode 10 as big-endian uint16\n    expect(result[result.length - 2]).toBe((10 >> 8) & 0xFF); // 0\n    expect(result[result.length - 1]).toBe(10 & 0xFF);         // 10\n  });\n\n  it('should encode the length suffix as big-endian uint16 for a 300-byte message', () => {\n    const input = new Uint8Array(300);\n    crypto.getRandomValues(input);\n    const result = padMessage(input);\n\n    expect(result[result.length - 2]).toBe((300 >> 8) & 0xFF); // 1\n    expect(result[result.length - 1]).toBe(300 & 0xFF);         // 44\n  });\n\n  // Frame selection tests\n  it('should select 1024-byte frame for message of length 1022 (exactly fills frame)', () => {\n    const input = new Uint8Array(1022);\n    const result = padMessage(input);\n    expect(result.length).toBe(1024);\n  });\n\n  it('should select 4096-byte frame for message of length 1023 (exceeds 1024 frame capacity)', () => {\n    const input = new Uint8Array(1023);\n    const result = padMessage(input);\n    expect(result.length).toBe(4096);\n  });\n\n  it('should select 4096-byte frame for message of length 4094 (exactly fills frame)', () => {\n    const input = new Uint8Array(4094);\n    const result = padMessage(input);\n    expect(result.length).toBe(4096);\n  });\n\n  it('should select 16384-byte frame for message of length 4095 (exceeds 4096 frame capacity)', () => {\n    const input = new Uint8Array(4095);\n    const result = padMessage(input);\n    expect(result.length).toBe(16384);\n  });\n\n  it('should select 16384-byte frame for message of length 16382 (exactly fills frame)', () => {\n    const input = new Uint8Array(16382);\n    const result = padMessage(input);\n    expect(result.length).toBe(16384);\n  });\n\n  it('should select 65536-byte frame for message of length 16383 (exceeds 16384 frame capacity)', () => {\n    const input = new Uint8Array(16383);\n    const result = padMessage(input);\n    expect(result.length).toBe(65536);\n  });\n\n  it('should select 65536-byte frame for message of length 65534 (max allowed, exactly fills frame)', () => {\n    const input = new Uint8Array(65534);\n    const result = padMessage(input);\n    expect(result.length).toBe(65536);\n  });\n\n  it('should return a new Uint8Array that does not alias the input buffer', () => {\n    const input = new Uint8Array([42, 43, 44]);\n    const result = padMessage(input);\n\n    expect(result.buffer).not.toBe(input.buffer);\n\n    // Mutating result should not affect input\n    result[0] = 0;\n    expect(input[0]).toBe(42);\n  });\n\n  it('should always return output length in FRAME_SIZES for various input sizes', () => {\n    const testSizes = [0, 1, 100, 500, 1000, 1022, 1023, 2000, 4094, 4095, 10000, 16382, 16383, 50000, 65534];\n    for (const size of testSizes) {\n      const input = new Uint8Array(size);\n      const result = padMessage(input);\n      expect(\n        FRAME_SIZES.includes(result.length as 1024 | 4096 | 16384 | 65536)\n      ).toBe(true);\n    }\n  });\n\n  it('should produce different padding bytes when padding the same message twice (probabilistic)', () => {\n    const input = new Uint8Array(10);\n    input.fill(0xAB);\n\n    const result1 = padMessage(input);\n    const result2 = padMessage(input);\n\n    // Message region should be identical\n    expect(result1.slice(0, 10)).toEqual(result2.slice(0, 10));\n\n    // Padding region (bytes 10 to length-2) should differ with overwhelming probability\n    // for a 1024-byte frame, the padding region is 1012 bytes\n    const padding1 = result1.slice(10, result1.length - 2);\n    const padding2 = result2.slice(10, result2.length - 2);\n\n    // With 1012 random bytes, probability of collision is astronomically low\n    let allSame = true;\n    for (let i = 0; i < padding1.length; i++) {\n      if (padding1[i] !== padding2[i]) {\n        allSame = false;\n        break;\n      }\n    }\n    expect(allSame).toBe(false);\n  });\n\n  it('should correctly round-trip messages containing 0x00 bytes (binary safety)', () => {\n    const input = new Uint8Array([0, 1, 0, 2, 0, 0, 0, 255, 0]);\n    const result = padMessage(input);\n    const recovered = unpadMessage(result);\n    expect(recovered).toEqual(input);\n  });\n\n  it('should satisfy round-trip property for 50 random messages of varying sizes', () => {\n    const sizes = [\n      0, 1, 2, 3, 4, 5, 10, 50, 100, 255, 256, 500, 512, 1000,\n      1021, 1022, 1023, 1024, 2000, 3000, 4093, 4094, 4095, 4096,\n      5000, 8000, 10000, 12000, 15000, 16381, 16382, 16383, 16384,\n      20000, 30000, 40000, 50000, 60000, 65000, 65530, 65531, 65532,\n      65533, 65534, 7, 77, 777, 7777, 33333, 44444\n    ];\n\n    for (const size of sizes) {\n      const input = new Uint8Array(size);\n      if (size > 0) {\n        crypto.getRandomValues(input);\n      }\n\n      const padded = padMessage(input);\n      const recovered = unpadMessage(padded);\n\n      expect(recovered.length).toBe(input.length);\n      expect(recovered).toEqual(input);\n    }\n  });\n\n  it('should select the smallest frame size >= messageBytes.length + 2', () => {\n    // boundary: max payload for each frame = frameSize - 2\n    const cases: Array<[number, number]> = [\n      [0, 1024],\n      [1, 1024],\n      [1022, 1024],   // 1022 + 2 = 1024 exactly\n      [1023, 4096],   // 1023 + 2 = 1025 > 1024\n      [4094, 4096],   // 4094 + 2 = 4096 exactly\n      [4095, 16384],  // 4095 + 2 = 4097 > 4096\n      [16382, 16384], // 16382 + 2 = 16384 exactly\n      [16383, 65536], // 16383 + 2 = 16385 > 16384\n      [65534, 65536], // 65534 + 2 = 65536 exactly\n    ];\n\n    for (const [msgLen, expectedFrame] of cases) {\n      const input = new Uint8Array(msgLen);\n      const result = padMessage(input);\n      expect(result.length).toBe(expectedFrame);\n    }\n  });\n\n  it('should throw RangeError when messageBytes.length is 65535', () => {\n    const input = new Uint8Array(65535);\n    expect(() => padMessage(input)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError when messageBytes.length is 65536', () => {\n    const input = new Uint8Array(65536);\n    expect(() => padMessage(input)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError when messageBytes.length is 100000', () => {\n    const input = new Uint8Array(100000);\n    expect(() => padMessage(input)).toThrow(RangeError);\n  });\n});\n\ndescribe('unpadMessage', () => {\n  it('should correctly extract the original message from a valid padded frame', () => {\n    const original = new Uint8Array([10, 20, 30, 40, 50]);\n    const padded = padMessage(original);\n    const result = unpadMessage(padded);\n\n    expect(result).toBeInstanceOf(Uint8Array);\n    expect(result.length).toBe(original.length);\n    expect(result).toEqual(original);\n  });\n\n  it('should return a new Uint8Array that does not alias the input buffer', () => {\n    const original = new Uint8Array([1, 2, 3]);\n    const padded = padMessage(original);\n    const result = unpadMessage(padded);\n\n    expect(result.buffer).not.toBe(padded.buffer);\n\n    // Mutating result should not affect padded\n    result[0] = 0;\n    expect(padded[0]).toBe(1);\n  });\n\n  it('should work correctly on a 2-byte frame encoding length 0 (empty message)', () => {\n    const frame = new Uint8Array([0, 0]);\n    const result = unpadMessage(frame);\n\n    expect(result).toBeInstanceOf(Uint8Array);\n    expect(result.length).toBe(0);\n    expect(result).toEqual(new Uint8Array(0));\n  });\n\n  it('should work when decoded length equals paddedBytes.length - 2 (no padding gap)', () => {\n    // Create a 6-byte frame: 4 bytes message + 2 bytes length suffix encoding 4\n    const frame = new Uint8Array([0xAA, 0xBB, 0xCC, 0xDD, 0x00, 0x04]);\n    const result = unpadMessage(frame);\n\n    expect(result.length).toBe(4);\n    expect(result).toEqual(new Uint8Array([0xAA, 0xBB, 0xCC, 0xDD]));\n  });\n\n  it('should throw RangeError when paddedBytes is empty (length 0)', () => {\n    const input = new Uint8Array(0);\n    expect(() => unpadMessage(input)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError when paddedBytes has only 1 byte', () => {\n    const input = new Uint8Array(1);\n    expect(() => unpadMessage(input)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError when length suffix claims more bytes than available (corrupted_length)', () => {\n    // 4-byte frame where last 2 bytes encode length 5 (exceeds 4 - 2 = 2 available bytes)\n    const frame = new Uint8Array([0x00, 0x00, 0x00, 0x05]);\n    expect(() => unpadMessage(frame)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError when length suffix claims exactly 1 more than capacity', () => {\n    // 4-byte frame where last 2 bytes encode length 3 (exceeds 4 - 2 = 2 available bytes)\n    const frame = new Uint8Array([0x00, 0x00, 0x00, 0x03]);\n    expect(() => unpadMessage(frame)).toThrow(RangeError);\n  });\n\n  it('should throw RangeError for a large claimed length in a small frame', () => {\n    // 2-byte frame where last 2 bytes encode length 1 (exceeds 2 - 2 = 0 available bytes)\n    const frame = new Uint8Array([0x00, 0x01]);\n    expect(() => unpadMessage(frame)).toThrow(RangeError);\n  });\n\n  it('should detect tampered length suffix on a valid padded frame', () => {\n    const original = new Uint8Array([10, 20, 30, 40, 50]);\n    const padded = padMessage(original);\n\n    // Tamper: set length suffix to claim a much larger message\n    // This should either throw or return incorrect data\n    const tampered = new Uint8Array(padded);\n    // Encode length as 2000 (big-endian): 0x07D0\n    tampered[tampered.length - 2] = 0x07;\n    tampered[tampered.length - 1] = 0xD0;\n\n    // The claimed length 2000 <= frame_size - 2, so it might not throw,\n    // but the extracted data should NOT match the original\n    let resultMatchesOriginal = false;\n    try {\n      const result = unpadMessage(tampered);\n      resultMatchesOriginal = (result.length === original.length) &&\n        result.every((byte, i) => byte === original[i]);\n    } catch (e) {\n      // If it throws, that's also acceptable — the tamper is detected\n      resultMatchesOriginal = false;\n    }\n    expect(resultMatchesOriginal).toBe(false);\n  });\n\n  it('should throw RangeError when length suffix exceeds frame capacity by a large margin', () => {\n    // 10-byte frame where last 2 bytes encode length 255 (far exceeds 10 - 2 = 8)\n    const frame = new Uint8Array(10);\n    frame[8] = 0x00;\n    frame[9] = 0xFF; // length = 255\n    expect(() => unpadMessage(frame)).toThrow(RangeError);\n  });\n\n  it('should correctly extract message with big-endian uint16 length for multi-byte length values', () => {\n    // Test with a message length that needs both bytes of the uint16\n    const msgLength = 300; // 0x012C in big-endian\n    const original = new Uint8Array(msgLength);\n    crypto.getRandomValues(original);\n\n    const padded = padMessage(original);\n    const result = unpadMessage(padded);\n\n    expect(result.length).toBe(msgLength);\n    expect(result).toEqual(original);\n\n    // Verify the length encoding directly\n    const highByte = padded[padded.length - 2];\n    const lowByte = padded[padded.length - 1];\n    expect((highByte << 8) | lowByte).toBe(300);\n  });\n});\n"
+}

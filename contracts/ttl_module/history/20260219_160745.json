@@ -1,0 +1,448 @@
+{
+  "component_id": "ttl_module",
+  "name": "TTL Enforcement",
+  "description": "Pure ES6 module `static/js/ttl.js` implementing time-to-live stamping, expiry checking, and rebroadcast probability decay for the HermesP2P protocol. No dependencies on other project modules. Uses `Date.now()` for current time. Fail-safe design: malformed messages are treated as expired (dropped), and edge cases in rebroadcast probability return 0.0 (no rebroadcast).",
+  "version": 1,
+  "types": [
+    {
+      "name": "MessageType",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "direct",
+        "private",
+        "public"
+      ],
+      "inner_types": [],
+      "description": "The three recognized message types that determine default TTL values."
+    },
+    {
+      "name": "Timestamp",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "str",
+        "int"
+      ],
+      "description": "A timestamp value accepted by parseTimestamp. Either an ISO 8601 date string or an epoch millisecond integer."
+    },
+    {
+      "name": "DefaultTTLs",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "direct",
+          "type_ref": "int",
+          "required": true,
+          "default": "300",
+          "description": "TTL for direct messages: 300 seconds (5 minutes).",
+          "validators": []
+        },
+        {
+          "name": "private",
+          "type_ref": "int",
+          "required": true,
+          "default": "3600",
+          "description": "TTL for private/group messages: 3600 seconds (1 hour).",
+          "validators": []
+        },
+        {
+          "name": "public",
+          "type_ref": "int",
+          "required": true,
+          "default": "86400",
+          "description": "TTL for public broadcast messages: 86400 seconds (24 hours).",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Constant lookup object mapping MessageType to default TTL in seconds. Defined at module top level as DEFAULT_TTLS."
+    },
+    {
+      "name": "TTLMessage",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "timestamp",
+          "type_ref": "Timestamp",
+          "required": true,
+          "default": "",
+          "description": "Message creation time as ISO 8601 string or epoch milliseconds.",
+          "validators": []
+        },
+        {
+          "name": "ttl",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Original total time-to-live in seconds, as stamped at creation time.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "The minimal shape of a message object required by isExpired, getRemainingTTL, and getRebroadcastProbability. Must contain a timestamp and a ttl field."
+    },
+    {
+      "name": "MessagePackage",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "ttl",
+          "type_ref": "int",
+          "required": false,
+          "default": "",
+          "description": "Time-to-live in seconds. Added by stampTTL, may not be present before stamping.",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "Timestamp",
+          "required": false,
+          "default": "",
+          "description": "Message creation timestamp. Expected to be set before or after stampTTL in the pipeline.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A mutable message package object passed through the send pipeline. stampTTL adds/overwrites the `ttl` field on this object. May contain arbitrary additional fields."
+    },
+    {
+      "name": "BaseRebroadcastProbability",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Module-level constant BASE_REBROADCAST_PROBABILITY = 0.6. The maximum rebroadcast probability when a message has its full TTL remaining."
+    }
+  ],
+  "functions": [
+    {
+      "name": "parseTimestamp",
+      "description": "Parses a timestamp value into epoch milliseconds. Accepts either a number (returned as-is, assumed to be epoch ms) or a string (parsed via `new Date(ts).getTime()`). Exported for direct use and testing. Throws on unparseable input to surface malformed data early.",
+      "inputs": [
+        {
+          "name": "ts",
+          "type_ref": "Timestamp",
+          "required": true,
+          "default": "",
+          "description": "Timestamp to parse. Either an ISO 8601 date string or an epoch millisecond number.",
+          "validators": []
+        }
+      ],
+      "output_type": "int",
+      "error_cases": [
+        {
+          "name": "invalid_timestamp_type",
+          "condition": "ts is not a number and not a string (e.g., null, undefined, object, boolean)",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid timestamp: expected number or string"
+          }
+        },
+        {
+          "name": "unparseable_string",
+          "condition": "ts is a string but `new Date(ts).getTime()` returns NaN",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid timestamp: unparseable date string"
+          }
+        }
+      ],
+      "preconditions": [
+        "ts is not null and not undefined"
+      ],
+      "postconditions": [
+        "Return value is a finite number representing epoch milliseconds",
+        "Return value is not NaN"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "getDefaultTTL",
+      "description": "Returns the default TTL in seconds for a given message type. Looks up the type in the DEFAULT_TTLS constant object. Throws for unknown types to surface integration bugs immediately.",
+      "inputs": [
+        {
+          "name": "messageType",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "One of 'direct', 'private', or 'public'.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "messageType in {'direct', 'private', 'public'}",
+              "error_message": "messageType must be one of: direct, private, public"
+            }
+          ]
+        }
+      ],
+      "output_type": "int",
+      "error_cases": [
+        {
+          "name": "unknown_message_type",
+          "condition": "messageType is not one of 'direct', 'private', 'public'",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Unknown message type: <messageType>"
+          }
+        }
+      ],
+      "preconditions": [
+        "messageType is a non-empty string"
+      ],
+      "postconditions": [
+        "Return value is a positive integer",
+        "Return value is one of: 300, 3600, 86400",
+        "getDefaultTTL('direct') === 300",
+        "getDefaultTTL('private') === 3600",
+        "getDefaultTTL('public') === 86400"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "isExpired",
+      "description": "Checks whether a message has exceeded its TTL. Computes age as `(Date.now() - parseTimestamp(message.timestamp)) / 1000`, clamps age to 0 for clock-skew safety (future timestamps), and returns `age >= message.ttl`. Fail-safe: returns true (treat as expired / drop) if timestamp or ttl is missing, invalid, or unparseable.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "malformed_message_failsafe",
+          "condition": "message is missing timestamp or ttl, or parseTimestamp throws, or ttl is not a positive number",
+          "error_type": "none",
+          "error_data": {
+            "behavior": "Returns true (fail-safe: treat malformed messages as expired)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Always returns a boolean, never throws",
+        "Returns true if message.timestamp or message.ttl is missing or invalid (fail-safe drop)",
+        "Returns true if computed age >= message.ttl",
+        "Returns false if computed age < message.ttl",
+        "Future timestamps (negative raw age) are clamped to age=0, so message is not expired"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "getRemainingTTL",
+      "description": "Returns the number of seconds remaining before the message expires, clamped to 0. Computes as `Math.max(0, message.ttl - age)` where age = `(Date.now() - parseTimestamp(message.timestamp)) / 1000`, with age also clamped to 0 for clock-skew safety.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "float",
+      "error_cases": [
+        {
+          "name": "invalid_timestamp",
+          "condition": "message.timestamp cannot be parsed by parseTimestamp",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Propagates Error from parseTimestamp"
+          }
+        },
+        {
+          "name": "missing_ttl",
+          "condition": "message.ttl is undefined, null, or not a number",
+          "error_type": "Error",
+          "error_data": {
+            "message": "message.ttl must be a number"
+          }
+        }
+      ],
+      "preconditions": [
+        "message.timestamp is a valid Timestamp parseable by parseTimestamp",
+        "message.ttl is a non-negative number"
+      ],
+      "postconditions": [
+        "Return value >= 0",
+        "Return value <= message.ttl",
+        "If isExpired(message) is true, return value is 0",
+        "If message has a future timestamp, return value equals message.ttl (age clamped to 0)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "getRebroadcastProbability",
+      "description": "Computes the probability that this message should be rebroadcast to peers. Uses linear decay from BASE_REBROADCAST_PROBABILITY (0.6) based on remaining TTL fraction: `0.6 * (remainingTTL / message.ttl)`. Fail-safe: returns 0.0 for any edge case (expired, ttl<=0, invalid data) to prevent unnecessary rebroadcasts.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "TTLMessage",
+          "required": true,
+          "default": "",
+          "description": "Message object with timestamp and ttl fields.",
+          "validators": []
+        }
+      ],
+      "output_type": "float",
+      "error_cases": [
+        {
+          "name": "any_error_failsafe",
+          "condition": "Any exception during computation (invalid timestamp, missing ttl, division by zero, etc.)",
+          "error_type": "none",
+          "error_data": {
+            "behavior": "Returns 0.0 (fail-safe: do not rebroadcast on error)"
+          }
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Return value >= 0.0",
+        "Return value <= 0.6 (BASE_REBROADCAST_PROBABILITY)",
+        "If message.ttl <= 0, return value is 0.0",
+        "If isExpired(message), return value is 0.0",
+        "If full TTL remaining (freshly created message), return value is 0.6",
+        "If half TTL remaining, return value is approximately 0.3",
+        "Never throws — always returns a number (fail-safe 0.0 on any error)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": ""
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "stampTTL",
+      "description": "Adds the `ttl` field to a message package object based on the message type. Mutates the package in-place by setting `messagePackage.ttl = getDefaultTTL(messageType)`. Returns the same object reference for pipeline chaining. Used in the send pipeline: compose -> encrypt -> stampTTL -> pseudonym -> package -> sign -> serialize -> pad -> broadcast.",
+      "inputs": [
+        {
+          "name": "messagePackage",
+          "type_ref": "MessagePackage",
+          "required": true,
+          "default": "",
+          "description": "The message package object to stamp. Mutated in-place.",
+          "validators": []
+        },
+        {
+          "name": "messageType",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "One of 'direct', 'private', or 'public'. Determines the TTL value.",
+          "validators": []
+        }
+      ],
+      "output_type": "MessagePackage",
+      "error_cases": [
+        {
+          "name": "unknown_message_type",
+          "condition": "messageType is not one of 'direct', 'private', 'public'",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Propagates Error from getDefaultTTL: Unknown message type"
+          }
+        },
+        {
+          "name": "null_package",
+          "condition": "messagePackage is null or undefined",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Cannot set property 'ttl' of null/undefined"
+          }
+        }
+      ],
+      "preconditions": [
+        "messagePackage is a non-null object",
+        "messageType is one of 'direct', 'private', 'public'"
+      ],
+      "postconditions": [
+        "Return value is the same object reference as messagePackage (===)",
+        "messagePackage.ttl is set to getDefaultTTL(messageType)",
+        "All other fields on messagePackage are preserved unchanged",
+        "If messagePackage already had a ttl field, it is overwritten"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "messagePackage",
+          "description": "Sets messagePackage.ttl to the default TTL for the given message type"
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [],
+  "dependency_contracts": {},
+  "invariants": [
+    "DEFAULT_TTLS is a frozen constant: { direct: 300, private: 3600, public: 86400 }",
+    "BASE_REBROADCAST_PROBABILITY is a frozen constant: 0.6",
+    "All functions are pure with respect to external state (only Date.now() is read from environment)",
+    "No function logs private keys, secret keys, or decrypted message content",
+    "isExpired and getRebroadcastProbability never throw — they return fail-safe values (true and 0.0 respectively)",
+    "parseTimestamp and getDefaultTTL throw on invalid input to surface bugs early",
+    "Age is always clamped to >= 0 to handle clock skew (future timestamps)",
+    "Rebroadcast probability decays linearly from 0.6 to 0.0 as remaining TTL decreases",
+    "Module has zero dependencies on other project modules — it is a pure leaf component",
+    "All exports are named exports; no default export"
+  ],
+  "requires": []
+}

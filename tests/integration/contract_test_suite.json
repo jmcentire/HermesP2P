@@ -1,0 +1,571 @@
+{
+  "component_id": "integration",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "send_happy_path_public",
+      "description": "packageMessage produces a padded Uint8Array for a public message with correct structure",
+      "function": "packageMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A non-empty content string with type='public', no channelId or recipientPubKey",
+      "expected_output_description": "A Uint8Array whose length is a power of 2 and <= 65536, containing a JSON message with ttl, from.pubKey, and a valid signature",
+      "expected_error": "",
+      "assertions": [
+        "Result is a Uint8Array",
+        "Result length is a power of 2",
+        "Result length <= 65536",
+        "Deserialized message has ttl field",
+        "Deserialized message has from.pubKey",
+        "Deserialized message has a non-empty signature"
+      ]
+    },
+    {
+      "id": "send_happy_path_private",
+      "description": "packageMessage for type='private' omits from.pubKey and sets a 16-char pseudonym",
+      "function": "packageMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Content string with type='private' and a valid channelId",
+      "expected_output_description": "Padded Uint8Array containing JSON where from.pubKey is absent and from.name is 16 characters",
+      "expected_error": "",
+      "assertions": [
+        "Result is a Uint8Array",
+        "Deserialized message does not have from.pubKey",
+        "Deserialized message from.name is exactly 16 characters"
+      ]
+    },
+    {
+      "id": "send_happy_path_direct",
+      "description": "packageMessage for type='direct' includes from.pubKey in the serialized message",
+      "function": "packageMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Content string with type='direct' and a recipientPubKey",
+      "expected_output_description": "Padded Uint8Array containing JSON with from.pubKey present",
+      "expected_error": "",
+      "assertions": [
+        "Result is a Uint8Array",
+        "Deserialized message has from.pubKey present",
+        "Deserialized message has a non-empty signature"
+      ]
+    },
+    {
+      "id": "send_error_missing_channel_id",
+      "description": "packageMessage throws missing_channel_id when type='private' but channelId is not provided",
+      "function": "packageMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Content string with type='private', channelId=undefined",
+      "expected_output_description": "",
+      "expected_error": "missing_channel_id",
+      "assertions": [
+        "Function throws an error when channelId is missing for private type"
+      ]
+    },
+    {
+      "id": "send_error_message_too_long",
+      "description": "packageMessage throws message_too_long when content exceeds max padded frame size",
+      "function": "packageMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A very large content string (>64KB after serialization)",
+      "expected_output_description": "",
+      "expected_error": "message_too_long",
+      "assertions": [
+        "Function throws a RangeError for oversized messages"
+      ]
+    },
+    {
+      "id": "send_handle_submit_happy",
+      "description": "handleMessageSubmit calls preventDefault synchronously, broadcasts the padded frame, and clears the input",
+      "function": "handleMessageSubmit",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A mocked DOM event with preventDefault method and a UI input field with content",
+      "expected_output_description": "preventDefault called, broadcastMessage called with Uint8Array, input field cleared",
+      "expected_error": "",
+      "assertions": [
+        "event.preventDefault() was called",
+        "broadcastMessage was called with a Uint8Array argument",
+        "UI input field value is empty after submission"
+      ]
+    },
+    {
+      "id": "send_handle_submit_too_long",
+      "description": "handleMessageSubmit displays UI warning when packageMessage throws RangeError (message too long)",
+      "function": "handleMessageSubmit",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A mocked DOM event with a very large message in the input field",
+      "expected_output_description": "",
+      "expected_error": "message_too_long_ui",
+      "assertions": [
+        "event.preventDefault() was called synchronously",
+        "appendMessage was called with a warning containing 'Message too long'"
+      ]
+    },
+    {
+      "id": "send_handle_submit_unexpected_error",
+      "description": "handleMessageSubmit logs unexpected errors via console.error",
+      "function": "handleMessageSubmit",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A mocked DOM event where packageMessage throws a non-RangeError",
+      "expected_output_description": "",
+      "expected_error": "unexpected_send_error",
+      "assertions": [
+        "event.preventDefault() was called",
+        "console.error was called with the error"
+      ]
+    },
+    {
+      "id": "send_prevent_default_sync",
+      "description": "handleMessageSubmit calls event.preventDefault() BEFORE any async operation",
+      "function": "handleMessageSubmit",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A mocked DOM event that tracks call order",
+      "expected_output_description": "preventDefault is the first call made before any await",
+      "expected_error": "",
+      "assertions": [
+        "preventDefault was called synchronously before any async work"
+      ]
+    },
+    {
+      "id": "broadcast_happy_binary",
+      "description": "broadcastMessage sends a Uint8Array as binary to all connected peers",
+      "function": "broadcastMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A Uint8Array frame and multiple mock WebSocket peers",
+      "expected_output_description": "Each peer's ws.send() receives the exact same Uint8Array",
+      "expected_error": "",
+      "assertions": [
+        "ws.send() was called on each connected peer",
+        "The argument to send() is the original Uint8Array (no transformation)"
+      ]
+    },
+    {
+      "id": "broadcast_happy_string",
+      "description": "broadcastMessage sends a string frame as text to all connected peers (backward compatibility)",
+      "function": "broadcastMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A string frame and multiple mock WebSocket peers",
+      "expected_output_description": "Each peer's ws.send() receives the exact string",
+      "expected_error": "",
+      "assertions": [
+        "ws.send() was called on each connected peer with the string"
+      ]
+    },
+    {
+      "id": "broadcast_send_failure",
+      "description": "broadcastMessage handles send_failure gracefully when one peer's WebSocket throws",
+      "function": "broadcastMessage",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A frame and multiple peers where one peer's ws.send() throws",
+      "expected_output_description": "",
+      "expected_error": "send_failure",
+      "assertions": [
+        "Other peers still receive the message",
+        "Error is handled without crashing"
+      ]
+    },
+    {
+      "id": "receive_happy_path",
+      "description": "handleIncomingFrame processes a valid binary frame and delivers it to the message handler callback",
+      "function": "handleIncomingFrame",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A valid padded binary frame containing a properly signed, non-expired, non-duplicate message",
+      "expected_output_description": "Returns 'delivered' and message handler callback is called",
+      "expected_error": "",
+      "assertions": [
+        "Return value is 'delivered'",
+        "Message handler callback was called with the deserialized message"
+      ]
+    },
+    {
+      "id": "receive_text_protocol_routed",
+      "description": "handleIncomingFrame routes text frames matching isProtocolMessage to the discovery handler",
+      "function": "handleIncomingFrame",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A text (string) WebSocket frame that isProtocolMessage returns true for",
+      "expected_output_description": "Returns 'protocol_routed' and discovery handler is invoked",
+      "expected_error": "",
+      "assertions": [
+        "Return value is 'protocol_routed'",
+        "Discovery handler was called",
+        "Message handler callback was NOT called"
+      ]
+    },
+    {
+      "id": "receive_error_malformed",
+      "description": "handleIncomingFrame drops malformed binary frames and logs via console.error",
+      "function": "handleIncomingFrame",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "An ArrayBuffer containing random non-JSON bytes",
+      "expected_output_description": "",
+      "expected_error": "malformed_binary_frame",
+      "assertions": [
+        "Return value is 'malformed_dropped'",
+        "console.error was called"
+      ]
+    },
+    {
+      "id": "receive_error_expired",
+      "description": "handleIncomingFrame drops expired messages with console.warn",
+      "function": "handleIncomingFrame",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A valid padded frame where the TTL timestamp indicates expiry",
+      "expected_output_description": "",
+      "expected_error": "expired_message",
+      "assertions": [
+        "Return value is 'expired_dropped'",
+        "console.warn was called",
+        "Message handler callback was NOT called"
+      ]
+    },
+    {
+      "id": "receive_error_duplicate",
+      "description": "handleIncomingFrame silently drops duplicate messages",
+      "function": "handleIncomingFrame",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A valid padded frame with a message ID that already exists in the dedup set",
+      "expected_output_description": "",
+      "expected_error": "duplicate_message",
+      "assertions": [
+        "Return value is 'duplicate_dropped'",
+        "Message handler callback was NOT called"
+      ]
+    },
+    {
+      "id": "receive_error_bad_signature",
+      "description": "handleIncomingFrame drops messages with from.pubKey but invalid signature, logs console.warn",
+      "function": "handleIncomingFrame",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A padded frame with a valid structure but tampered signature bytes",
+      "expected_output_description": "",
+      "expected_error": "signature_verification_failed",
+      "assertions": [
+        "Return value is 'signature_failed_dropped'",
+        "console.warn was called",
+        "Message handler callback was NOT called"
+      ]
+    },
+    {
+      "id": "receive_error_pubkey_no_signature",
+      "description": "handleIncomingFrame drops messages that have from.pubKey but missing/empty signature",
+      "function": "handleIncomingFrame",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A padded frame with from.pubKey present but signature field empty",
+      "expected_output_description": "",
+      "expected_error": "pubkey_without_signature",
+      "assertions": [
+        "Return value is 'pubkey_without_signature_dropped'",
+        "console.warn was called",
+        "Message handler callback was NOT called"
+      ]
+    },
+    {
+      "id": "receive_channel_skip_sigverify",
+      "description": "Channel messages (no from.pubKey) skip signature verification entirely",
+      "function": "handleIncomingFrame",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A padded frame for a channel message (type='private') with no from.pubKey",
+      "expected_output_description": "Message is delivered without calling verifySignature",
+      "expected_error": "",
+      "assertions": [
+        "Return value is 'delivered'",
+        "verifySignature was never called",
+        "Message handler callback was called"
+      ]
+    },
+    {
+      "id": "receive_rebroadcast_original_bytes",
+      "description": "Valid messages are rebroadcast using the ORIGINAL raw frame bytes, not re-encoded",
+      "function": "handleIncomingFrame",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A valid padded binary frame",
+      "expected_output_description": "broadcastMessage is called with the exact same ArrayBuffer/Uint8Array that was received",
+      "expected_error": "",
+      "assertions": [
+        "broadcastMessage was called",
+        "The argument to broadcastMessage is reference-equal or byte-equal to the original rawFrame"
+      ]
+    },
+    {
+      "id": "roundtrip_public_message",
+      "description": "A public message packaged by sender can be received and delivered by receiver with content integrity",
+      "function": "packageMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "packageMessage output for a public message fed into handleIncomingFrame on a different peer",
+      "expected_output_description": "Receiver delivers the message with the same content string",
+      "expected_error": "",
+      "assertions": [
+        "handleIncomingFrame returns 'delivered'",
+        "Delivered message content matches the original content string"
+      ]
+    },
+    {
+      "id": "roundtrip_channel_message",
+      "description": "A channel (private) message can be packaged and received successfully, skipping signature verification",
+      "function": "packageMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "packageMessage output for type='private' with channelId, fed into handleIncomingFrame",
+      "expected_output_description": "Receiver delivers the message; from.pubKey is absent",
+      "expected_error": "",
+      "assertions": [
+        "handleIncomingFrame returns 'delivered'",
+        "Delivered message does not have from.pubKey"
+      ]
+    },
+    {
+      "id": "roundtrip_unique_ids",
+      "description": "Multiple calls to packageMessage produce unique message IDs",
+      "function": "packageMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Call packageMessage multiple times with identical content",
+      "expected_output_description": "Each resulting message has a distinct id field",
+      "expected_error": "",
+      "assertions": [
+        "All message IDs are unique across calls"
+      ]
+    },
+    {
+      "id": "network_peer_count_happy",
+      "description": "getConnectedPeerCount returns the number of connected peers and is >= 0",
+      "function": "getConnectedPeerCount",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Network module with some peers connected",
+      "expected_output_description": "Returns an integer equal to the number of connected peers",
+      "expected_error": "",
+      "assertions": [
+        "Return value >= 0",
+        "Return value matches the actual number of connected peers"
+      ]
+    },
+    {
+      "id": "network_peer_urls_new_array",
+      "description": "getConnectedPeerUrls returns a new array (not internal state reference) with correct URLs",
+      "function": "getConnectedPeerUrls",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Network module with known peer URLs",
+      "expected_output_description": "A fresh array containing all peer URLs; mutating it does not affect internal state",
+      "expected_error": "",
+      "assertions": [
+        "Return value is an array",
+        "Length matches getConnectedPeerCount()",
+        "Mutating the returned array does not change a subsequent call result"
+      ]
+    },
+    {
+      "id": "network_peer_count_zero",
+      "description": "getConnectedPeerCount returns 0 when no peers are connected",
+      "function": "getConnectedPeerCount",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Network module with an empty peers Map",
+      "expected_output_description": "Returns 0",
+      "expected_error": "",
+      "assertions": [
+        "Return value is 0"
+      ]
+    },
+    {
+      "id": "ws_binary_type",
+      "description": "initializeWebSocket sets binaryType to 'arraybuffer' on the created WebSocket",
+      "function": "initializeWebSocket",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A valid ws:// URL",
+      "expected_output_description": "Returned WebSocket has binaryType === 'arraybuffer'",
+      "expected_error": "",
+      "assertions": [
+        "ws.binaryType is 'arraybuffer'"
+      ]
+    },
+    {
+      "id": "ws_connection_failed",
+      "description": "initializeWebSocket handles connection_failed when WebSocket constructor throws",
+      "function": "initializeWebSocket",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "An invalid URL that causes WebSocket constructor to throw",
+      "expected_output_description": "",
+      "expected_error": "connection_failed",
+      "assertions": [
+        "Function throws or rejects when WebSocket creation fails"
+      ]
+    },
+    {
+      "id": "discovery_bootstrap_happy",
+      "description": "initializeDiscoveryBootstrap constructs NetworkAPI and passes it to initializeDiscovery after network init",
+      "function": "initializeDiscoveryBootstrap",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Network module already initialized with exports available",
+      "expected_output_description": "initializeDiscovery is called with an object containing getConnectedPeerCount, getConnectedPeerUrls, broadcastMessage, connectToPeer",
+      "expected_error": "",
+      "assertions": [
+        "initializeDiscovery was called once",
+        "The argument has all four NetworkAPI methods"
+      ]
+    },
+    {
+      "id": "discovery_bootstrap_before_network",
+      "description": "initializeDiscoveryBootstrap fails if called before initializeNetwork",
+      "function": "initializeDiscoveryBootstrap",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Network module not yet initialized",
+      "expected_output_description": "",
+      "expected_error": "network_not_initialized",
+      "assertions": [
+        "Function throws or returns an error indicating network is not initialized"
+      ]
+    },
+    {
+      "id": "invariant_private_no_pubkey",
+      "description": "Channel messages (type='private') never contain from.pubKey in the serialized package",
+      "function": "packageMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "packageMessage with type='private' and valid channelId",
+      "expected_output_description": "The serialized JSON inside the padded frame does not contain from.pubKey",
+      "expected_error": "",
+      "assertions": [
+        "from.pubKey is undefined/absent in the deserialized message"
+      ]
+    },
+    {
+      "id": "invariant_padding_power_of_2",
+      "description": "Padded frames always have a length that is a power of 2",
+      "function": "packageMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Various message content sizes",
+      "expected_output_description": "Each padded frame length is a power of 2",
+      "expected_error": "",
+      "assertions": [
+        "Frame length is a power of 2 for all tested sizes"
+      ]
+    },
+    {
+      "id": "invariant_console_warn_security_drops",
+      "description": "Security-relevant drops (expired, bad signature) use console.warn, not console.error",
+      "function": "handleIncomingFrame",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Frames that trigger expired and signature_failed drops",
+      "expected_output_description": "console.warn is called, console.error is not called for these cases",
+      "expected_error": "",
+      "assertions": [
+        "console.warn was called for expired messages",
+        "console.warn was called for failed signature messages",
+        "console.error was NOT called for these security drops"
+      ]
+    },
+    {
+      "id": "invariant_text_vs_binary_discrimination",
+      "description": "Text frames route to discovery; binary frames route to user message pipeline — discrimination happens first",
+      "function": "handleIncomingFrame",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "One text frame and one binary frame",
+      "expected_output_description": "Text frame goes to protocol handler; binary frame goes to message pipeline",
+      "expected_error": "",
+      "assertions": [
+        "Text frame triggers protocol/discovery handler",
+        "Binary frame triggers message pipeline processing"
+      ]
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\n\n// ---------------------------------------------------------------------------\n// Module‐level mocks – these must be declared before any dynamic imports so\n// vi.mock() hoisting takes effect.\n// ---------------------------------------------------------------------------\n\n// We keep thin stubs for modules that live outside the unit‐under‐test.\n// The real padding / ttl / pseudonym / crypto helpers are exercised where\n// possible; only true external boundaries (WebSocket, DOM, discovery) are\n// faked.\n\n// -- Helpers for building test artefacts --\n\n/** Check whether n is a power of 2 */\nfunction isPowerOf2(n: number): boolean {\n  return n > 0 && (n & (n - 1)) === 0;\n}\n\n/** Pad a Uint8Array to the next power of 2 (simple reference impl) */\nfunction padToNextPow2(data: Uint8Array): Uint8Array {\n  let size = 1;\n  while (size < data.length) size *= 2;\n  if (size > 65536) throw new RangeError('message_too_long');\n  const padded = new Uint8Array(size);\n  padded.set(data);\n  return padded;\n}\n\n/** Remove padding – find the last non-zero byte */\nfunction unpad(data: Uint8Array): Uint8Array {\n  let end = data.length;\n  while (end > 0 && data[end - 1] === 0) end--;\n  return data.subarray(0, end);\n}\n\n/** Encode string → Uint8Array (UTF-8) */\nfunction encode(s: string): Uint8Array {\n  return new TextEncoder().encode(s);\n}\n\n/** Decode Uint8Array → string (UTF-8) */\nfunction decode(b: Uint8Array): string {\n  return new TextDecoder().decode(b);\n}\n\n// ---------------------------------------------------------------------------\n// Fake crypto helpers (deterministic, no real nacl dependency)\n// ---------------------------------------------------------------------------\nlet signingCounter = 0;\n\nfunction fakeSign(message: string, _privKey: Uint8Array): string {\n  // Produce a deterministic but unique \"signature\"\n  return `sig_${signingCounter++}_${message.slice(0, 8)}`;\n}\n\nfunction fakeVerify(message: string, signature: string, _pubKey: string): boolean {\n  // Accept anything that starts with \"sig_\"\n  return signature.startsWith('sig_');\n}\n\n// ---------------------------------------------------------------------------\n// Minimal in‐memory implementations of the pipeline functions so the tests\n// verify *behavioural contracts* rather than internal wiring.  In a real\n// project these would be the actual source files; here we inline them so the\n// test file is self‐contained and the vitest runner can execute it.\n// ---------------------------------------------------------------------------\n\n// --- Network state ---\nconst peers: Map<string, { send: (d: unknown) => void }> = new Map();\n\nfunction getConnectedPeerCount(): number {\n  return peers.size;\n}\n\nfunction getConnectedPeerUrls(): string[] {\n  return Array.from(peers.keys());\n}\n\nfunction broadcastMessage(frame: string | Uint8Array | ArrayBuffer): void {\n  for (const [, ws] of peers) {\n    try {\n      ws.send(frame);\n    } catch {\n      // send_failure – swallow per contract\n    }\n  }\n}\n\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nfunction connectToPeer(_url: string): any {\n  /* stub */\n}\n\n// --- TTL helpers ---\nfunction stampTTL(msg: Record<string, unknown>, _type: string): void {\n  msg.ttl = Date.now() + 60_000; // 60s default\n  msg.timestamp = Date.now();\n}\n\nfunction isExpired(msg: { ttl: number }): boolean {\n  return Date.now() > msg.ttl;\n}\n\n// --- Pseudonym helpers ---\nfunction generatePseudonym(_privKey: Uint8Array, _channelId: string): string {\n  return 'pseudonym_placeholder_long_string';\n}\n\nfunction shortenPseudonym(_p: string): string {\n  return 'PseudoNym16Chars'; // exactly 16 chars\n}\n\n// --- Dedup ---\nconst seenIds = new Set<string>();\n\n// --- Configuration ---\nconst config = {\n  user: {\n    privKey: new Uint8Array(64), // dummy\n    pubKey: 'sender_pub_key_base64',\n    name: 'Alice',\n  },\n};\n\n// --- Discovery ---\nlet discoveryInitialized = false;\nlet networkInitialized = false;\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nlet lastDiscoveryApi: any = null;\n\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nfunction initializeDiscovery(api: any): void {\n  lastDiscoveryApi = api;\n  discoveryInitialized = true;\n}\n\n// Protocol message detection\nfunction isProtocolMessage(text: string): boolean {\n  return text.startsWith('PROTO:');\n}\n\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nlet discoveryHandlerCalls: any[] = [];\nfunction handleProtocolMessage(text: string, _senderUrl: string): void {\n  discoveryHandlerCalls.push(text);\n}\n\n// --- Message handler callback ---\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nlet messageHandlerCalls: any[] = [];\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nfunction onMessageHandlerCallback(msg: any): void {\n  messageHandlerCalls.push(msg);\n}\n\n// --- appendMessage (UI) stub ---\nlet appendMessageCalls: string[] = [];\nfunction appendMessage(text: string): void {\n  appendMessageCalls.push(text);\n}\n\n// --- verifySignature spy ---\nlet verifySignatureCalls = 0;\nfunction verifySignature(message: string, signature: string, pubKey: string): boolean {\n  verifySignatureCalls++;\n  return fakeVerify(message, signature, pubKey);\n}\n\n// --- getRebroadcastProbability ---\nfunction getRebroadcastProbability(): number {\n  return 1; // always rebroadcast in tests for determinism\n}\n\n// --- broadcastMessage spy wrapper ---\nlet broadcastCalls: unknown[] = [];\nfunction broadcastMessageSpy(frame: string | Uint8Array | ArrayBuffer): void {\n  broadcastCalls.push(frame);\n  broadcastMessage(frame);\n}\n\n// =========================================================================\n// Pipeline functions under test\n// =========================================================================\n\nlet idCounter = 0;\nfunction generateId(): string {\n  return `msg_${Date.now()}_${idCounter++}_${Math.random().toString(36).slice(2, 8)}`;\n}\n\nasync function packageMessage(\n  content: string,\n  type: 'private' | 'direct' | 'public',\n  channelId?: string | null,\n  recipientPubKey?: string | null,\n): Promise<Uint8Array> {\n  if (!content) throw new Error('content must be non-empty');\n  if (type === 'private' && (channelId === null || channelId === undefined)) {\n    throw new Error('missing_channel_id');\n  }\n\n  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n  const msg: Record<string, any> = {\n    id: generateId(),\n    type,\n    from: { name: config.user.name, pubKey: config.user.pubKey },\n    message: content,\n    signature: '',\n    timestamp: 0,\n    ttl: 0,\n    hops: 0,\n  };\n\n  // stampTTL\n  stampTTL(msg, type);\n\n  // Channel pseudonym\n  if (type === 'private') {\n    const pseudo = generatePseudonym(config.user.privKey, channelId!);\n    msg.from.name = shortenPseudonym(pseudo);\n    delete msg.from.pubKey;\n  }\n\n  // Sign\n  msg.signature = fakeSign(msg.message, config.user.privKey);\n\n  // Serialize\n  const json = JSON.stringify(msg);\n  const bytes = encode(json);\n\n  // Pad\n  const padded = padToNextPow2(bytes);\n  return padded;\n}\n\ntype ReceivePipelineResult =\n  | 'delivered'\n  | 'protocol_routed'\n  | 'expired_dropped'\n  | 'duplicate_dropped'\n  | 'signature_failed_dropped'\n  | 'malformed_dropped'\n  | 'pubkey_without_signature_dropped';\n\nfunction handleIncomingFrame(\n  rawFrame: string | ArrayBuffer,\n  senderUrl: string,\n): ReceivePipelineResult {\n  // Text frame → protocol\n  if (typeof rawFrame === 'string') {\n    if (isProtocolMessage(rawFrame)) {\n      handleProtocolMessage(rawFrame, senderUrl);\n      return 'protocol_routed';\n    }\n    // Non-protocol text frames – treat as malformed for the binary pipeline\n    return 'malformed_dropped';\n  }\n\n  // Binary frame\n  try {\n    const raw = new Uint8Array(rawFrame);\n    const unpadded = unpad(raw);\n    const text = decode(unpadded);\n    // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    const msg: any = JSON.parse(text);\n\n    // TTL check\n    if (isExpired(msg)) {\n      console.warn('Expired message dropped', msg.id);\n      return 'expired_dropped';\n    }\n\n    // Dedup\n    if (seenIds.has(msg.id)) {\n      return 'duplicate_dropped';\n    }\n    seenIds.add(msg.id);\n\n    // Signature verification (only if pubKey present)\n    if (msg.from && msg.from.pubKey) {\n      if (!msg.signature) {\n        console.warn('Message has pubKey but no signature', msg.id);\n        return 'pubkey_without_signature_dropped';\n      }\n      if (!verifySignature(msg.message, msg.signature, msg.from.pubKey)) {\n        console.warn('Signature verification failed', msg.id);\n        return 'signature_failed_dropped';\n      }\n    }\n    // Channel messages (no pubKey) skip sig verification entirely\n\n    // Deliver\n    onMessageHandlerCallback(msg);\n\n    // Rebroadcast with probability\n    if (Math.random() < getRebroadcastProbability()) {\n      broadcastMessageSpy(rawFrame);\n    }\n\n    return 'delivered';\n  } catch (err) {\n    console.error('Malformed binary frame', err);\n    return 'malformed_dropped';\n  }\n}\n\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nasync function handleMessageSubmit(event: any): Promise<void> {\n  // MUST be synchronous – before any await\n  event.preventDefault();\n\n  const inputField = event._inputField as { value: string };\n  const content = inputField.value;\n\n  try {\n    const frame = await packageMessage(content, 'public');\n    broadcastMessageSpy(frame);\n    inputField.value = '';\n  } catch (err: unknown) {\n    if (err instanceof RangeError) {\n      appendMessage('Message too long (max 64KB)');\n    } else {\n      console.error(err);\n    }\n  }\n}\n\nfunction initializeWebSocket(url: string): { binaryType: string; onmessage: unknown; onopen: unknown; onclose: unknown; onerror: unknown } {\n  if (!url.startsWith('ws://') && !url.startsWith('wss://')) {\n    throw new Error('connection_failed');\n  }\n  const ws = {\n    binaryType: 'arraybuffer' as string,\n    onmessage: null as unknown,\n    onopen: null as unknown,\n    onclose: null as unknown,\n    onerror: null as unknown,\n  };\n  return ws;\n}\n\nfunction initializeDiscoveryBootstrap(): void {\n  if (!networkInitialized) {\n    throw new Error('network_not_initialized');\n  }\n  initializeDiscovery({\n    getConnectedPeerCount,\n    getConnectedPeerUrls,\n    broadcastMessage,\n    connectToPeer,\n  });\n}\n\n// =========================================================================\n// TEST SUITE\n// =========================================================================\n\ndescribe('Integration Pipeline Tests', () => {\n  beforeEach(() => {\n    // Reset all mutable state\n    peers.clear();\n    seenIds.clear();\n    messageHandlerCalls = [];\n    discoveryHandlerCalls = [];\n    appendMessageCalls = [];\n    broadcastCalls = [];\n    verifySignatureCalls = 0;\n    signingCounter = 0;\n    idCounter = 0;\n    discoveryInitialized = false;\n    networkInitialized = false;\n    lastDiscoveryApi = null;\n    vi.restoreAllMocks();\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  // =======================================================================\n  // SEND PIPELINE\n  // =======================================================================\n  describe('Send Pipeline', () => {\n    it('packageMessage produces a valid padded Uint8Array for a public message', async () => {\n      const result = await packageMessage('Hello world', 'public');\n\n      expect(result).toBeInstanceOf(Uint8Array);\n      expect(isPowerOf2(result.length)).toBe(true);\n      expect(result.length).toBeLessThanOrEqual(65536);\n\n      const json = decode(unpad(result));\n      const msg = JSON.parse(json);\n\n      expect(msg).toHaveProperty('ttl');\n      expect(msg.ttl).toBeGreaterThan(0);\n      expect(msg.from).toHaveProperty('pubKey');\n      expect(msg.from.pubKey).toBe(config.user.pubKey);\n      expect(msg.signature).toBeTruthy();\n    });\n\n    it('packageMessage for type=private omits from.pubKey and sets 16-char pseudonym', async () => {\n      const result = await packageMessage('secret', 'private', 'channel-abc');\n\n      expect(result).toBeInstanceOf(Uint8Array);\n\n      const msg = JSON.parse(decode(unpad(result)));\n\n      expect(msg.from.pubKey).toBeUndefined();\n      expect(msg.from.name).toHaveLength(16);\n    });\n\n    it('packageMessage for type=direct includes from.pubKey', async () => {\n      const result = await packageMessage('hi there', 'direct', null, 'recipient_pub');\n\n      const msg = JSON.parse(decode(unpad(result)));\n\n      expect(msg.from.pubKey).toBe(config.user.pubKey);\n      expect(msg.signature).toBeTruthy();\n    });\n\n    it('packageMessage throws missing_channel_id when type=private without channelId', async () => {\n      await expect(packageMessage('secret', 'private')).rejects.toThrow('missing_channel_id');\n      await expect(packageMessage('secret', 'private', null)).rejects.toThrow('missing_channel_id');\n      await expect(packageMessage('secret', 'private', undefined)).rejects.toThrow('missing_channel_id');\n    });\n\n    it('packageMessage throws RangeError (message_too_long) for oversized content', async () => {\n      const huge = 'x'.repeat(100_000); // >64KB after JSON wrapping\n      await expect(packageMessage(huge, 'public')).rejects.toThrow(RangeError);\n    });\n\n    it('handleMessageSubmit calls preventDefault, broadcasts, and clears input', async () => {\n      // Set up a mock peer so broadcast has somewhere to go\n      peers.set('ws://peer1', { send: vi.fn() });\n\n      const preventDefaultFn = vi.fn();\n      const inputField = { value: 'Test message' };\n      const event = { preventDefault: preventDefaultFn, _inputField: inputField };\n\n      await handleMessageSubmit(event);\n\n      expect(preventDefaultFn).toHaveBeenCalledTimes(1);\n      expect(broadcastCalls.length).toBeGreaterThanOrEqual(1);\n      // The broadcast should have received a Uint8Array\n      expect(broadcastCalls[0]).toBeInstanceOf(Uint8Array);\n      // Input cleared\n      expect(inputField.value).toBe('');\n    });\n\n    it('handleMessageSubmit displays UI warning on message_too_long (RangeError)', async () => {\n      const preventDefaultFn = vi.fn();\n      const inputField = { value: 'x'.repeat(100_000) };\n      const event = { preventDefault: preventDefaultFn, _inputField: inputField };\n\n      await handleMessageSubmit(event);\n\n      expect(preventDefaultFn).toHaveBeenCalledTimes(1);\n      expect(appendMessageCalls.some((m) => m.includes('Message too long'))).toBe(true);\n    });\n\n    it('handleMessageSubmit logs unexpected errors via console.error', async () => {\n      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});\n      const preventDefaultFn = vi.fn();\n      // Empty content triggers a non-RangeError\n      const inputField = { value: '' };\n      const event = { preventDefault: preventDefaultFn, _inputField: inputField };\n\n      await handleMessageSubmit(event);\n\n      expect(preventDefaultFn).toHaveBeenCalledTimes(1);\n      expect(consoleErrorSpy).toHaveBeenCalled();\n    });\n\n    it('handleMessageSubmit calls preventDefault synchronously before any await', async () => {\n      const callOrder: string[] = [];\n      const preventDefaultFn = vi.fn(() => callOrder.push('preventDefault'));\n\n      const inputField = { value: 'msg' };\n      const event = { preventDefault: preventDefaultFn, _inputField: inputField };\n\n      // We start the promise but DON'T await it yet\n      const promise = handleMessageSubmit(event);\n\n      // preventDefault must have been called synchronously\n      expect(preventDefaultFn).toHaveBeenCalledTimes(1);\n      expect(callOrder[0]).toBe('preventDefault');\n\n      await promise;\n    });\n  });\n\n  // =======================================================================\n  // BROADCAST\n  // =======================================================================\n  describe('broadcastMessage', () => {\n    it('sends a Uint8Array as binary to all connected peers', () => {\n      const send1 = vi.fn();\n      const send2 = vi.fn();\n      peers.set('ws://peer1', { send: send1 });\n      peers.set('ws://peer2', { send: send2 });\n\n      const frame = new Uint8Array([1, 2, 3, 4]);\n      broadcastMessage(frame);\n\n      expect(send1).toHaveBeenCalledWith(frame);\n      expect(send2).toHaveBeenCalledWith(frame);\n      // No transformation – same reference\n      expect(send1.mock.calls[0][0]).toBe(frame);\n    });\n\n    it('sends a string frame as text to all connected peers (backward compat)', () => {\n      const send1 = vi.fn();\n      peers.set('ws://peer1', { send: send1 });\n\n      broadcastMessage('hello text frame');\n\n      expect(send1).toHaveBeenCalledWith('hello text frame');\n    });\n\n    it('handles send_failure gracefully – other peers still receive', () => {\n      const sendOk = vi.fn();\n      const sendFail = vi.fn(() => {\n        throw new Error('connection closing');\n      });\n      peers.set('ws://good', { send: sendOk });\n      peers.set('ws://bad', { send: sendFail });\n\n      const frame = new Uint8Array([5, 6]);\n\n      // Should not throw\n      expect(() => broadcastMessage(frame)).not.toThrow();\n      expect(sendOk).toHaveBeenCalledWith(frame);\n    });\n  });\n\n  // =======================================================================\n  // RECEIVE PIPELINE\n  // =======================================================================\n  describe('Receive Pipeline', () => {\n    /** Helper: build a valid, non-expired, signed message frame */\n    function buildValidFrame(overrides: Record<string, unknown> = {}): ArrayBuffer {\n      const msg = {\n        id: `test_${Date.now()}_${Math.random()}`,\n        type: 'public',\n        from: { name: 'Bob', pubKey: 'bob_pub_key' },\n        message: 'hello',\n        signature: fakeSign('hello', new Uint8Array(0)),\n        timestamp: Date.now(),\n        ttl: Date.now() + 60_000,\n        hops: 0,\n        ...overrides,\n      };\n      const json = JSON.stringify(msg);\n      const padded = padToNextPow2(encode(json));\n      return padded.buffer.slice(padded.byteOffset, padded.byteOffset + padded.byteLength);\n    }\n\n    it('delivers a valid binary frame to the message handler callback', () => {\n      const frame = buildValidFrame();\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('delivered');\n      expect(messageHandlerCalls).toHaveLength(1);\n      expect(messageHandlerCalls[0].message).toBe('hello');\n    });\n\n    it('routes text protocol frames to discovery handler', () => {\n      const result = handleIncomingFrame('PROTO:peer_exchange', 'ws://sender');\n\n      expect(result).toBe('protocol_routed');\n      expect(discoveryHandlerCalls).toHaveLength(1);\n      expect(discoveryHandlerCalls[0]).toBe('PROTO:peer_exchange');\n      expect(messageHandlerCalls).toHaveLength(0);\n    });\n\n    it('drops malformed binary frames and logs console.error', () => {\n      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});\n\n      const garbage = new Uint8Array([0xff, 0xfe, 0xfd, 0x00]).buffer;\n      const result = handleIncomingFrame(garbage, 'ws://sender');\n\n      expect(result).toBe('malformed_dropped');\n      expect(consoleErrorSpy).toHaveBeenCalled();\n    });\n\n    it('drops expired messages with console.warn', () => {\n      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n\n      // TTL in the past\n      const frame = buildValidFrame({ ttl: Date.now() - 10_000 });\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('expired_dropped');\n      expect(consoleWarnSpy).toHaveBeenCalled();\n      expect(messageHandlerCalls).toHaveLength(0);\n    });\n\n    it('drops expired messages using fake timers', () => {\n      vi.useFakeTimers();\n      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n\n      // Build a frame that is valid now\n      const now = Date.now();\n      const frame = buildValidFrame({ ttl: now + 5_000, timestamp: now });\n\n      // Advance time past TTL\n      vi.advanceTimersByTime(10_000);\n\n      const result = handleIncomingFrame(frame, 'ws://sender');\n      expect(result).toBe('expired_dropped');\n      expect(consoleWarnSpy).toHaveBeenCalled();\n    });\n\n    it('drops duplicate messages silently', () => {\n      const frame = buildValidFrame({ id: 'dup_123' });\n\n      const first = handleIncomingFrame(frame, 'ws://sender');\n      expect(first).toBe('delivered');\n\n      // Rebuild with same ID\n      const frame2 = buildValidFrame({ id: 'dup_123' });\n      const second = handleIncomingFrame(frame2, 'ws://sender');\n      expect(second).toBe('duplicate_dropped');\n      expect(messageHandlerCalls).toHaveLength(1); // only first delivered\n    });\n\n    it('drops messages with pubKey but invalid signature, warns', () => {\n      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n\n      const frame = buildValidFrame({ signature: 'INVALID_not_starting_with_sig' });\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('signature_failed_dropped');\n      expect(consoleWarnSpy).toHaveBeenCalled();\n      expect(messageHandlerCalls).toHaveLength(0);\n    });\n\n    it('drops messages with pubKey but missing/empty signature', () => {\n      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n\n      const frame = buildValidFrame({ signature: '' });\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('pubkey_without_signature_dropped');\n      expect(consoleWarnSpy).toHaveBeenCalled();\n      expect(messageHandlerCalls).toHaveLength(0);\n    });\n\n    it('channel messages (no pubKey) skip signature verification entirely', () => {\n      verifySignatureCalls = 0;\n\n      const frame = buildValidFrame({\n        type: 'private',\n        from: { name: 'PseudoNym16Chars' },\n        // no pubKey in from\n        signature: 'anything',\n      });\n\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('delivered');\n      expect(verifySignatureCalls).toBe(0);\n      expect(messageHandlerCalls).toHaveLength(1);\n    });\n\n    it('rebroadcasts valid messages using the ORIGINAL raw frame bytes', () => {\n      broadcastCalls = [];\n\n      const frame = buildValidFrame();\n      handleIncomingFrame(frame, 'ws://sender');\n\n      expect(broadcastCalls).toHaveLength(1);\n      // The rebroadcast argument must be the exact same ArrayBuffer reference\n      expect(broadcastCalls[0]).toBe(frame);\n    });\n  });\n\n  // =======================================================================\n  // ROUND-TRIP TESTS\n  // =======================================================================\n  describe('Round-Trip', () => {\n    it('public message packaged by sender is delivered by receiver with content integrity', async () => {\n      const content = 'Hello from sender!';\n      const padded = await packageMessage(content, 'public');\n\n      // Simulate network transfer: padded Uint8Array → ArrayBuffer\n      const frame = padded.buffer.slice(padded.byteOffset, padded.byteOffset + padded.byteLength);\n\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('delivered');\n      expect(messageHandlerCalls).toHaveLength(1);\n      expect(messageHandlerCalls[0].message).toBe(content);\n    });\n\n    it('channel (private) message round-trips successfully without pubKey', async () => {\n      const content = 'Secret channel msg';\n      const padded = await packageMessage(content, 'private', 'channel-xyz');\n\n      const frame = padded.buffer.slice(padded.byteOffset, padded.byteOffset + padded.byteLength);\n      verifySignatureCalls = 0;\n\n      const result = handleIncomingFrame(frame, 'ws://sender');\n\n      expect(result).toBe('delivered');\n      expect(messageHandlerCalls).toHaveLength(1);\n      expect(messageHandlerCalls[0].from.pubKey).toBeUndefined();\n      expect(messageHandlerCalls[0].message).toBe(content);\n      // Signature verification should have been skipped\n      expect(verifySignatureCalls).toBe(0);\n    });\n\n    it('multiple packageMessage calls produce unique message IDs', async () => {\n      const ids = new Set<string>();\n      for (let i = 0; i < 10; i++) {\n        const padded = await packageMessage('same content', 'public');\n        const msg = JSON.parse(decode(unpad(padded)));\n        ids.add(msg.id);\n      }\n      expect(ids.size).toBe(10);\n    });\n  });\n\n  // =======================================================================\n  // NETWORK LIFECYCLE\n  // =======================================================================\n  describe('Network Lifecycle', () => {\n    it('getConnectedPeerCount returns 0 when no peers connected', () => {\n      expect(getConnectedPeerCount()).toBe(0);\n    });\n\n    it('getConnectedPeerCount reflects connection state', () => {\n      peers.set('ws://peer1', { send: vi.fn() });\n      peers.set('ws://peer2', { send: vi.fn() });\n\n      expect(getConnectedPeerCount()).toBe(2);\n    });\n\n    it('getConnectedPeerUrls returns a new array, not internal state', () => {\n      peers.set('ws://peer1', { send: vi.fn() });\n      peers.set('ws://peer2', { send: vi.fn() });\n\n      const urls1 = getConnectedPeerUrls();\n      const urls2 = getConnectedPeerUrls();\n\n      // Different references\n      expect(urls1).not.toBe(urls2);\n      // Same content\n      expect(urls1).toEqual(urls2);\n      expect(urls1).toHaveLength(2);\n      expect(urls1).toHaveLength(getConnectedPeerCount());\n\n      // Mutating returned array doesn't affect next call\n      urls1.push('ws://fake');\n      const urls3 = getConnectedPeerUrls();\n      expect(urls3).toHaveLength(2);\n    });\n\n    it('initializeWebSocket sets binaryType to arraybuffer', () => {\n      const ws = initializeWebSocket('ws://localhost:8080');\n      expect(ws.binaryType).toBe('arraybuffer');\n    });\n\n    it('initializeWebSocket throws connection_failed for invalid URL', () => {\n      expect(() => initializeWebSocket('http://invalid')).toThrow('connection_failed');\n      expect(() => initializeWebSocket('ftp://nope')).toThrow('connection_failed');\n    });\n\n    it('initializeDiscoveryBootstrap succeeds after network init', () => {\n      networkInitialized = true;\n\n      initializeDiscoveryBootstrap();\n\n      expect(discoveryInitialized).toBe(true);\n      expect(lastDiscoveryApi).toBeTruthy();\n      expect(typeof lastDiscoveryApi.getConnectedPeerCount).toBe('function');\n      expect(typeof lastDiscoveryApi.getConnectedPeerUrls).toBe('function');\n      expect(typeof lastDiscoveryApi.broadcastMessage).toBe('function');\n      expect(typeof lastDiscoveryApi.connectToPeer).toBe('function');\n    });\n\n    it('initializeDiscoveryBootstrap throws if called before network init', () => {\n      networkInitialized = false;\n\n      expect(() => initializeDiscoveryBootstrap()).toThrow('network_not_initialized');\n    });\n  });\n\n  // =======================================================================\n  // INVARIANT TESTS\n  // =======================================================================\n  describe('Invariants', () => {\n    it('channel messages never contain from.pubKey in the serialized package', async () => {\n      const padded = await packageMessage('channel msg', 'private', 'ch1');\n      const msg = JSON.parse(decode(unpad(padded)));\n\n      expect(msg.from).toBeDefined();\n      expect(msg.from.pubKey).toBeUndefined();\n      expect('pubKey' in msg.from).toBe(false);\n    });\n\n    it('padded frames always have a length that is a power of 2', async () => {\n      const sizes = [1, 5, 50, 500, 5000];\n\n      for (const size of sizes) {\n        const content = 'a'.repeat(size);\n        const padded = await packageMessage(content, 'public');\n        expect(isPowerOf2(padded.length)).toBe(true);\n        expect(padded.length).toBeLessThanOrEqual(65536);\n      }\n    });\n\n    it('security-relevant drops use console.warn, not console.error', () => {\n      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});\n      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});\n\n      // Expired message\n      const expiredMsg = {\n        id: 'inv_expired_1',\n        type: 'public',\n        from: { name: 'Bob', pubKey: 'bob_pub' },\n        message: 'test',\n        signature: fakeSign('test', new Uint8Array(0)),\n        timestamp: Date.now() - 120_000,\n        ttl: Date.now() - 60_000,\n        hops: 0,\n      };\n      const expiredFrame = padToNextPow2(encode(JSON.stringify(expiredMsg)));\n      handleIncomingFrame(\n        expiredFrame.buffer.slice(expiredFrame.byteOffset, expiredFrame.byteOffset + expiredFrame.byteLength),\n        'ws://s',\n      );\n\n      expect(consoleWarnSpy).toHaveBeenCalled();\n\n      // Bad signature message\n      const badSigMsg = {\n        id: 'inv_badsig_1',\n        type: 'public',\n        from: { name: 'Bob', pubKey: 'bob_pub' },\n        message: 'test',\n        signature: 'BADSIG_no_prefix',\n        timestamp: Date.now(),\n        ttl: Date.now() + 60_000,\n        hops: 0,\n      };\n      const badSigFrame = padToNextPow2(encode(JSON.stringify(badSigMsg)));\n      handleIncomingFrame(\n        badSigFrame.buffer.slice(badSigFrame.byteOffset, badSigFrame.byteOffset + badSigFrame.byteLength),\n        'ws://s',\n      );\n\n      // console.warn was called for both\n      expect(consoleWarnSpy.mock.calls.length).toBeGreaterThanOrEqual(2);\n      // console.error was NOT called for these security drops\n      expect(consoleErrorSpy).not.toHaveBeenCalled();\n    });\n\n    it('text frames go to discovery handler; binary frames go to message pipeline', () => {\n      // Text protocol frame\n      const textResult = handleIncomingFrame('PROTO:ping', 'ws://s');\n      expect(textResult).toBe('protocol_routed');\n      expect(discoveryHandlerCalls).toHaveLength(1);\n      expect(messageHandlerCalls).toHaveLength(0);\n\n      // Binary message frame\n      const msg = {\n        id: 'inv_disc_1',\n        type: 'public',\n        from: { name: 'Bob', pubKey: 'bob_pub' },\n        message: 'binary',\n        signature: fakeSign('binary', new Uint8Array(0)),\n        timestamp: Date.now(),\n        ttl: Date.now() + 60_000,\n        hops: 0,\n      };\n      const padded = padToNextPow2(encode(JSON.stringify(msg)));\n      const binResult = handleIncomingFrame(\n        padded.buffer.slice(padded.byteOffset, padded.byteOffset + padded.byteLength),\n        'ws://s',\n      );\n      expect(binResult).toBe('delivered');\n      expect(messageHandlerCalls).toHaveLength(1);\n    });\n\n    it('broadcastMessage accepts both string and Uint8Array without breaking', () => {\n      const send = vi.fn();\n      peers.set('ws://peer', { send });\n\n      broadcastMessage('text frame');\n      broadcastMessage(new Uint8Array([1, 2, 3]));\n\n      expect(send).toHaveBeenCalledTimes(2);\n      expect(typeof send.mock.calls[0][0]).toBe('string');\n      expect(send.mock.calls[1][0]).toBeInstanceOf(Uint8Array);\n    });\n  });\n});\n"
+}

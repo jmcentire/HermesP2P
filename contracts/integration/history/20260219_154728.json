@@ -1,0 +1,736 @@
+{
+  "component_id": "integration",
+  "name": "Pipeline Integration",
+  "description": "Wire all new leaf modules (padding.js, ttl.js, pseudonyms.js, discovery.js, crypto.js) into the existing codebase by modifying network.js, messages.js, and client.js to implement the full send and receive pipelines. Three targeted change sets applied in dependency order: (1) network.js — receive path restructuring with binary frame support, peer accessor exports, dynamic rebroadcast probability; (2) messages.js — async send path with stampTTL, pseudonym generation for channels, padding; (3) client.js — discovery bootstrap with dependency-injected network API. Channel messages skip signature verification (no pubKey). Peer exchange uses text frames, user messages use binary frames. Raw binary frames are rebroadcast as-is (never re-encoded).",
+  "version": 1,
+  "types": [
+    {
+      "name": "MessageType",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "private",
+        "direct",
+        "public"
+      ],
+      "inner_types": [],
+      "description": "The type of message being sent through the pipeline. Determines pseudonym and signature behavior."
+    },
+    {
+      "name": "FromField",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Display name or shortened pseudonym for channel messages.",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "OptionalStr",
+          "required": false,
+          "default": "",
+          "description": "Base64-encoded public key. Present for direct and public messages, absent for channel (private) messages.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "The sender identity attached to a message package. For channel (private) messages, pubKey is omitted and name is a shortened pseudonym. For DMs and public messages, pubKey is included."
+    },
+    {
+      "name": "OptionalStr",
+      "kind": "optional",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "str"
+      ],
+      "description": "An optional string value."
+    },
+    {
+      "name": "MessagePackage",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "id",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Unique message identifier (UUID or similar).",
+          "validators": []
+        },
+        {
+          "name": "type",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "Message type: private, direct, or public.",
+          "validators": []
+        },
+        {
+          "name": "from",
+          "type_ref": "FromField",
+          "required": true,
+          "default": "",
+          "description": "Sender identity block.",
+          "validators": []
+        },
+        {
+          "name": "message",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The message content (possibly encrypted).",
+          "validators": []
+        },
+        {
+          "name": "signature",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded signature over the message content.",
+          "validators": []
+        },
+        {
+          "name": "timestamp",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "Unix timestamp in milliseconds via Date.now().",
+          "validators": []
+        },
+        {
+          "name": "ttl",
+          "type_ref": "int",
+          "required": false,
+          "default": "",
+          "description": "Time-to-live value stamped by stampTTL.",
+          "validators": []
+        },
+        {
+          "name": "hops",
+          "type_ref": "int",
+          "required": false,
+          "default": "",
+          "description": "Hop count stamped by stampTTL.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "The full message object constructed by packageMessage, before serialization and padding. Includes TTL stamp after stampTTL is applied."
+    },
+    {
+      "name": "WebSocketFrame",
+      "kind": "union",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [
+        "str",
+        "bytes"
+      ],
+      "description": "A raw WebSocket frame as received by the onmessage handler. Text frames (string) carry protocol/discovery messages. Binary frames (ArrayBuffer) carry padded user messages."
+    },
+    {
+      "name": "NetworkAPI",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "getConnectedPeerCount",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: () => int. Returns current number of connected peers.",
+          "validators": []
+        },
+        {
+          "name": "getConnectedPeerUrls",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: () => list[str]. Returns URLs of all currently connected peers.",
+          "validators": []
+        },
+        {
+          "name": "broadcastMessage",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (frame: bytes|str) => None. Sends a frame to all connected peers.",
+          "validators": []
+        },
+        {
+          "name": "connectToPeer",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "Function: (url: str) => None. Initiates a WebSocket connection to the given peer URL.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Dependency-injected network API object passed to initializeDiscovery. Provides accessor functions for peer state without exposing internal data structures."
+    },
+    {
+      "name": "PaddedFrame",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A Uint8Array containing a padded message ready for binary WebSocket transmission. Produced by padMessage, consumed by broadcastMessage."
+    },
+    {
+      "name": "Configuration",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "user",
+          "type_ref": "UserConfig",
+          "required": true,
+          "default": "",
+          "description": "Current user configuration including keys and display name.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Subset of the existing application configuration relevant to pipeline integration. Assumed to be available in scope of messages.js."
+    },
+    {
+      "name": "UserConfig",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "privKey",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "User's private/secret key (Uint8Array). NEVER log this value.",
+          "validators": []
+        },
+        {
+          "name": "pubKey",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "User's base64-encoded public key.",
+          "validators": []
+        },
+        {
+          "name": "name",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "User's chosen display name.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "User identity configuration containing keys and display name."
+    },
+    {
+      "name": "ReceivePipelineResult",
+      "kind": "enum",
+      "fields": [],
+      "item_type": "",
+      "variants": [
+        "delivered",
+        "protocol_routed",
+        "expired_dropped",
+        "duplicate_dropped",
+        "signature_failed_dropped",
+        "malformed_dropped",
+        "pubkey_without_signature_dropped"
+      ],
+      "inner_types": [],
+      "description": "Outcome of processing a received frame through the receive pipeline."
+    }
+  ],
+  "functions": [
+    {
+      "name": "getConnectedPeerCount",
+      "description": "Returns the number of currently connected WebSocket peers. Pure accessor over the internal peers Map in network.js. Added as a new named export to network.js.",
+      "inputs": [],
+      "output_type": "int",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Return value >= 0",
+        "Return value equals peers.size at time of call"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "getConnectedPeerUrls",
+      "description": "Returns an array of URLs for all currently connected WebSocket peers. Pure accessor over the internal peers Map keys in network.js. Added as a new named export to network.js.",
+      "inputs": [],
+      "output_type": "list[str]",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "Return value is a new array (not a reference to internal state)",
+        "Length of returned array equals getConnectedPeerCount()",
+        "Each element is a valid WebSocket URL string"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "packageMessage",
+      "description": "Async function that builds, stamps, signs, serializes, and pads a message for broadcast. Modified from the existing synchronous packageMessage in messages.js. Preserves the existing function signature with new optional parameters. Steps: (1) build message object with existing logic, (2) stampTTL(messagePackage, type), (3) for channel messages: generate pseudonym from privKey+channelId, set from.name to shortenPseudonym(pseudonym), delete from.pubKey; for DM/public: keep existing from fields, (4) sign the message, (5) JSON.stringify, (6) padMessage(new TextEncoder().encode(json)) to produce PaddedFrame Uint8Array. Returns the padded binary frame ready for broadcast.",
+      "inputs": [
+        {
+          "name": "content",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The message content (plaintext or pre-encrypted).",
+          "validators": []
+        },
+        {
+          "name": "type",
+          "type_ref": "MessageType",
+          "required": true,
+          "default": "",
+          "description": "Message type determining pseudonym and signature behavior.",
+          "validators": []
+        },
+        {
+          "name": "channelId",
+          "type_ref": "OptionalStr",
+          "required": false,
+          "default": "null",
+          "description": "Channel identifier, required when type is 'private'. Used for pseudonym generation.",
+          "validators": []
+        },
+        {
+          "name": "recipientPubKey",
+          "type_ref": "OptionalStr",
+          "required": false,
+          "default": "null",
+          "description": "Recipient's public key for direct messages. Passed through to existing encryption logic.",
+          "validators": []
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "message_too_long",
+          "condition": "Serialized JSON exceeds maximum padded frame size (64KB)",
+          "error_type": "RangeError",
+          "error_data": {
+            "message": "Message too long (max 64KB)"
+          }
+        },
+        {
+          "name": "missing_channel_id",
+          "condition": "type is 'private' but channelId is null or undefined",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "channelId required for channel messages"
+          }
+        }
+      ],
+      "preconditions": [
+        "configuration.user.privKey is available in module scope",
+        "channelId must be provided when type is 'private'",
+        "content is a non-empty string"
+      ],
+      "postconditions": [
+        "Returned bytes is a padded Uint8Array of length that is a power of 2",
+        "Returned bytes length <= 65536 (64KB max after padding)",
+        "The embedded message object has a ttl field set by stampTTL",
+        "For type='private': from.pubKey is absent in the serialized message",
+        "For type='private': from.name is a 16-character shortened pseudonym",
+        "For type='direct' or type='public': from.pubKey is present in the serialized message",
+        "The embedded message has a valid signature over message content"
+      ],
+      "idempotent": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "handleMessageSubmit",
+      "description": "Async event handler for message submission from the UI. Modified from the existing synchronous handler in messages.js. Calls event.preventDefault() BEFORE any await to prevent form submission. Wraps packageMessage in try/catch to surface padding errors (message too long) as UI warnings via appendMessage. On success, passes the padded binary frame to broadcastMessage.",
+      "inputs": [
+        {
+          "name": "event",
+          "type_ref": "any",
+          "required": true,
+          "default": "",
+          "description": "DOM Event object from form submission. preventDefault() is called synchronously before any async work.",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "message_too_long_ui",
+          "condition": "packageMessage throws RangeError due to message exceeding 64KB after padding",
+          "error_type": "RangeError",
+          "error_data": {
+            "ui_feedback": "appendMessage('System', 'Message too long (max 64KB)', 'error')"
+          }
+        },
+        {
+          "name": "unexpected_send_error",
+          "condition": "Any non-RangeError exception during packageMessage or broadcast",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error('Failed to send message:', error)"
+          }
+        }
+      ],
+      "preconditions": [
+        "event is a valid DOM Event with preventDefault method",
+        "User has entered message content in the UI input field",
+        "Network is initialized and broadcastMessage is available"
+      ],
+      "postconditions": [
+        "event.preventDefault() was called synchronously (before any await)",
+        "On success: padded binary frame was passed to broadcastMessage",
+        "On success: UI input field is cleared",
+        "On padding error: UI displays 'Message too long (max 64KB)' warning via appendMessage",
+        "On other errors: error is logged via console.error"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Calls broadcastMessage to send padded frame to all peers",
+        "Updates DOM: clears input field on success or shows error message on failure"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "broadcastMessage — sends padded binary frame to all connected WebSocket peers",
+          "description": "Broadcasts the padded message via WebSocket binary frames."
+        },
+        {
+          "kind": "mutates_state",
+          "target": "DOM — clears message input on success, shows error on failure",
+          "description": "Updates UI elements to reflect send outcome."
+        },
+        {
+          "kind": "logging",
+          "target": "console.error for unexpected errors",
+          "description": "Logs unexpected errors that are not padding-related."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "handleIncomingFrame",
+      "description": "The restructured WebSocket onmessage handler logic in network.js. Discriminates between text frames (protocol/discovery messages) and binary frames (padded user messages). For text frames: checks isProtocolMessage and routes to discovery handler. For binary frames: runs the full receive pipeline — unpad, deserialize, TTL check, dedup, signature verify, then passes to existing message handler callback. Uses try/catch around the entire binary processing path for malformed data resilience. Rebroadcasts valid messages using the original raw binary frame (never re-encoded) with dynamic probability from getRebroadcastProbability.",
+      "inputs": [
+        {
+          "name": "rawFrame",
+          "type_ref": "WebSocketFrame",
+          "required": true,
+          "default": "",
+          "description": "The raw event.data from the WebSocket onmessage event. Either a string (text frame) or ArrayBuffer (binary frame).",
+          "validators": []
+        },
+        {
+          "name": "senderUrl",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The WebSocket URL of the peer that sent this frame, used for logging and discovery routing.",
+          "validators": []
+        }
+      ],
+      "output_type": "ReceivePipelineResult",
+      "error_cases": [
+        {
+          "name": "malformed_binary_frame",
+          "condition": "Binary frame cannot be unpadded, decoded as UTF-8, or parsed as JSON",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error('Malformed message frame:', error.message); return 'malformed_dropped'"
+          }
+        },
+        {
+          "name": "expired_message",
+          "condition": "isExpired(message) returns true",
+          "error_type": "None",
+          "error_data": {
+            "handling": "console.warn('Expired message:', message.id); return 'expired_dropped'"
+          }
+        },
+        {
+          "name": "duplicate_message",
+          "condition": "Message ID already exists in deduplication set",
+          "error_type": "None",
+          "error_data": {
+            "handling": "return 'duplicate_dropped'"
+          }
+        },
+        {
+          "name": "signature_verification_failed",
+          "condition": "Message has from.pubKey but verifySignature returns false",
+          "error_type": "None",
+          "error_data": {
+            "handling": "console.warn('Signature verification failed for message:', message.id); return 'signature_failed_dropped'"
+          }
+        },
+        {
+          "name": "pubkey_without_signature",
+          "condition": "Message has from.pubKey but signature field is missing or empty",
+          "error_type": "None",
+          "error_data": {
+            "handling": "console.warn('Message has pubKey but no signature:', message.id); return 'pubkey_without_signature_dropped'"
+          }
+        }
+      ],
+      "preconditions": [
+        "WebSocket binaryType is set to 'arraybuffer'",
+        "Message handler callback is registered",
+        "Deduplication set is available in module scope"
+      ],
+      "postconditions": [
+        "Text frames matching isProtocolMessage are routed to discovery handler and not processed further",
+        "Expired messages are dropped with console.warn and not forwarded",
+        "Duplicate messages are dropped silently and not forwarded",
+        "Messages with from.pubKey but invalid or missing signature are dropped with console.warn",
+        "Messages without from.pubKey (channel messages) skip signature verification entirely",
+        "Valid messages are passed to the message handler callback",
+        "Valid messages are rebroadcast with probability from getRebroadcastProbability using the ORIGINAL raw frame bytes",
+        "Malformed binary frames are caught, logged via console.error, and dropped"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "May rebroadcast the original raw frame to connected peers",
+        "Calls message handler callback for valid messages",
+        "Routes protocol messages to discovery handler"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "WebSocket peers — rebroadcast of original raw frame",
+          "description": "Forwards valid user messages to other peers using the unmodified binary frame."
+        },
+        {
+          "kind": "mutates_state",
+          "target": "Deduplication set — adds message ID",
+          "description": "Records the message ID to prevent processing duplicates."
+        },
+        {
+          "kind": "logging",
+          "target": "console.warn for security drops (expired, bad signature); console.error for malformed data",
+          "description": "Structured logging for pipeline drop reasons."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "broadcastMessage",
+      "description": "Modified version of the existing broadcastMessage in network.js to accept both string and Uint8Array/ArrayBuffer frames. For binary frames (Uint8Array or ArrayBuffer), sends via WebSocket as binary. For string frames (backward compatibility), sends as text. This preserves backward compatibility for any existing callers while enabling the new padded binary pipeline.",
+      "inputs": [
+        {
+          "name": "frame",
+          "type_ref": "WebSocketFrame",
+          "required": true,
+          "default": "",
+          "description": "The message frame to broadcast. Either a padded Uint8Array/ArrayBuffer (new pipeline) or a JSON string (legacy/backward compatibility).",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "send_failure",
+          "condition": "WebSocket.send() throws for a specific peer (e.g., connection closing)",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "Log error for that peer, continue sending to remaining peers"
+          }
+        }
+      ],
+      "preconditions": [
+        "At least one peer is connected (otherwise message is silently not sent)",
+        "frame is either a string, Uint8Array, or ArrayBuffer"
+      ],
+      "postconditions": [
+        "Frame is sent to all currently connected peers",
+        "Binary frames are sent as WebSocket binary frames",
+        "String frames are sent as WebSocket text frames",
+        "No encoding or transformation is applied to the frame"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Sends frame to all connected WebSocket peers"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "All connected WebSocket peers",
+          "description": "Sends the frame to every peer in the peers Map."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "initializeWebSocket",
+      "description": "Modification to the existing WebSocket creation logic in network.js. After creating the WebSocket instance, sets ws.binaryType = 'arraybuffer' to ensure binary frames arrive as ArrayBuffer (not Blob). This is a minimal targeted change to the existing connection setup code.",
+      "inputs": [
+        {
+          "name": "url",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The WebSocket URL to connect to.",
+          "validators": []
+        }
+      ],
+      "output_type": "any",
+      "error_cases": [
+        {
+          "name": "connection_failed",
+          "condition": "WebSocket constructor throws or connection fails",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "Existing error handling preserved — onerror and onclose callbacks handle cleanup"
+          }
+        }
+      ],
+      "preconditions": [
+        "url is a valid WebSocket URL (ws:// or wss://)"
+      ],
+      "postconditions": [
+        "Returned WebSocket has binaryType set to 'arraybuffer'",
+        "onmessage handler uses the restructured handleIncomingFrame logic",
+        "All existing WebSocket event handlers (onopen, onclose, onerror) are preserved"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Creates a new WebSocket connection to the specified URL"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "network_call",
+          "target": "WebSocket connection to url",
+          "description": "Establishes a new WebSocket connection."
+        },
+        {
+          "kind": "mutates_state",
+          "target": "peers Map — adds new peer entry",
+          "description": "Registers the new connection in the internal peers tracking."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "initializeDiscoveryBootstrap",
+      "description": "New initialization call added to client.js after initializeNetwork(). Constructs the NetworkAPI dependency object from network.js exports and passes it to initializeDiscovery from discovery.js. This wires up the discovery module without creating circular dependencies — discovery receives its network capabilities via dependency injection.",
+      "inputs": [],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "network_not_initialized",
+          "condition": "Called before initializeNetwork() — peer accessors would return empty/undefined",
+          "error_type": "Error",
+          "error_data": {
+            "handling": "console.error('Cannot initialize discovery: network not ready')"
+          }
+        }
+      ],
+      "preconditions": [
+        "initializeNetwork() has already been called and completed",
+        "getConnectedPeerCount, getConnectedPeerUrls, broadcastMessage, and connectToPeer are available as imports from network.js",
+        "initializeDiscovery is available as import from discovery.js"
+      ],
+      "postconditions": [
+        "Discovery module is initialized with a valid NetworkAPI object",
+        "Discovery timers (peer exchange interval) are started",
+        "No circular module dependencies are created"
+      ],
+      "idempotent": false,
+      "side_effects": [
+        "Starts discovery timers that will periodically exchange peer information"
+      ],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "Discovery module internal state — timers and known peers cache",
+          "description": "Initializes the discovery subsystem with network API references and starts periodic peer exchange."
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [
+    "padding",
+    "ttl",
+    "pseudonyms",
+    "discovery",
+    "crypto"
+  ],
+  "dependency_contracts": {
+    "padding": [
+      "padMessage",
+      "unpadMessage"
+    ],
+    "ttl": [
+      "stampTTL",
+      "isExpired",
+      "getRebroadcastProbability"
+    ],
+    "pseudonyms": [
+      "generatePseudonym",
+      "shortenPseudonym"
+    ],
+    "discovery": [
+      "initializeDiscovery",
+      "isProtocolMessage"
+    ],
+    "crypto": [
+      "verifySignature"
+    ]
+  },
+  "invariants": [
+    "Raw binary frames are rebroadcast as-is — the original bytes from the sender are forwarded without re-encoding, re-padding, or re-serialization",
+    "event.preventDefault() is always called synchronously in handleMessageSubmit BEFORE any await expression",
+    "Channel messages (type='private') never contain from.pubKey in the serialized package",
+    "Channel messages skip signature verification on receive — if from.pubKey is absent, verifySignature is not called",
+    "Messages with from.pubKey present but missing or invalid signature are dropped (security invariant)",
+    "All existing function signatures are preserved — new parameters are added as optional with defaults",
+    "No existing module is rewritten from scratch — only minimal, targeted additions and modifications",
+    "New imports are added at the top of each file alongside existing imports",
+    "Private keys, secret keys, and decrypted message content are NEVER logged",
+    "console.warn is used for security-relevant drops (expired TTL, failed signature); console.error is used only for actual errors (malformed data, missing dependencies)",
+    "Text frames are routed to the discovery/protocol handler; binary frames are routed to the user message pipeline — frame type discrimination happens first in onmessage",
+    "ws.binaryType is set to 'arraybuffer' for all WebSocket connections to ensure binary frames arrive as ArrayBuffer not Blob",
+    "The send pipeline order is: compose → encrypt → stampTTL → pseudonym (channels) → package → sign → serialize → pad → broadcast",
+    "The receive pipeline order is: receive → classify (protocol shortcut) → unpad → deserialize → TTL check → dedup → verify sig (if pubKey) → decrypt → display",
+    "Padding errors (message too long) in the send path are surfaced to the user via UI feedback, not silently swallowed",
+    "broadcastMessage accepts both string (backward compat) and Uint8Array/ArrayBuffer (new pipeline) without breaking existing callers",
+    "Discovery is bootstrapped via dependency injection of the NetworkAPI object, avoiding circular imports between network.js and discovery.js"
+  ],
+  "requires": [
+    "padding",
+    "ttl",
+    "pseudonyms",
+    "discovery",
+    "crypto"
+  ]
+}

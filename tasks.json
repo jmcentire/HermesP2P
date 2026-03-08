@@ -1,0 +1,969 @@
+{
+  "project_id": "HermesP2P",
+  "tasks": [
+    {
+      "id": "T001",
+      "phase": "setup",
+      "component_id": "",
+      "description": "Initialize project directory structure",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [],
+      "category": "scaffold"
+    },
+    {
+      "id": "T002",
+      "phase": "setup",
+      "component_id": "",
+      "description": "Verify environment and dependencies",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [
+        "T001"
+      ],
+      "category": "scaffold"
+    },
+    {
+      "id": "T003",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: Base64String",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T004",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: ChannelId",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T005",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: CleanupFunction",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T006",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: Configuration",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T007",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: ConnectedPeerInfo",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T008",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: ConnectedPeerInfoList",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T009",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: DefaultTTLs",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T010",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: DerivedHmacKeyParams",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T011",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: FrameSizeEnum",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T012",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: FrameSizesArray",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T013",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: FromField",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T014",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: HkdfParams",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T015",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: IsProtocolResult",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T016",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: MessagePackage",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T017",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: MessageType",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T018",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: ModuleConstants",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T019",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: NetworkAPI",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T020",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: None",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T021",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: OptionalFloat",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T022",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: OptionalPeerEntry",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T023",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: OptionalStr",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T024",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PaddedFrame",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T025",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerEntry",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T026",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerEntryList",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T027",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerExchangeMessage",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T028",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerExchangeRequest",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T029",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerExchangeResponse",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T030",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerIdentity",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T031",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: PeerMetadata",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T032",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: ReceivePipelineResult",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T033",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: StrList",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T034",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: TTLMessage",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T035",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: Timestamp",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T036",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: UserConfig",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T037",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: VerificationResult",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T038",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: WebSocketFrame",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T039",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: any",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T040",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: bool",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T041",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: bytes",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T042",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: float",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T043",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: int",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T044",
+      "phase": "foundational",
+      "component_id": "",
+      "description": "Define shared type: str",
+      "file_path": "",
+      "status": "pending",
+      "parallel": true,
+      "depends_on": [],
+      "category": "type_definition"
+    },
+    {
+      "id": "T045",
+      "phase": "component",
+      "component_id": "padding_module",
+      "description": "Review contract for Fixed-Size Message Padding",
+      "file_path": "contracts/padding_module/interface.json",
+      "status": "completed",
+      "parallel": true,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T046",
+      "phase": "component",
+      "component_id": "padding_module",
+      "description": "Set up test harness for Fixed-Size Message Padding",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T045"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T047",
+      "phase": "component",
+      "component_id": "padding_module",
+      "description": "Write contract tests for Fixed-Size Message Padding",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T046"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T048",
+      "phase": "component",
+      "component_id": "padding_module",
+      "description": "Implement Fixed-Size Message Padding",
+      "file_path": "implementations/padding_module/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T047"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T049",
+      "phase": "component",
+      "component_id": "padding_module",
+      "description": "Run tests and verify Fixed-Size Message Padding",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T048"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T050",
+      "phase": "component",
+      "component_id": "ttl_module",
+      "description": "Review contract for TTL Enforcement",
+      "file_path": "contracts/ttl_module/interface.json",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T051",
+      "phase": "component",
+      "component_id": "ttl_module",
+      "description": "Set up test harness for TTL Enforcement",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T050"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T052",
+      "phase": "component",
+      "component_id": "ttl_module",
+      "description": "Write contract tests for TTL Enforcement",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T051"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T053",
+      "phase": "component",
+      "component_id": "ttl_module",
+      "description": "Implement TTL Enforcement",
+      "file_path": "implementations/ttl_module/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T052"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T054",
+      "phase": "component",
+      "component_id": "ttl_module",
+      "description": "Run tests and verify TTL Enforcement",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T053"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T055",
+      "phase": "component",
+      "component_id": "pseudonyms_module",
+      "description": "Review contract for Channel-Keyed Pseudonyms",
+      "file_path": "contracts/pseudonyms_module/interface.json",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T056",
+      "phase": "component",
+      "component_id": "pseudonyms_module",
+      "description": "Set up test harness for Channel-Keyed Pseudonyms",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T055"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T057",
+      "phase": "component",
+      "component_id": "pseudonyms_module",
+      "description": "Write contract tests for Channel-Keyed Pseudonyms",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T056"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T058",
+      "phase": "component",
+      "component_id": "pseudonyms_module",
+      "description": "Implement Channel-Keyed Pseudonyms",
+      "file_path": "implementations/pseudonyms_module/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T057"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T059",
+      "phase": "component",
+      "component_id": "pseudonyms_module",
+      "description": "Run tests and verify Channel-Keyed Pseudonyms",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T058"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T060",
+      "phase": "component",
+      "component_id": "discovery_module",
+      "description": "Review contract for Peer Discovery",
+      "file_path": "contracts/discovery_module/interface.json",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T061",
+      "phase": "component",
+      "component_id": "discovery_module",
+      "description": "Set up test harness for Peer Discovery",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T060"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T062",
+      "phase": "component",
+      "component_id": "discovery_module",
+      "description": "Write contract tests for Peer Discovery",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T061"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T063",
+      "phase": "component",
+      "component_id": "discovery_module",
+      "description": "Implement Peer Discovery",
+      "file_path": "implementations/discovery_module/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T062"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T064",
+      "phase": "component",
+      "component_id": "discovery_module",
+      "description": "Run tests and verify Peer Discovery",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T063"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T065",
+      "phase": "component",
+      "component_id": "crypto_verify",
+      "description": "Review contract for Signature Verification (crypto.js update)",
+      "file_path": "contracts/crypto_verify/interface.json",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T066",
+      "phase": "component",
+      "component_id": "crypto_verify",
+      "description": "Set up test harness for Signature Verification (crypto.js update)",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T065"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T067",
+      "phase": "component",
+      "component_id": "crypto_verify",
+      "description": "Write contract tests for Signature Verification (crypto.js update)",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T066"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T068",
+      "phase": "component",
+      "component_id": "crypto_verify",
+      "description": "Implement Signature Verification (crypto.js update)",
+      "file_path": "implementations/crypto_verify/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T067"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T069",
+      "phase": "component",
+      "component_id": "crypto_verify",
+      "description": "Run tests and verify Signature Verification (crypto.js update)",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T068"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T070",
+      "phase": "component",
+      "component_id": "integration",
+      "description": "Review contract for Pipeline Integration",
+      "file_path": "contracts/integration/interface.json",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T071",
+      "phase": "component",
+      "component_id": "integration",
+      "description": "Set up test harness for Pipeline Integration",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T070"
+      ],
+      "category": "test_setup"
+    },
+    {
+      "id": "T072",
+      "phase": "component",
+      "component_id": "integration",
+      "description": "Write contract tests for Pipeline Integration",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T071"
+      ],
+      "category": "test_write"
+    },
+    {
+      "id": "T073",
+      "phase": "component",
+      "component_id": "integration",
+      "description": "Implement Pipeline Integration",
+      "file_path": "implementations/integration/src/",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T072"
+      ],
+      "category": "implement"
+    },
+    {
+      "id": "T074",
+      "phase": "component",
+      "component_id": "integration",
+      "description": "Run tests and verify Pipeline Integration",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T073"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T075",
+      "phase": "integration",
+      "component_id": "root",
+      "description": "Review integration contract for Root",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [],
+      "category": "contract_review"
+    },
+    {
+      "id": "T076",
+      "phase": "integration",
+      "component_id": "root",
+      "description": "Write integration tests for Root",
+      "file_path": "",
+      "status": "completed",
+      "parallel": true,
+      "depends_on": [],
+      "category": "test_write"
+    },
+    {
+      "id": "T077",
+      "phase": "integration",
+      "component_id": "root",
+      "description": "Wire children for Root",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [
+        "T069",
+        "T064",
+        "T074",
+        "T049",
+        "T059",
+        "T054"
+      ],
+      "category": "integrate"
+    },
+    {
+      "id": "T078",
+      "phase": "integration",
+      "component_id": "root",
+      "description": "Run integration tests for Root",
+      "file_path": "",
+      "status": "completed",
+      "parallel": false,
+      "depends_on": [
+        "T077"
+      ],
+      "category": "verify"
+    },
+    {
+      "id": "T079",
+      "phase": "polish",
+      "component_id": "",
+      "description": "Run full contract validation gate",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [],
+      "category": "validate"
+    },
+    {
+      "id": "T080",
+      "phase": "polish",
+      "component_id": "",
+      "description": "Cross-artifact analysis",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [],
+      "category": "validate"
+    },
+    {
+      "id": "T081",
+      "phase": "polish",
+      "component_id": "",
+      "description": "Update design document",
+      "file_path": "",
+      "status": "pending",
+      "parallel": false,
+      "depends_on": [],
+      "category": "document"
+    }
+  ],
+  "checkpoints": [
+    {
+      "after_phase": "component",
+      "description": "All leaf components verified",
+      "validation": "All leaf contract tests pass"
+    },
+    {
+      "after_phase": "integration",
+      "description": "All integrations verified",
+      "validation": "All integration tests pass"
+    }
+  ],
+  "generated_at": "2026-02-19T16:54:45.537275",
+  "version": 1
+}

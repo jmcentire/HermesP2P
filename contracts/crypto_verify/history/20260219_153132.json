@@ -1,0 +1,378 @@
+{
+  "component_id": "crypto_verify",
+  "name": "Signature Verification (crypto.js update)",
+  "description": "Add signature verification to existing `static/js/crypto.js` and export base64 helpers. Minimal, targeted changes: (1) Export existing module-scoped `base64Encode` and `base64Decode` functions by adding `export` keyword. (2) Add new `verifySignature(message, signature, publicKey)` function that decodes base64 inputs, encodes message via TextEncoder, calls `window.nacl.sign.detached.verify`, and returns a boolean. Entire function is wrapped in try/catch returning false on any exception (fail-closed). Channel messages skip signature verification because `from.pubKey` is removed for pseudonymity — the integration layer must enforce this skip. This component does NOT modify any existing function signatures.",
+  "version": 1,
+  "types": [
+    {
+      "name": "str",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript string type"
+    },
+    {
+      "name": "bool",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "JavaScript boolean type"
+    },
+    {
+      "name": "bytes",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Uint8Array — raw byte buffer"
+    },
+    {
+      "name": "Base64String",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A string containing valid base64-encoded data. Uses `window.base64js` for encoding/decoding."
+    },
+    {
+      "name": "Ed25519PublicKeyBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A base64-encoded Ed25519 public key (32 bytes decoded). Used with TweetNaCl `nacl.sign.detached.verify`."
+    },
+    {
+      "name": "Ed25519SignatureBase64",
+      "kind": "primitive",
+      "fields": [],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "A base64-encoded Ed25519 detached signature (64 bytes decoded). Produced by `nacl.sign.detached`."
+    },
+    {
+      "name": "VerificationResult",
+      "kind": "struct",
+      "fields": [
+        {
+          "name": "valid",
+          "type_ref": "bool",
+          "required": true,
+          "default": "",
+          "description": "True if and only if nacl.sign.detached.verify returned true with correctly decoded inputs. False in all other cases including exceptions.",
+          "validators": []
+        }
+      ],
+      "item_type": "",
+      "variants": [],
+      "inner_types": [],
+      "description": "Conceptual result of verifySignature — always a plain boolean. True means the signature is valid for the given message and public key. False means invalid, malformed, or any error occurred (fail-closed)."
+    }
+  ],
+  "functions": [
+    {
+      "name": "base64Encode",
+      "description": "Encode a Uint8Array to a base64 string using `window.base64js.fromByteArray`. This is an EXISTING module-scoped function that is being promoted to an export by adding the `export` keyword. No functional change. No signature change.",
+      "inputs": [
+        {
+          "name": "uint8Array",
+          "type_ref": "bytes",
+          "required": true,
+          "default": "",
+          "description": "Raw bytes to encode as base64",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "uint8Array instanceof Uint8Array",
+              "error_message": "Input must be a Uint8Array"
+            }
+          ]
+        }
+      ],
+      "output_type": "Base64String",
+      "error_cases": [
+        {
+          "name": "invalid_input_type",
+          "condition": "uint8Array is not a Uint8Array instance",
+          "error_type": "TypeError",
+          "error_data": {
+            "message": "Input must be a Uint8Array"
+          }
+        },
+        {
+          "name": "missing_base64js_global",
+          "condition": "window.base64js is undefined or does not have fromByteArray method",
+          "error_type": "ReferenceError",
+          "error_data": {
+            "message": "window.base64js global not available"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.base64js global is available and provides fromByteArray function",
+        "uint8Array is a valid Uint8Array instance"
+      ],
+      "postconditions": [
+        "Returned string is valid base64 encoding of the input bytes",
+        "base64Decode(base64Encode(input)) produces a Uint8Array with identical content to input"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": "Pure function — reads window.base64js global but has no side effects"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "base64Decode",
+      "description": "Decode a base64 string to a Uint8Array using `window.base64js.toByteArray`. This is an EXISTING module-scoped function that is being promoted to an export by adding the `export` keyword. No functional change. No signature change.",
+      "inputs": [
+        {
+          "name": "base64String",
+          "type_ref": "Base64String",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded string to decode",
+          "validators": [
+            {
+              "kind": "regex",
+              "expression": "^[A-Za-z0-9+/]*={0,2}$",
+              "error_message": "Input must be a valid base64 string"
+            }
+          ]
+        }
+      ],
+      "output_type": "bytes",
+      "error_cases": [
+        {
+          "name": "invalid_base64",
+          "condition": "base64String contains characters outside the base64 alphabet or has invalid padding",
+          "error_type": "Error",
+          "error_data": {
+            "message": "Invalid base64 string"
+          }
+        },
+        {
+          "name": "missing_base64js_global",
+          "condition": "window.base64js is undefined or does not have toByteArray method",
+          "error_type": "ReferenceError",
+          "error_data": {
+            "message": "window.base64js global not available"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.base64js global is available and provides toByteArray function",
+        "base64String is a valid base64-encoded string"
+      ],
+      "postconditions": [
+        "Returned Uint8Array contains the decoded bytes from the base64 input",
+        "base64Encode(base64Decode(validBase64)) returns a string equal to the input (modulo padding normalization)"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": "Pure function — reads window.base64js global but has no side effects"
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "verifySignature",
+      "description": "Verify an Ed25519 detached signature against a message and public key. Decodes base64 signature and publicKey via base64Decode, encodes message via TextEncoder, then calls `window.nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)`. Returns boolean. Entire function body is wrapped in try/catch: any exception returns false (fail-closed). MUST NOT be called on channel messages — channel messages have `from.pubKey` removed for pseudonymity; the integration layer must skip verification for channel messages. JSDoc annotated with @param and @returns.",
+      "inputs": [
+        {
+          "name": "message",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "The plaintext message content that was signed. Will be encoded to bytes via `new TextEncoder().encode(message)`.",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof message === 'string'",
+              "error_message": "message must be a string"
+            }
+          ]
+        },
+        {
+          "name": "signature",
+          "type_ref": "Ed25519SignatureBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 detached signature (64 bytes when decoded). Decoded via base64Decode(signature).",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof signature === 'string'",
+              "error_message": "signature must be a base64-encoded string"
+            }
+          ]
+        },
+        {
+          "name": "publicKey",
+          "type_ref": "Ed25519PublicKeyBase64",
+          "required": true,
+          "default": "",
+          "description": "Base64-encoded Ed25519 public key (32 bytes when decoded). Decoded via base64Decode(publicKey).",
+          "validators": [
+            {
+              "kind": "custom",
+              "expression": "typeof publicKey === 'string'",
+              "error_message": "publicKey must be a base64-encoded string"
+            }
+          ]
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "malformed_signature_base64",
+          "condition": "signature parameter is not valid base64 (base64Decode throws)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "Exception caught by try/catch, function returns false"
+          }
+        },
+        {
+          "name": "malformed_publickey_base64",
+          "condition": "publicKey parameter is not valid base64 (base64Decode throws)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "Exception caught by try/catch, function returns false"
+          }
+        },
+        {
+          "name": "wrong_signature_length",
+          "condition": "Decoded signature is not exactly 64 bytes (nacl.sign.detached.verify throws or returns false)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "Exception caught by try/catch or nacl returns false"
+          }
+        },
+        {
+          "name": "wrong_publickey_length",
+          "condition": "Decoded publicKey is not exactly 32 bytes (nacl.sign.detached.verify throws or returns false)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "Exception caught by try/catch or nacl returns false"
+          }
+        },
+        {
+          "name": "signature_mismatch",
+          "condition": "Signature does not match the message content under the given public key",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "nacl.sign.detached.verify returns false, function returns false"
+          }
+        },
+        {
+          "name": "empty_message",
+          "condition": "message is an empty string",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "Likely signature mismatch or nacl error, caught and returns false"
+          }
+        },
+        {
+          "name": "empty_signature",
+          "condition": "signature is an empty string",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "base64Decode produces empty Uint8Array, nacl rejects, caught and returns false"
+          }
+        },
+        {
+          "name": "empty_publickey",
+          "condition": "publicKey is an empty string",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "base64Decode produces empty Uint8Array, nacl rejects, caught and returns false"
+          }
+        },
+        {
+          "name": "non_string_input",
+          "condition": "Any parameter is not a string (e.g., null, undefined, number)",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "TypeError caught by try/catch, function returns false"
+          }
+        },
+        {
+          "name": "missing_nacl_global",
+          "condition": "window.nacl is not available at runtime",
+          "error_type": "CaughtInternally",
+          "error_data": {
+            "returns": "false",
+            "behavior": "ReferenceError caught by try/catch, function returns false"
+          }
+        }
+      ],
+      "preconditions": [
+        "window.nacl global is available and provides nacl.sign.detached.verify function",
+        "window.base64js global is available (for base64Decode)",
+        "All three parameters are strings",
+        "This function MUST NOT be called on channel messages (channel messages lack from.pubKey)"
+      ],
+      "postconditions": [
+        "Returns true if and only if: signature base64-decodes to a valid 64-byte Ed25519 signature, publicKey base64-decodes to a valid 32-byte Ed25519 public key, and nacl.sign.detached.verify confirms the signature is valid for the UTF-8 encoded message bytes under that public key",
+        "Returns false for any invalid, malformed, or mismatched inputs",
+        "Returns false on any thrown exception (fail-closed)",
+        "Never throws an exception to the caller",
+        "Never logs message content, private keys, or secret key material"
+      ],
+      "idempotent": true,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "none",
+          "target": "",
+          "description": "Pure function — reads window.nacl and window.base64js globals but has no side effects. May optionally emit console.warn for debugging but never logs message content or key material."
+        }
+      ],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [],
+  "dependency_contracts": {},
+  "invariants": [
+    "verifySignature NEVER throws — all exceptions are caught internally and result in returning false (fail-closed)",
+    "verifySignature NEVER logs private keys, secret keys, or decrypted message content per Crypto Safety rules",
+    "base64Decode(base64Encode(x)) === x for any valid Uint8Array x (round-trip identity)",
+    "Existing function signatures in crypto.js are NOT modified — only new exports and new function added",
+    "verifySignature returns true if and only if nacl.sign.detached.verify returns true with correctly decoded inputs",
+    "Channel messages MUST NOT be passed to verifySignature — they lack public keys for pseudonymity; this enforcement is the integration layer's responsibility",
+    "All exported functions use named exports only (no default exports)",
+    "The module file remains under 300 lines"
+  ],
+  "requires": [
+    "window.nacl global (TweetNaCl.js) must be loaded, providing nacl.sign.detached.verify",
+    "window.base64js global (base64-js) must be loaded, providing fromByteArray and toByteArray",
+    "TextEncoder available in browser runtime (standard Web API)",
+    "Existing static/js/crypto.js module exists with module-scoped base64Encode and base64Decode functions and an exported signMessage function"
+  ]
+}

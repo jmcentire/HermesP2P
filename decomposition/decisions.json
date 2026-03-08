@@ -1,0 +1,32 @@
+[
+  {
+    "ambiguity": "",
+    "decision": "Channel messages skip signature verification",
+    "rationale": "The spec requires removing `from.pubKey` from channel messages for pseudonymity, but signature verification requires the sender's public key. This is an inherent contradiction. Resolution: channel messages are NOT signature-verified in Phase 1. They rely on channel encryption (secretbox with shared channel key) for authenticity \u2014 only someone with the channel key can produce a valid encrypted message. The verifySignature check is applied only when `from.pubKey` is present (DMs and public messages). This was identified as a rabbit hole in the shaping context."
+  },
+  {
+    "ambiguity": "",
+    "decision": "Peer exchange messages use text frames, user messages use binary frames",
+    "rationale": "Peer exchange messages are plain JSON (separate protocol layer, not padded/signed). User messages are padded Uint8Arrays sent as binary frames. The receive path distinguishes them by checking the WebSocket message type (text vs binary) or by attempting JSON.parse on text frames first. This avoids the fragility of trying to JSON.parse binary data."
+  },
+  {
+    "ambiguity": "",
+    "decision": "Pseudonym caching is the caller's responsibility",
+    "rationale": "generatePseudonym() is async (Web Crypto) and could add latency on rapid sends. Rather than building caching into the pseudonyms module (which would add statefulness and complexity), the integration layer in messages.js can implement a simple Map cache keyed on `privKey+channelId`. This keeps the pseudonyms module pure and testable."
+  },
+  {
+    "ambiguity": "",
+    "decision": "New modules are implemented as independent leaf components, integration is a separate component",
+    "rationale": "The four new modules (padding, ttl, pseudonyms, discovery) and the crypto.js update are all independently implementable and testable with no inter-dependencies. The wiring into existing modules (network.js, messages.js, client.js) is a separate integration step that depends on all five being complete. This enables parallel development of the leaf components."
+  },
+  {
+    "ambiguity": "",
+    "decision": "KnownPeersCache uses simple Map-based LRU with lastSeen eviction",
+    "rationale": "Per the rabbit hole note about over-engineering LRU, the cache uses a plain Map where eviction simply removes the entry with the oldest lastSeen timestamp. No doubly-linked list or O(1) LRU needed for 50 entries. The `add()` method updates lastSeen on access, and eviction scans all entries (acceptable at N=50)."
+  },
+  {
+    "ambiguity": "",
+    "decision": "discovery.js exposes composable functions rather than an opaque black box",
+    "rationale": "Functions like handlePeerExchangeRequest, selectPeerForRotation, isProtocolMessage are exported individually so the integration layer can wire them precisely into network.js's receive path. initializeDiscovery takes a network API object to avoid circular imports with network.js."
+  }
+]

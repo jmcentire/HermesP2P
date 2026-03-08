@@ -1,0 +1,827 @@
+{
+  "component_id": "ttl_module",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "parseTimestamp_number_passthrough",
+      "description": "parseTimestamp returns a numeric epoch ms value as-is",
+      "function": "parseTimestamp",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "1700000000000"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 1700000000000",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_iso_string",
+      "description": "parseTimestamp parses an ISO 8601 date string into epoch ms",
+      "function": "parseTimestamp",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "'2023-11-14T22:13:20.000Z'"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns the epoch ms equivalent of the ISO string",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_zero_number",
+      "description": "parseTimestamp returns 0 when given numeric 0 (epoch start)",
+      "function": "parseTimestamp",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "0"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_negative_number",
+      "description": "parseTimestamp returns negative number as-is (pre-epoch)",
+      "function": "parseTimestamp",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "-1000"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns -1000",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_error_null",
+      "description": "parseTimestamp throws on null input",
+      "function": "parseTimestamp",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "null"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_timestamp_type",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_error_undefined",
+      "description": "parseTimestamp throws on undefined input",
+      "function": "parseTimestamp",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "undefined"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_timestamp_type",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_error_object",
+      "description": "parseTimestamp throws on object input",
+      "function": "parseTimestamp",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "{}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_timestamp_type",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_error_boolean",
+      "description": "parseTimestamp throws on boolean input",
+      "function": "parseTimestamp",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "true"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_timestamp_type",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_error_unparseable_string",
+      "description": "parseTimestamp throws on unparseable date string",
+      "function": "parseTimestamp",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "'not-a-date'"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "unparseable_string",
+      "assertions": []
+    },
+    {
+      "id": "parseTimestamp_postcondition_finite",
+      "description": "parseTimestamp return value is always finite and not NaN",
+      "function": "parseTimestamp",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "ts": "1700000000000"
+      },
+      "input_description": "",
+      "expected_output_description": "Result is finite and not NaN",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_direct",
+      "description": "getDefaultTTL returns 300 for direct messages",
+      "function": "getDefaultTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 300",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_private",
+      "description": "getDefaultTTL returns 3600 for private messages",
+      "function": "getDefaultTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messageType": "private"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 3600",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_public",
+      "description": "getDefaultTTL returns 86400 for public messages",
+      "function": "getDefaultTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messageType": "public"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 86400",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_unknown_type",
+      "description": "getDefaultTTL throws for unknown message type",
+      "function": "getDefaultTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messageType": "unknown"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "unknown_message_type",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_empty_string",
+      "description": "getDefaultTTL throws for empty string",
+      "function": "getDefaultTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messageType": ""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "unknown_message_type",
+      "assertions": []
+    },
+    {
+      "id": "getDefaultTTL_positive_integer",
+      "description": "getDefaultTTL always returns a positive integer",
+      "function": "getDefaultTTL",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "All three return values are positive integers",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_fresh_message",
+      "description": "isExpired returns false for a message with full TTL remaining",
+      "function": "isExpired",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns false (age=0, ttl=300)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_old_message",
+      "description": "isExpired returns true for a message that has exceeded its TTL",
+      "function": "isExpired",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns true (age=1000s > 300s ttl)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_exact_boundary",
+      "description": "isExpired returns true when age exactly equals TTL",
+      "function": "isExpired",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999700000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns true (age=300 >= ttl=300)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_just_before_expiry",
+      "description": "isExpired returns false when age is just under TTL",
+      "function": "isExpired",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999700001, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns false (age slightly < 300)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_future_timestamp",
+      "description": "isExpired returns false for future timestamps (age clamped to 0)",
+      "function": "isExpired",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700001000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns false (clamped age=0 < ttl=300)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_zero_ttl",
+      "description": "isExpired returns true when ttl is 0 (immediately expired)",
+      "function": "isExpired",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: 0}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns true (age 0 >= ttl 0)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_missing_timestamp",
+      "description": "isExpired returns true (fail-safe) when timestamp is missing",
+      "function": "isExpired",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "malformed_message_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_missing_ttl",
+      "description": "isExpired returns true (fail-safe) when ttl is missing",
+      "function": "isExpired",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "malformed_message_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_invalid_timestamp",
+      "description": "isExpired returns true (fail-safe) when timestamp is invalid",
+      "function": "isExpired",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 'garbage', ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "malformed_message_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_null_message",
+      "description": "isExpired returns true (fail-safe) for null/undefined message",
+      "function": "isExpired",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "null"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "malformed_message_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "isExpired_never_throws",
+      "description": "isExpired always returns boolean, never throws",
+      "function": "isExpired",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Always returns boolean for any input",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_fresh_message",
+      "description": "getRemainingTTL returns full TTL for freshly created message",
+      "function": "getRemainingTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 300",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_half_expired",
+      "description": "getRemainingTTL returns half TTL when half the time has passed",
+      "function": "getRemainingTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999850000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 150",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_fully_expired",
+      "description": "getRemainingTTL returns 0 for expired message",
+      "function": "getRemainingTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_future_timestamp",
+      "description": "getRemainingTTL returns full TTL for future timestamps (clamped age=0)",
+      "function": "getRemainingTTL",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700001000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 300",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_clamped_to_zero",
+      "description": "getRemainingTTL never returns negative value",
+      "function": "getRemainingTTL",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699990000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0 (clamped)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_invalid_timestamp",
+      "description": "getRemainingTTL throws on invalid timestamp",
+      "function": "getRemainingTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 'not-a-date', ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_timestamp",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_missing_ttl",
+      "description": "getRemainingTTL throws when ttl is missing",
+      "function": "getRemainingTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_ttl",
+      "assertions": []
+    },
+    {
+      "id": "getRemainingTTL_invariant_bounds",
+      "description": "getRemainingTTL return value is always between 0 and message.ttl",
+      "function": "getRemainingTTL",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "0 <= result <= message.ttl",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_fresh",
+      "description": "getRebroadcastProbability returns 0.6 for freshly created message",
+      "function": "getRebroadcastProbability",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.6",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_half_ttl",
+      "description": "getRebroadcastProbability returns ~0.3 when half TTL remaining",
+      "function": "getRebroadcastProbability",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999850000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns approximately 0.3",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_expired",
+      "description": "getRebroadcastProbability returns 0.0 for expired message",
+      "function": "getRebroadcastProbability",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1699999000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.0",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_zero_ttl",
+      "description": "getRebroadcastProbability returns 0.0 when ttl is 0",
+      "function": "getRebroadcastProbability",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: 0}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.0",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_negative_ttl",
+      "description": "getRebroadcastProbability returns 0.0 when ttl is negative",
+      "function": "getRebroadcastProbability",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000, ttl: -100}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.0",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_future_timestamp",
+      "description": "getRebroadcastProbability returns 0.6 for future timestamp (full TTL)",
+      "function": "getRebroadcastProbability",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700001000000, ttl: 300}"
+      },
+      "input_description": "",
+      "expected_output_description": "Returns 0.6",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_invalid_failsafe",
+      "description": "getRebroadcastProbability returns 0.0 on invalid input (fail-safe)",
+      "function": "getRebroadcastProbability",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "null"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "any_error_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_missing_ttl_failsafe",
+      "description": "getRebroadcastProbability returns 0.0 when ttl is missing",
+      "function": "getRebroadcastProbability",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "message": "{timestamp: 1700000000000}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "any_error_failsafe",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_never_throws",
+      "description": "getRebroadcastProbability never throws, always returns a number",
+      "function": "getRebroadcastProbability",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "Never throws for any input",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "getRebroadcastProbability_bounds",
+      "description": "getRebroadcastProbability is always between 0.0 and 0.6",
+      "function": "getRebroadcastProbability",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "0.0 <= result <= 0.6",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_direct",
+      "description": "stampTTL sets ttl=300 for direct message type",
+      "function": "stampTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000}",
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "messagePackage.ttl === 300",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_private",
+      "description": "stampTTL sets ttl=3600 for private message type",
+      "function": "stampTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000}",
+        "messageType": "private"
+      },
+      "input_description": "",
+      "expected_output_description": "messagePackage.ttl === 3600",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_public",
+      "description": "stampTTL sets ttl=86400 for public message type",
+      "function": "stampTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000}",
+        "messageType": "public"
+      },
+      "input_description": "",
+      "expected_output_description": "messagePackage.ttl === 86400",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_same_reference",
+      "description": "stampTTL returns the same object reference (mutation in place)",
+      "function": "stampTTL",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000}",
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "Return value === input messagePackage",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_preserves_fields",
+      "description": "stampTTL preserves all existing fields on the package",
+      "function": "stampTTL",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000, foo: 'bar', baz: 42}",
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "foo and baz fields are unchanged",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_overwrites_existing_ttl",
+      "description": "stampTTL overwrites an existing ttl field",
+      "function": "stampTTL",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000, ttl: 9999}",
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "messagePackage.ttl === 300 (overwritten)",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_unknown_type",
+      "description": "stampTTL throws for unknown message type",
+      "function": "stampTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "{timestamp: 1700000000000}",
+        "messageType": "unknown"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "unknown_message_type",
+      "assertions": []
+    },
+    {
+      "id": "stampTTL_null_package",
+      "description": "stampTTL throws when messagePackage is null",
+      "function": "stampTTL",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "messagePackage": "null",
+        "messageType": "direct"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "null_package",
+      "assertions": []
+    },
+    {
+      "id": "invariant_default_ttls_frozen",
+      "description": "DEFAULT_TTLS constant has correct values: direct=300, private=3600, public=86400",
+      "function": "getDefaultTTL",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "All three default TTL values match the contract",
+      "expected_error": "",
+      "assertions": []
+    },
+    {
+      "id": "invariant_consistency_expired_remaining",
+      "description": "isExpired agrees with getRemainingTTL: expired iff remaining <= 0",
+      "function": "isExpired",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "For valid messages, isExpired(msg) === (getRemainingTTL(msg) <= 0)",
+      "expected_error": "",
+      "assertions": []
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport {\n  parseTimestamp,\n  getDefaultTTL,\n  isExpired,\n  getRemainingTTL,\n  getRebroadcastProbability,\n  stampTTL,\n} from '../src/ttl_module';\n\nconst FIXED_NOW = 1700000000000;\n\ndescribe('parseTimestamp', () => {\n  it('returns a numeric epoch ms value as-is', () => {\n    const result = parseTimestamp(1700000000000);\n    expect(result).toBe(1700000000000);\n  });\n\n  it('parses an ISO 8601 date string into epoch ms', () => {\n    const isoString = '2023-11-14T22:13:20.000Z';\n    const result = parseTimestamp(isoString);\n    expect(result).toBe(new Date(isoString).getTime());\n    expect(Number.isFinite(result)).toBe(true);\n  });\n\n  it('returns 0 when given numeric 0 (epoch start)', () => {\n    const result = parseTimestamp(0);\n    expect(result).toBe(0);\n  });\n\n  it('returns negative number as-is (pre-epoch)', () => {\n    const result = parseTimestamp(-1000);\n    expect(result).toBe(-1000);\n  });\n\n  it('postcondition: return value is finite and not NaN', () => {\n    const result = parseTimestamp(1700000000000);\n    expect(Number.isFinite(result)).toBe(true);\n    expect(Number.isNaN(result)).toBe(false);\n\n    const result2 = parseTimestamp('2023-01-01T00:00:00.000Z');\n    expect(Number.isFinite(result2)).toBe(true);\n    expect(Number.isNaN(result2)).toBe(false);\n  });\n\n  it('throws on null input', () => {\n    expect(() => parseTimestamp(null as any)).toThrow();\n  });\n\n  it('throws on undefined input', () => {\n    expect(() => parseTimestamp(undefined as any)).toThrow();\n  });\n\n  it('throws on object input', () => {\n    expect(() => parseTimestamp({} as any)).toThrow();\n  });\n\n  it('throws on boolean input', () => {\n    expect(() => parseTimestamp(true as any)).toThrow();\n  });\n\n  it('throws on unparseable date string', () => {\n    expect(() => parseTimestamp('not-a-date')).toThrow();\n  });\n\n  it('throws on empty string', () => {\n    expect(() => parseTimestamp('')).toThrow();\n  });\n});\n\ndescribe('getDefaultTTL', () => {\n  it('returns 300 for direct messages', () => {\n    expect(getDefaultTTL('direct')).toBe(300);\n  });\n\n  it('returns 3600 for private messages', () => {\n    expect(getDefaultTTL('private')).toBe(3600);\n  });\n\n  it('returns 86400 for public messages', () => {\n    expect(getDefaultTTL('public')).toBe(86400);\n  });\n\n  it('throws for unknown message type', () => {\n    expect(() => getDefaultTTL('unknown' as any)).toThrow();\n  });\n\n  it('throws for empty string', () => {\n    expect(() => getDefaultTTL('' as any)).toThrow();\n  });\n\n  it('all return values are positive integers', () => {\n    const types = ['direct', 'private', 'public'] as const;\n    for (const type of types) {\n      const val = getDefaultTTL(type);\n      expect(val).toBeGreaterThan(0);\n      expect(Number.isInteger(val)).toBe(true);\n    }\n  });\n\n  it('invariant: DEFAULT_TTLS values are correct', () => {\n    expect(getDefaultTTL('direct')).toBe(300);\n    expect(getDefaultTTL('private')).toBe(3600);\n    expect(getDefaultTTL('public')).toBe(86400);\n  });\n});\n\ndescribe('isExpired', () => {\n  let dateNowSpy: ReturnType<typeof vi.spyOn>;\n\n  beforeEach(() => {\n    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);\n  });\n\n  afterEach(() => {\n    dateNowSpy.mockRestore();\n  });\n\n  it('returns false for a message with full TTL remaining', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 300 };\n    expect(isExpired(message)).toBe(false);\n  });\n\n  it('returns true for a message that has exceeded its TTL', () => {\n    // age = (1700000000000 - 1699999000000) / 1000 = 1000s > 300s\n    const message = { timestamp: FIXED_NOW - 1000000, ttl: 300 };\n    expect(isExpired(message)).toBe(true);\n  });\n\n  it('returns true when age exactly equals TTL (boundary)', () => {\n    // age = (1700000000000 - 1699999700000) / 1000 = 300s == 300s\n    const message = { timestamp: FIXED_NOW - 300000, ttl: 300 };\n    expect(isExpired(message)).toBe(true);\n  });\n\n  it('returns false when age is just under TTL', () => {\n    // age = (1700000000000 - 1699999700001) / 1000 = 299.999s < 300s\n    const message = { timestamp: FIXED_NOW - 299999, ttl: 300 };\n    expect(isExpired(message)).toBe(false);\n  });\n\n  it('returns false for future timestamps (age clamped to 0)', () => {\n    const message = { timestamp: FIXED_NOW + 1000000, ttl: 300 };\n    expect(isExpired(message)).toBe(false);\n  });\n\n  it('returns true when ttl is 0 (immediately expired)', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 0 };\n    expect(isExpired(message)).toBe(true);\n  });\n\n  it('returns true (fail-safe) when timestamp is missing', () => {\n    const message = { ttl: 300 } as any;\n    const result = isExpired(message);\n    expect(result).toBe(true);\n  });\n\n  it('returns true (fail-safe) when ttl is missing', () => {\n    const message = { timestamp: FIXED_NOW } as any;\n    const result = isExpired(message);\n    expect(result).toBe(true);\n  });\n\n  it('returns true (fail-safe) when timestamp is invalid string', () => {\n    const message = { timestamp: 'garbage', ttl: 300 } as any;\n    const result = isExpired(message);\n    expect(result).toBe(true);\n  });\n\n  it('returns true (fail-safe) for null message', () => {\n    const result = isExpired(null as any);\n    expect(result).toBe(true);\n  });\n\n  it('returns true (fail-safe) for undefined message', () => {\n    const result = isExpired(undefined as any);\n    expect(result).toBe(true);\n  });\n\n  it('returns true (fail-safe) when ttl is a string', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 'abc' } as any;\n    const result = isExpired(message);\n    expect(result).toBe(true);\n  });\n\n  it('never throws — always returns a boolean', () => {\n    const badInputs = [null, undefined, {}, { timestamp: 'bad' }, { ttl: -1 }, 'string', 42];\n    for (const input of badInputs) {\n      const result = isExpired(input as any);\n      expect(typeof result).toBe('boolean');\n    }\n  });\n\n  it('works with ISO string timestamp', () => {\n    // Create a timestamp string that represents FIXED_NOW\n    const isoString = new Date(FIXED_NOW).toISOString();\n    const message = { timestamp: isoString, ttl: 300 };\n    expect(isExpired(message)).toBe(false);\n  });\n});\n\ndescribe('getRemainingTTL', () => {\n  let dateNowSpy: ReturnType<typeof vi.spyOn>;\n\n  beforeEach(() => {\n    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);\n  });\n\n  afterEach(() => {\n    dateNowSpy.mockRestore();\n  });\n\n  it('returns full TTL for freshly created message', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 300 };\n    expect(getRemainingTTL(message)).toBe(300);\n  });\n\n  it('returns half TTL when half the time has passed', () => {\n    // age = 150s => remaining = 300 - 150 = 150\n    const message = { timestamp: FIXED_NOW - 150000, ttl: 300 };\n    expect(getRemainingTTL(message)).toBeCloseTo(150, 1);\n  });\n\n  it('returns 0 for fully expired message', () => {\n    // age = 1000s > 300s ttl\n    const message = { timestamp: FIXED_NOW - 1000000, ttl: 300 };\n    expect(getRemainingTTL(message)).toBe(0);\n  });\n\n  it('returns full TTL for future timestamps (clamped age=0)', () => {\n    const message = { timestamp: FIXED_NOW + 1000000, ttl: 300 };\n    expect(getRemainingTTL(message)).toBe(300);\n  });\n\n  it('never returns negative value (clamped to 0)', () => {\n    // age = 10000s >> 300s ttl\n    const message = { timestamp: FIXED_NOW - 10000000, ttl: 300 };\n    const result = getRemainingTTL(message);\n    expect(result).toBe(0);\n    expect(result).toBeGreaterThanOrEqual(0);\n  });\n\n  it('returns 0 when age exactly equals TTL', () => {\n    const message = { timestamp: FIXED_NOW - 300000, ttl: 300 };\n    expect(getRemainingTTL(message)).toBe(0);\n  });\n\n  it('return value is always between 0 and message.ttl', () => {\n    const testCases = [\n      { timestamp: FIXED_NOW, ttl: 300 },\n      { timestamp: FIXED_NOW - 150000, ttl: 300 },\n      { timestamp: FIXED_NOW - 300000, ttl: 300 },\n      { timestamp: FIXED_NOW + 1000000, ttl: 300 },\n      { timestamp: FIXED_NOW - 10000000, ttl: 300 },\n      { timestamp: FIXED_NOW, ttl: 86400 },\n    ];\n    for (const msg of testCases) {\n      const result = getRemainingTTL(msg);\n      expect(result).toBeGreaterThanOrEqual(0);\n      expect(result).toBeLessThanOrEqual(msg.ttl);\n    }\n  });\n\n  it('throws on invalid timestamp', () => {\n    const message = { timestamp: 'not-a-date', ttl: 300 } as any;\n    expect(() => getRemainingTTL(message)).toThrow();\n  });\n\n  it('throws when ttl is missing', () => {\n    const message = { timestamp: FIXED_NOW } as any;\n    expect(() => getRemainingTTL(message)).toThrow();\n  });\n\n  it('throws when ttl is null', () => {\n    const message = { timestamp: FIXED_NOW, ttl: null } as any;\n    expect(() => getRemainingTTL(message)).toThrow();\n  });\n\n  it('works with ISO string timestamp', () => {\n    const isoString = new Date(FIXED_NOW).toISOString();\n    const message = { timestamp: isoString, ttl: 300 };\n    expect(getRemainingTTL(message)).toBeCloseTo(300, 0);\n  });\n});\n\ndescribe('getRebroadcastProbability', () => {\n  let dateNowSpy: ReturnType<typeof vi.spyOn>;\n\n  beforeEach(() => {\n    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);\n  });\n\n  afterEach(() => {\n    dateNowSpy.mockRestore();\n  });\n\n  it('returns 0.6 for freshly created message (full TTL remaining)', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 300 };\n    expect(getRebroadcastProbability(message)).toBeCloseTo(0.6, 5);\n  });\n\n  it('returns approximately 0.3 when half TTL remaining', () => {\n    // age = 150s, remaining = 150, fraction = 0.5, prob = 0.6 * 0.5 = 0.3\n    const message = { timestamp: FIXED_NOW - 150000, ttl: 300 };\n    expect(getRebroadcastProbability(message)).toBeCloseTo(0.3, 2);\n  });\n\n  it('returns 0.0 for expired message', () => {\n    const message = { timestamp: FIXED_NOW - 1000000, ttl: 300 };\n    expect(getRebroadcastProbability(message)).toBe(0.0);\n  });\n\n  it('returns 0.0 when ttl is 0', () => {\n    const message = { timestamp: FIXED_NOW, ttl: 0 };\n    expect(getRebroadcastProbability(message)).toBe(0.0);\n  });\n\n  it('returns 0.0 when ttl is negative', () => {\n    const message = { timestamp: FIXED_NOW, ttl: -100 };\n    expect(getRebroadcastProbability(message)).toBe(0.0);\n  });\n\n  it('returns 0.6 for future timestamp (full TTL, age clamped to 0)', () => {\n    const message = { timestamp: FIXED_NOW + 1000000, ttl: 300 };\n    expect(getRebroadcastProbability(message)).toBeCloseTo(0.6, 5);\n  });\n\n  it('returns 0.0 on null input (fail-safe)', () => {\n    const result = getRebroadcastProbability(null as any);\n    expect(result).toBe(0.0);\n  });\n\n  it('returns 0.0 on undefined input (fail-safe)', () => {\n    const result = getRebroadcastProbability(undefined as any);\n    expect(result).toBe(0.0);\n  });\n\n  it('returns 0.0 when ttl is missing (fail-safe)', () => {\n    const message = { timestamp: FIXED_NOW } as any;\n    const result = getRebroadcastProbability(message);\n    expect(result).toBe(0.0);\n  });\n\n  it('returns 0.0 when timestamp is invalid (fail-safe)', () => {\n    const message = { timestamp: 'garbage', ttl: 300 } as any;\n    const result = getRebroadcastProbability(message);\n    expect(result).toBe(0.0);\n  });\n\n  it('never throws — always returns a number', () => {\n    const badInputs = [null, undefined, {}, { timestamp: 'bad' }, { ttl: -1 }, 'string', 42];\n    for (const input of badInputs) {\n      const result = getRebroadcastProbability(input as any);\n      expect(typeof result).toBe('number');\n    }\n  });\n\n  it('return value is always between 0.0 and 0.6', () => {\n    const testCases = [\n      { timestamp: FIXED_NOW, ttl: 300 },\n      { timestamp: FIXED_NOW - 150000, ttl: 300 },\n      { timestamp: FIXED_NOW - 300000, ttl: 300 },\n      { timestamp: FIXED_NOW + 1000000, ttl: 300 },\n      { timestamp: FIXED_NOW, ttl: 0 },\n      { timestamp: FIXED_NOW, ttl: -5 },\n      { timestamp: FIXED_NOW, ttl: 86400 },\n    ];\n    for (const msg of testCases) {\n      const result = getRebroadcastProbability(msg);\n      expect(result).toBeGreaterThanOrEqual(0.0);\n      expect(result).toBeLessThanOrEqual(0.6);\n    }\n  });\n\n  it('linear decay: quarter TTL remaining yields ~0.15', () => {\n    // age = 225s, remaining = 75, fraction = 0.25, prob = 0.6 * 0.25 = 0.15\n    const message = { timestamp: FIXED_NOW - 225000, ttl: 300 };\n    expect(getRebroadcastProbability(message)).toBeCloseTo(0.15, 2);\n  });\n});\n\ndescribe('stampTTL', () => {\n  it('sets ttl=300 for direct message type', () => {\n    const pkg = { timestamp: FIXED_NOW } as any;\n    const result = stampTTL(pkg, 'direct');\n    expect(result.ttl).toBe(300);\n  });\n\n  it('sets ttl=3600 for private message type', () => {\n    const pkg = { timestamp: FIXED_NOW } as any;\n    const result = stampTTL(pkg, 'private');\n    expect(result.ttl).toBe(3600);\n  });\n\n  it('sets ttl=86400 for public message type', () => {\n    const pkg = { timestamp: FIXED_NOW } as any;\n    const result = stampTTL(pkg, 'public');\n    expect(result.ttl).toBe(86400);\n  });\n\n  it('returns the same object reference (mutation in place)', () => {\n    const pkg = { timestamp: FIXED_NOW } as any;\n    const result = stampTTL(pkg, 'direct');\n    expect(result).toBe(pkg);\n  });\n\n  it('preserves all existing fields on the package', () => {\n    const pkg = { timestamp: FIXED_NOW, foo: 'bar', baz: 42 } as any;\n    const result = stampTTL(pkg, 'direct');\n    expect(result.foo).toBe('bar');\n    expect(result.baz).toBe(42);\n    expect(result.timestamp).toBe(FIXED_NOW);\n    expect(result.ttl).toBe(300);\n  });\n\n  it('overwrites an existing ttl field', () => {\n    const pkg = { timestamp: FIXED_NOW, ttl: 9999 } as any;\n    const result = stampTTL(pkg, 'direct');\n    expect(result.ttl).toBe(300);\n  });\n\n  it('throws for unknown message type', () => {\n    const pkg = { timestamp: FIXED_NOW } as any;\n    expect(() => stampTTL(pkg, 'unknown' as any)).toThrow();\n  });\n\n  it('throws when messagePackage is null', () => {\n    expect(() => stampTTL(null as any, 'direct')).toThrow();\n  });\n\n  it('throws when messagePackage is undefined', () => {\n    expect(() => stampTTL(undefined as any, 'direct')).toThrow();\n  });\n});\n\ndescribe('cross-function invariants', () => {\n  let dateNowSpy: ReturnType<typeof vi.spyOn>;\n\n  beforeEach(() => {\n    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);\n  });\n\n  afterEach(() => {\n    dateNowSpy.mockRestore();\n  });\n\n  it('isExpired agrees with getRemainingTTL: expired iff remaining <= 0', () => {\n    const testMessages = [\n      { timestamp: FIXED_NOW, ttl: 300 },\n      { timestamp: FIXED_NOW - 150000, ttl: 300 },\n      { timestamp: FIXED_NOW - 300000, ttl: 300 },\n      { timestamp: FIXED_NOW - 500000, ttl: 300 },\n      { timestamp: FIXED_NOW + 100000, ttl: 300 },\n      { timestamp: FIXED_NOW, ttl: 86400 },\n      { timestamp: FIXED_NOW - 86400000, ttl: 86400 },\n      { timestamp: FIXED_NOW, ttl: 1 },\n      { timestamp: FIXED_NOW - 1000, ttl: 1 },\n    ];\n\n    for (const msg of testMessages) {\n      const expired = isExpired(msg);\n      const remaining = getRemainingTTL(msg);\n\n      if (expired) {\n        expect(remaining).toBe(0);\n      } else {\n        expect(remaining).toBeGreaterThan(0);\n      }\n    }\n  });\n\n  it('getRebroadcastProbability returns 0.0 whenever isExpired returns true', () => {\n    const expiredMessages = [\n      { timestamp: FIXED_NOW - 500000, ttl: 300 },\n      { timestamp: FIXED_NOW - 300000, ttl: 300 },\n      { timestamp: FIXED_NOW - 86400000, ttl: 86400 },\n      { timestamp: FIXED_NOW, ttl: 0 },\n    ];\n\n    for (const msg of expiredMessages) {\n      expect(isExpired(msg)).toBe(true);\n      expect(getRebroadcastProbability(msg)).toBe(0.0);\n    }\n  });\n\n  it('stampTTL produces valid messages that are not expired when freshly stamped', () => {\n    const types = ['direct', 'private', 'public'] as const;\n    for (const type of types) {\n      const pkg = { timestamp: FIXED_NOW } as any;\n      stampTTL(pkg, type);\n      expect(isExpired(pkg)).toBe(false);\n      expect(getRemainingTTL(pkg)).toBe(getDefaultTTL(type));\n      expect(getRebroadcastProbability(pkg)).toBeCloseTo(0.6, 5);\n    }\n  });\n\n  it('age clamping: future timestamps always result in non-expired, full TTL, max probability', () => {\n    const futureMsg = { timestamp: FIXED_NOW + 999999999, ttl: 300 };\n    expect(isExpired(futureMsg)).toBe(false);\n    expect(getRemainingTTL(futureMsg)).toBe(300);\n    expect(getRebroadcastProbability(futureMsg)).toBeCloseTo(0.6, 5);\n  });\n});\n"
+}

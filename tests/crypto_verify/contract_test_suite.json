@@ -1,0 +1,493 @@
+{
+  "component_id": "crypto_verify",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "b64enc_happy_known_vector",
+      "description": "base64Encode encodes a known byte array to the expected base64 string",
+      "function": "base64Encode",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array([72,101,108,108,111]) representing 'Hello'",
+      "expected_output_description": "Returns 'SGVsbG8='",
+      "expected_error": "",
+      "assertions": [
+        "result equals 'SGVsbG8='"
+      ]
+    },
+    {
+      "id": "b64enc_happy_empty",
+      "description": "base64Encode encodes an empty Uint8Array to an empty string",
+      "function": "base64Encode",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array([]) — empty byte buffer",
+      "expected_output_description": "Returns ''",
+      "expected_error": "",
+      "assertions": [
+        "result equals ''"
+      ]
+    },
+    {
+      "id": "b64enc_happy_single_byte",
+      "description": "base64Encode encodes a single byte correctly",
+      "function": "base64Encode",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Uint8Array([0])",
+      "expected_output_description": "Returns 'AA=='",
+      "expected_error": "",
+      "assertions": [
+        "result equals 'AA=='"
+      ]
+    },
+    {
+      "id": "b64enc_error_invalid_input_type",
+      "description": "base64Encode throws or errors when given a non-Uint8Array input",
+      "function": "base64Encode",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "A plain string 'hello' instead of Uint8Array",
+      "expected_output_description": "",
+      "expected_error": "invalid_input_type",
+      "assertions": [
+        "function throws an error"
+      ]
+    },
+    {
+      "id": "b64enc_error_missing_global",
+      "description": "base64Encode errors when window.base64js is unavailable",
+      "function": "base64Encode",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid Uint8Array but window.base64js is undefined",
+      "expected_output_description": "",
+      "expected_error": "missing_base64js_global",
+      "assertions": [
+        "function throws an error"
+      ]
+    },
+    {
+      "id": "b64dec_happy_known_vector",
+      "description": "base64Decode decodes a known base64 string to the expected bytes",
+      "function": "base64Decode",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "'SGVsbG8=' representing 'Hello'",
+      "expected_output_description": "Returns Uint8Array([72,101,108,108,111])",
+      "expected_error": "",
+      "assertions": [
+        "result deep-equals Uint8Array([72,101,108,108,111])"
+      ]
+    },
+    {
+      "id": "b64dec_happy_empty",
+      "description": "base64Decode decodes an empty string to an empty Uint8Array",
+      "function": "base64Decode",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "'' — empty base64 string",
+      "expected_output_description": "Returns Uint8Array([])",
+      "expected_error": "",
+      "assertions": [
+        "result deep-equals Uint8Array([])"
+      ]
+    },
+    {
+      "id": "b64dec_error_invalid_base64",
+      "description": "base64Decode throws when given invalid base64 characters",
+      "function": "base64Decode",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "'!!!invalid!!!'",
+      "expected_output_description": "",
+      "expected_error": "invalid_base64",
+      "assertions": [
+        "function throws an error"
+      ]
+    },
+    {
+      "id": "b64dec_error_missing_global",
+      "description": "base64Decode errors when window.base64js is unavailable",
+      "function": "base64Decode",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid base64 string but window.base64js is undefined",
+      "expected_output_description": "",
+      "expected_error": "missing_base64js_global",
+      "assertions": [
+        "function throws an error"
+      ]
+    },
+    {
+      "id": "roundtrip_invariant",
+      "description": "base64Decode(base64Encode(x)) produces identical bytes for any Uint8Array x",
+      "function": "base64Encode",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Various Uint8Arrays including random 256 bytes",
+      "expected_output_description": "Round-trip produces identical Uint8Array",
+      "expected_error": "",
+      "assertions": [
+        "decoded bytes are identical to original input for all test vectors"
+      ]
+    },
+    {
+      "id": "verify_happy_valid_signature",
+      "description": "verifySignature returns true for a valid Ed25519 signature over a known message",
+      "function": "verifySignature",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Real Ed25519 keypair signs 'Hello, World!' — base64 encoded sig and pubkey",
+      "expected_output_description": "Returns true",
+      "expected_error": "",
+      "assertions": [
+        "result is true"
+      ]
+    },
+    {
+      "id": "verify_happy_utf8_emoji",
+      "description": "verifySignature returns true for a valid signature over a UTF-8 emoji message",
+      "function": "verifySignature",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Real Ed25519 keypair signs '🔐🚀 Héllo Wörld! 日本語' — base64 encoded sig and pubkey",
+      "expected_output_description": "Returns true",
+      "expected_error": "",
+      "assertions": [
+        "result is true"
+      ]
+    },
+    {
+      "id": "verify_tampered_message",
+      "description": "verifySignature returns false when message has been tampered with",
+      "function": "verifySignature",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid signature for 'Hello, World!' but message changed to 'Hello, World?'",
+      "expected_output_description": "Returns false",
+      "expected_error": "",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_wrong_public_key",
+      "description": "verifySignature returns false when a different public key is used",
+      "function": "verifySignature",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Valid signature for 'Hello, World!' but verified against a different keypair's public key",
+      "expected_output_description": "Returns false",
+      "expected_error": "",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_malformed_signature_base64",
+      "description": "verifySignature returns false (fail-closed) for invalid base64 in signature",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message='test', signature='!!!notbase64!!!', publicKey=valid base64 key",
+      "expected_output_description": "",
+      "expected_error": "malformed_signature_base64",
+      "assertions": [
+        "result is false",
+        "no exception thrown to caller"
+      ]
+    },
+    {
+      "id": "verify_error_malformed_publickey_base64",
+      "description": "verifySignature returns false (fail-closed) for invalid base64 in publicKey",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message='test', signature=valid base64 sig, publicKey='!!!notbase64!!!'",
+      "expected_output_description": "",
+      "expected_error": "malformed_publickey_base64",
+      "assertions": [
+        "result is false",
+        "no exception thrown to caller"
+      ]
+    },
+    {
+      "id": "verify_error_wrong_signature_length",
+      "description": "verifySignature returns false when decoded signature is not 64 bytes",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "signature is base64 of only 32 bytes (too short)",
+      "expected_output_description": "",
+      "expected_error": "wrong_signature_length",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_wrong_publickey_length",
+      "description": "verifySignature returns false when decoded publicKey is not 32 bytes",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "publicKey is base64 of only 16 bytes (too short)",
+      "expected_output_description": "",
+      "expected_error": "wrong_publickey_length",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_wrong_publickey_length_33",
+      "description": "verifySignature returns false when decoded publicKey is 33 bytes (one too many)",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "publicKey is base64 of 33 bytes",
+      "expected_output_description": "",
+      "expected_error": "wrong_publickey_length",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_empty_message",
+      "description": "verifySignature returns false for empty message string",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message='', valid signature, valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "empty_message",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_empty_signature",
+      "description": "verifySignature returns false for empty signature string",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message='test', signature='', valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "empty_signature",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_empty_publickey",
+      "description": "verifySignature returns false for empty publicKey string",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message='test', valid signature, publicKey=''",
+      "expected_output_description": "",
+      "expected_error": "empty_publickey",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_non_string_message_null",
+      "description": "verifySignature returns false when message is null",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message=null, valid signature, valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "non_string_input",
+      "assertions": [
+        "result is false",
+        "no exception thrown to caller"
+      ]
+    },
+    {
+      "id": "verify_error_non_string_message_undefined",
+      "description": "verifySignature returns false when message is undefined",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message=undefined, valid signature, valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "non_string_input",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_non_string_message_number",
+      "description": "verifySignature returns false when message is a number",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "message=42, valid signature, valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "non_string_input",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_non_string_signature_null",
+      "description": "verifySignature returns false when signature is null",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "valid message, signature=null, valid publicKey",
+      "expected_output_description": "",
+      "expected_error": "non_string_input",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_non_string_publickey_undefined",
+      "description": "verifySignature returns false when publicKey is undefined",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "valid message, valid signature, publicKey=undefined",
+      "expected_output_description": "",
+      "expected_error": "non_string_input",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_error_missing_nacl_global",
+      "description": "verifySignature returns false when window.nacl is unavailable",
+      "function": "verifySignature",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "All valid string inputs but window.nacl is undefined",
+      "expected_output_description": "",
+      "expected_error": "missing_nacl_global",
+      "assertions": [
+        "result is false",
+        "no exception thrown to caller"
+      ]
+    },
+    {
+      "id": "verify_invariant_never_throws",
+      "description": "verifySignature never throws an exception regardless of input",
+      "function": "verifySignature",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "Various malformed inputs: null, undefined, numbers, objects, empty strings, invalid base64",
+      "expected_output_description": "All calls return false; none throw",
+      "expected_error": "",
+      "assertions": [
+        "no call throws an exception",
+        "all calls return false"
+      ]
+    },
+    {
+      "id": "verify_signature_63_bytes",
+      "description": "verifySignature returns false when decoded signature is 63 bytes (one too few)",
+      "function": "verifySignature",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "signature is base64 of 63 bytes",
+      "expected_output_description": "Returns false",
+      "expected_error": "",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_signature_65_bytes",
+      "description": "verifySignature returns false when decoded signature is 65 bytes (one too many)",
+      "function": "verifySignature",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "signature is base64 of 65 bytes",
+      "expected_output_description": "Returns false",
+      "expected_error": "",
+      "assertions": [
+        "result is false"
+      ]
+    },
+    {
+      "id": "verify_publickey_31_bytes",
+      "description": "verifySignature returns false when decoded publicKey is 31 bytes (one too few)",
+      "function": "verifySignature",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "publicKey is base64 of 31 bytes",
+      "expected_output_description": "Returns false",
+      "expected_error": "",
+      "assertions": [
+        "result is false"
+      ]
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';\nimport * as nacl from 'tweetnacl';\nimport * as base64js from 'base64-js';\n\n// We'll dynamically import the module after stubs are in place\nlet base64Encode: (uint8Array: Uint8Array) => string;\nlet base64Decode: (base64String: string) => Uint8Array;\nlet verifySignature: (message: string, signature: string, publicKey: string) => boolean;\n\n// Shared fixtures\nlet keypair: nacl.SignKeyPair;\nlet keypair2: nacl.SignKeyPair;\nlet knownMessage: string;\nlet emojiMessage: string;\nlet knownSigBase64: string;\nlet knownPubKeyBase64: string;\nlet pubKey2Base64: string;\nlet emojiSigBase64: string;\n\nbeforeAll(async () => {\n  // Stub globals BEFORE importing the module under test\n  vi.stubGlobal('base64js', base64js);\n  vi.stubGlobal('nacl', nacl);\n\n  // Generate real Ed25519 keypairs\n  keypair = nacl.sign.keyPair();\n  keypair2 = nacl.sign.keyPair();\n\n  knownMessage = 'Hello, World!';\n  emojiMessage = '🔐🚀 Héllo Wörld! 日本語';\n\n  const encoder = new TextEncoder();\n  const knownMsgBytes = encoder.encode(knownMessage);\n  const emojiMsgBytes = encoder.encode(emojiMessage);\n\n  const knownSigBytes = nacl.sign.detached(knownMsgBytes, keypair.secretKey);\n  const emojiSigBytes = nacl.sign.detached(emojiMsgBytes, keypair.secretKey);\n\n  knownSigBase64 = base64js.fromByteArray(knownSigBytes);\n  knownPubKeyBase64 = base64js.fromByteArray(keypair.publicKey);\n  pubKey2Base64 = base64js.fromByteArray(keypair2.publicKey);\n  emojiSigBase64 = base64js.fromByteArray(emojiSigBytes);\n\n  // Dynamically import the module under test after globals are set\n  const cryptoModule = await import('../src/crypto');\n  base64Encode = cryptoModule.base64Encode;\n  base64Decode = cryptoModule.base64Decode;\n  verifySignature = cryptoModule.verifySignature;\n});\n\nbeforeEach(() => {\n  // Ensure globals are always present before each test (some tests remove them)\n  vi.stubGlobal('base64js', base64js);\n  vi.stubGlobal('nacl', nacl);\n});\n\nafterEach(() => {\n  vi.unstubAllGlobals();\n  // Re-stub so next beforeEach picks up correctly\n  vi.stubGlobal('base64js', base64js);\n  vi.stubGlobal('nacl', nacl);\n});\n\n// ─────────────────────────────────────────────────────────────────────────────\n// base64Encode\n// ─────────────────────────────────────────────────────────────────────────────\ndescribe('base64Encode', () => {\n  it('should encode a known byte array to the expected base64 string', () => {\n    const input = new Uint8Array([72, 101, 108, 108, 111]); // \"Hello\"\n    const result = base64Encode(input);\n    expect(result).toBe('SGVsbG8=');\n  });\n\n  it('should encode an empty Uint8Array to an empty string', () => {\n    const input = new Uint8Array([]);\n    const result = base64Encode(input);\n    expect(result).toBe('');\n  });\n\n  it('should encode a single zero byte correctly', () => {\n    const input = new Uint8Array([0]);\n    const result = base64Encode(input);\n    expect(result).toBe('AA==');\n  });\n\n  it('should throw or error when given a non-Uint8Array input', () => {\n    expect(() => {\n      (base64Encode as unknown as (x: string) => string)('hello');\n    }).toThrow();\n  });\n\n  it('should throw when window.base64js is unavailable', () => {\n    vi.stubGlobal('base64js', undefined);\n    expect(() => {\n      base64Encode(new Uint8Array([1, 2, 3]));\n    }).toThrow();\n  });\n\n  it('round-trip: base64Decode(base64Encode(x)) produces identical bytes', () => {\n    const testVectors = [\n      new Uint8Array([]),\n      new Uint8Array([0]),\n      new Uint8Array([255]),\n      new Uint8Array([72, 101, 108, 108, 111]),\n      new Uint8Array(256).map((_, i) => i),\n      crypto.getRandomValues(new Uint8Array(128)),\n    ];\n\n    for (const original of testVectors) {\n      const encoded = base64Encode(original);\n      const decoded = base64Decode(encoded);\n      expect(decoded).toEqual(original);\n    }\n  });\n});\n\n// ─────────────────────────────────────────────────────────────────────────────\n// base64Decode\n// ─────────────────────────────────────────────────────────────────────────────\ndescribe('base64Decode', () => {\n  it('should decode a known base64 string to the expected bytes', () => {\n    const result = base64Decode('SGVsbG8=');\n    expect(result).toEqual(new Uint8Array([72, 101, 108, 108, 111]));\n  });\n\n  it('should decode an empty string to an empty Uint8Array', () => {\n    const result = base64Decode('');\n    expect(result).toEqual(new Uint8Array([]));\n  });\n\n  it('should throw when given invalid base64 characters', () => {\n    expect(() => {\n      base64Decode('!!!invalid!!!');\n    }).toThrow();\n  });\n\n  it('should throw when window.base64js is unavailable', () => {\n    vi.stubGlobal('base64js', undefined);\n    expect(() => {\n      base64Decode('SGVsbG8=');\n    }).toThrow();\n  });\n});\n\n// ─────────────────────────────────────────────────────────────────────────────\n// verifySignature\n// ─────────────────────────────────────────────────────────────────────────────\ndescribe('verifySignature', () => {\n  // --- Happy paths ---\n  it('should return true for a valid Ed25519 signature over a known message', () => {\n    const result = verifySignature(knownMessage, knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(true);\n  });\n\n  it('should return true for a valid signature over a UTF-8 emoji message', () => {\n    const result = verifySignature(emojiMessage, emojiSigBase64, knownPubKeyBase64);\n    expect(result).toBe(true);\n  });\n\n  // --- Tampered / wrong key ---\n  it('should return false when the message has been tampered with', () => {\n    const result = verifySignature('Hello, World?', knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when a different public key is used', () => {\n    const result = verifySignature(knownMessage, knownSigBase64, pubKey2Base64);\n    expect(result).toBe(false);\n  });\n\n  // --- Malformed base64 ---\n  it('should return false (fail-closed) for invalid base64 in signature', () => {\n    const result = verifySignature('test', '!!!notbase64!!!', knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false (fail-closed) for invalid base64 in publicKey', () => {\n    const result = verifySignature('test', knownSigBase64, '!!!notbase64!!!');\n    expect(result).toBe(false);\n  });\n\n  // --- Wrong lengths ---\n  it('should return false when decoded signature is only 32 bytes (too short)', () => {\n    const shortSig = base64js.fromByteArray(new Uint8Array(32));\n    const result = verifySignature('test', shortSig, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when decoded signature is 63 bytes (one too few)', () => {\n    const sig63 = base64js.fromByteArray(new Uint8Array(63));\n    const result = verifySignature('test', sig63, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when decoded signature is 65 bytes (one too many)', () => {\n    const sig65 = base64js.fromByteArray(new Uint8Array(65));\n    const result = verifySignature('test', sig65, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when decoded publicKey is only 16 bytes (too short)', () => {\n    const shortKey = base64js.fromByteArray(new Uint8Array(16));\n    const result = verifySignature('test', knownSigBase64, shortKey);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when decoded publicKey is 31 bytes (one too few)', () => {\n    const key31 = base64js.fromByteArray(new Uint8Array(31));\n    const result = verifySignature('test', knownSigBase64, key31);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when decoded publicKey is 33 bytes (one too many)', () => {\n    const key33 = base64js.fromByteArray(new Uint8Array(33));\n    const result = verifySignature('test', knownSigBase64, key33);\n    expect(result).toBe(false);\n  });\n\n  // --- Empty inputs ---\n  it('should return false for empty message string', () => {\n    const result = verifySignature('', knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false for empty signature string', () => {\n    const result = verifySignature('test', '', knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false for empty publicKey string', () => {\n    const result = verifySignature('test', knownSigBase64, '');\n    expect(result).toBe(false);\n  });\n\n  // --- Non-string inputs ---\n  it('should return false when message is null', () => {\n    const result = verifySignature(null as unknown as string, knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when message is undefined', () => {\n    const result = verifySignature(undefined as unknown as string, knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when message is a number', () => {\n    const result = verifySignature(42 as unknown as string, knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when signature is null', () => {\n    const result = verifySignature('test', null as unknown as string, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  it('should return false when publicKey is undefined', () => {\n    const result = verifySignature('test', knownSigBase64, undefined as unknown as string);\n    expect(result).toBe(false);\n  });\n\n  // --- Missing nacl global ---\n  it('should return false when window.nacl is unavailable', () => {\n    vi.stubGlobal('nacl', undefined);\n    const result = verifySignature('test', knownSigBase64, knownPubKeyBase64);\n    expect(result).toBe(false);\n  });\n\n  // --- Invariant: never throws ---\n  it('should never throw an exception regardless of input', () => {\n    const badInputs: Array<[unknown, unknown, unknown]> = [\n      [null, null, null],\n      [undefined, undefined, undefined],\n      [123, 456, 789],\n      [{}, [], true],\n      ['', '', ''],\n      ['test', '!!!', '!!!'],\n      ['test', knownSigBase64, ''],\n      [null, knownSigBase64, knownPubKeyBase64],\n    ];\n\n    for (const [msg, sig, pk] of badInputs) {\n      let threw = false;\n      let result: boolean;\n      try {\n        result = verifySignature(msg as string, sig as string, pk as string);\n      } catch {\n        threw = true;\n        result = undefined as unknown as boolean;\n      }\n      expect(threw, `verifySignature should not throw for inputs: ${JSON.stringify([msg, sig, pk])}`).toBe(false);\n      expect(result, `verifySignature should return false for inputs: ${JSON.stringify([msg, sig, pk])}`).toBe(false);\n    }\n  });\n\n  // --- Invariant: returns true iff nacl.sign.detached.verify returns true ---\n  it('should return true if and only if nacl.sign.detached.verify returns true with correctly decoded inputs', () => {\n    // Valid case — must be true\n    expect(verifySignature(knownMessage, knownSigBase64, knownPubKeyBase64)).toBe(true);\n\n    // Invalid cases — must all be false\n    expect(verifySignature('wrong message', knownSigBase64, knownPubKeyBase64)).toBe(false);\n    expect(verifySignature(knownMessage, knownSigBase64, pubKey2Base64)).toBe(false);\n    expect(verifySignature(knownMessage, emojiSigBase64, knownPubKeyBase64)).toBe(false);\n  });\n});\n"
+}

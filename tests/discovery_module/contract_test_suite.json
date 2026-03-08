@@ -1,0 +1,903 @@
+{
+  "component_id": "discovery_module",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "cache_constructor_happy",
+      "description": "KnownPeersCache constructor creates empty cache with given maxSize",
+      "function": "KnownPeersCache.constructor",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "maxSize": "10"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.size() === 0",
+        "cache maxSize is 10"
+      ]
+    },
+    {
+      "id": "cache_constructor_default_maxsize",
+      "description": "KnownPeersCache constructor defaults maxSize to 50 when not provided or invalid",
+      "function": "KnownPeersCache.constructor",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.size() === 0"
+      ]
+    },
+    {
+      "id": "cache_add_happy",
+      "description": "add() inserts a new peer entry with lastSeen ~ Date.now()",
+      "function": "KnownPeersCache.add",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://peer1.example.com/ws",
+        "metadata": "{\"lastLatency\": 42.5}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.get(url) is defined",
+        "cache.get(url).lastSeen is approximately Date.now()",
+        "cache.get(url).lastLatency === 42.5",
+        "cache.size() === 1"
+      ]
+    },
+    {
+      "id": "cache_add_update_existing",
+      "description": "add() updates lastSeen when URL already exists",
+      "function": "KnownPeersCache.add",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://peer1.example.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.get(url).lastSeen is updated to new Date.now()"
+      ]
+    },
+    {
+      "id": "cache_add_eviction",
+      "description": "add() evicts oldest entry when cache is at maxSize and new URL is added",
+      "function": "KnownPeersCache.add",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "maxSize": "3"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.size() <= maxSize",
+        "oldest entry is evicted",
+        "new entry exists"
+      ]
+    },
+    {
+      "id": "cache_add_invalid_url",
+      "description": "add() throws on empty or non-string url",
+      "function": "KnownPeersCache.add",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": ""
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_url",
+      "assertions": [
+        "throws error for empty string url"
+      ]
+    },
+    {
+      "id": "cache_add_null_metadata_latency",
+      "description": "add() handles null lastLatency in metadata",
+      "function": "KnownPeersCache.add",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://peer1.example.com/ws",
+        "metadata": "{\"lastLatency\": null}"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.get(url).lastLatency is null"
+      ]
+    },
+    {
+      "id": "cache_get_found",
+      "description": "get() returns PeerEntry for existing URL",
+      "function": "KnownPeersCache.get",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://peer1.example.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned entry has url, lastSeen, lastLatency fields"
+      ]
+    },
+    {
+      "id": "cache_get_not_found",
+      "description": "get() returns undefined for non-existent URL",
+      "function": "KnownPeersCache.get",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://unknown.example.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returns undefined"
+      ]
+    },
+    {
+      "id": "cache_get_does_not_modify",
+      "description": "get() does not modify cache state (read-only)",
+      "function": "KnownPeersCache.get",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "lastSeen is unchanged after get()"
+      ]
+    },
+    {
+      "id": "cache_getall_happy",
+      "description": "getAll() returns shallow copy array of all entries",
+      "function": "KnownPeersCache.getAll",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array length equals cache.size()",
+        "returned array is a new array",
+        "each element has url, lastSeen, lastLatency"
+      ]
+    },
+    {
+      "id": "cache_getall_empty",
+      "description": "getAll() returns empty array when cache is empty",
+      "function": "KnownPeersCache.getAll",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array length is 0"
+      ]
+    },
+    {
+      "id": "cache_remove_happy",
+      "description": "remove() removes existing peer entry",
+      "function": "KnownPeersCache.remove",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://peer1.example.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.get(url) returns undefined",
+        "cache.size() decreased by 1"
+      ]
+    },
+    {
+      "id": "cache_remove_nonexistent",
+      "description": "remove() is no-op for non-existent URL",
+      "function": "KnownPeersCache.remove",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "url": "ws://unknown.example.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.size() unchanged"
+      ]
+    },
+    {
+      "id": "cache_size_happy",
+      "description": "size() returns current number of entries",
+      "function": "KnownPeersCache.size",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returns 0 for empty cache",
+        "returns correct count after adds"
+      ]
+    },
+    {
+      "id": "cache_size_invariant",
+      "description": "size() is always >= 0 and <= maxSize",
+      "function": "KnownPeersCache.size",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "size >= 0",
+        "size <= maxSize"
+      ]
+    },
+    {
+      "id": "bootstrap_happy_https",
+      "description": "getBootstrapNodes converts https origin to wss URL",
+      "function": "getBootstrapNodes",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "origin": "https://example.com"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array has at least 1 element",
+        "first element starts with wss://",
+        "first element ends with /ws"
+      ]
+    },
+    {
+      "id": "bootstrap_happy_http",
+      "description": "getBootstrapNodes converts http origin to ws URL",
+      "function": "getBootstrapNodes",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "origin": "http://localhost:3000"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "first element starts with ws://",
+        "first element contains localhost:3000"
+      ]
+    },
+    {
+      "id": "bootstrap_missing_origin",
+      "description": "getBootstrapNodes throws when origin is undefined and window.location unavailable",
+      "function": "getBootstrapNodes",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "missing_origin",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "create_request_happy",
+      "description": "createPeerExchangeRequest creates valid request object",
+      "function": "createPeerExchangeRequest",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "pubKey": "abc123"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "type === 'peer_exchange_request'",
+        "from.pubKey === 'abc123'",
+        "timestamp is approximately Date.now()"
+      ]
+    },
+    {
+      "id": "create_response_happy",
+      "description": "createPeerExchangeResponse creates valid response object",
+      "function": "createPeerExchangeResponse",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "peerUrls": "[\"ws://a.com/ws\",\"ws://b.com/ws\"]",
+        "pubKey": "abc123"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "type === 'peer_exchange_response'",
+        "peers array equals peerUrls",
+        "from.pubKey === 'abc123'",
+        "timestamp is approximately Date.now()"
+      ]
+    },
+    {
+      "id": "create_response_empty_peers",
+      "description": "createPeerExchangeResponse works with empty peerUrls array",
+      "function": "createPeerExchangeResponse",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "peerUrls": "[]",
+        "pubKey": "abc123"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "peers is empty array",
+        "type === 'peer_exchange_response'"
+      ]
+    },
+    {
+      "id": "handle_request_happy",
+      "description": "handlePeerExchangeRequest returns up to 5 peers excluding requester",
+      "function": "handlePeerExchangeRequest",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "requesterUrl": "ws://requester.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array length <= 5",
+        "returned array does not contain requesterUrl",
+        "all URLs are from connectedPeerUrls"
+      ]
+    },
+    {
+      "id": "handle_request_excludes_requester",
+      "description": "handlePeerExchangeRequest filters out the requester URL",
+      "function": "handlePeerExchangeRequest",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {
+        "requesterUrl": "ws://peer1.com/ws"
+      },
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "requesterUrl not in result"
+      ]
+    },
+    {
+      "id": "handle_request_max_five",
+      "description": "handlePeerExchangeRequest returns at most 5 URLs even with more connected",
+      "function": "handlePeerExchangeRequest",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array length <= 5"
+      ]
+    },
+    {
+      "id": "handle_request_empty_connected",
+      "description": "handlePeerExchangeRequest returns empty array when no connected peers",
+      "function": "handlePeerExchangeRequest",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned array is empty"
+      ]
+    },
+    {
+      "id": "handle_request_invalid_message",
+      "description": "handlePeerExchangeRequest throws on null/undefined message",
+      "function": "handlePeerExchangeRequest",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_message",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "handle_request_invalid_connected_peers",
+      "description": "handlePeerExchangeRequest throws when connectedPeerUrls is not an array",
+      "function": "handlePeerExchangeRequest",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_connected_peers",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "handle_response_happy",
+      "description": "handlePeerExchangeResponse adds all peer URLs to cache",
+      "function": "handlePeerExchangeResponse",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "each URL in message.peers is in cache"
+      ]
+    },
+    {
+      "id": "handle_response_invalid_message",
+      "description": "handlePeerExchangeResponse throws on invalid message",
+      "function": "handlePeerExchangeResponse",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_message",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "handle_response_invalid_cache",
+      "description": "handlePeerExchangeResponse throws on invalid cache",
+      "function": "handlePeerExchangeResponse",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_cache",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "handle_response_respects_maxsize",
+      "description": "handlePeerExchangeResponse does not exceed cache maxSize after adding peers",
+      "function": "handlePeerExchangeResponse",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "cache.size() <= maxSize"
+      ]
+    },
+    {
+      "id": "select_rotation_happy",
+      "description": "selectPeerForRotation returns URL with lowest connectedAt",
+      "function": "selectPeerForRotation",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned URL is the one with lowest connectedAt"
+      ]
+    },
+    {
+      "id": "select_rotation_single_peer",
+      "description": "selectPeerForRotation returns the only peer when list has one element",
+      "function": "selectPeerForRotation",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned URL equals the single peer URL"
+      ]
+    },
+    {
+      "id": "select_rotation_empty_list",
+      "description": "selectPeerForRotation throws/returns null on empty list",
+      "function": "selectPeerForRotation",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "empty_list",
+      "assertions": [
+        "throws or returns null"
+      ]
+    },
+    {
+      "id": "select_connection_happy",
+      "description": "selectPeerForConnection returns a cached URL not in connectedUrls",
+      "function": "selectPeerForConnection",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returned URL exists in cache",
+        "returned URL not in connectedUrls"
+      ]
+    },
+    {
+      "id": "select_connection_all_connected",
+      "description": "selectPeerForConnection returns null when all cached peers are connected",
+      "function": "selectPeerForConnection",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returns null"
+      ]
+    },
+    {
+      "id": "select_connection_empty_cache",
+      "description": "selectPeerForConnection returns null when cache is empty",
+      "function": "selectPeerForConnection",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returns null"
+      ]
+    },
+    {
+      "id": "select_connection_invalid_cache",
+      "description": "selectPeerForConnection throws on null cache",
+      "function": "selectPeerForConnection",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_cache",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "is_protocol_valid_request",
+      "description": "isProtocolMessage returns isProtocol:true for valid peer_exchange_request JSON string",
+      "function": "isProtocolMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "isProtocol is true",
+        "parsed is non-null",
+        "parsed.type starts with 'peer_exchange_'"
+      ]
+    },
+    {
+      "id": "is_protocol_valid_response",
+      "description": "isProtocolMessage returns isProtocol:true for valid peer_exchange_response JSON string",
+      "function": "isProtocolMessage",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "isProtocol is true",
+        "parsed is non-null"
+      ]
+    },
+    {
+      "id": "is_protocol_non_string",
+      "description": "isProtocolMessage returns isProtocol:false for non-string data",
+      "function": "isProtocolMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "isProtocol is false",
+        "parsed is null"
+      ]
+    },
+    {
+      "id": "is_protocol_invalid_json",
+      "description": "isProtocolMessage returns isProtocol:false for invalid JSON string",
+      "function": "isProtocolMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "isProtocol is false",
+        "parsed is null"
+      ]
+    },
+    {
+      "id": "is_protocol_non_protocol_json",
+      "description": "isProtocolMessage returns isProtocol:false for valid JSON without peer_exchange_ type",
+      "function": "isProtocolMessage",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "isProtocol is false",
+        "parsed is null"
+      ]
+    },
+    {
+      "id": "is_protocol_never_throws",
+      "description": "isProtocolMessage never throws regardless of input",
+      "function": "isProtocolMessage",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "does not throw for any input"
+      ]
+    },
+    {
+      "id": "init_discovery_happy",
+      "description": "initializeDiscovery returns a cleanup function and starts timers",
+      "function": "initializeDiscovery",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "returns a function",
+        "calling cleanup does not throw"
+      ]
+    },
+    {
+      "id": "init_discovery_cleanup_clears_timers",
+      "description": "initializeDiscovery cleanup function clears both intervals",
+      "function": "initializeDiscovery",
+      "category": "happy_path",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "no timers remain after cleanup"
+      ]
+    },
+    {
+      "id": "init_discovery_cleanup_idempotent",
+      "description": "initializeDiscovery cleanup function is safe to call multiple times",
+      "function": "initializeDiscovery",
+      "category": "edge_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "second call does not throw"
+      ]
+    },
+    {
+      "id": "init_discovery_invalid_api",
+      "description": "initializeDiscovery throws on null/undefined networkApi",
+      "function": "initializeDiscovery",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_network_api",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "init_discovery_missing_methods",
+      "description": "initializeDiscovery throws when networkApi is missing required methods",
+      "function": "initializeDiscovery",
+      "category": "error_case",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "invalid_network_api",
+      "assertions": [
+        "throws error"
+      ]
+    },
+    {
+      "id": "invariant_min_peers",
+      "description": "MIN_PEERS constant is always 3",
+      "function": "MIN_PEERS",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "MIN_PEERS === 3"
+      ]
+    },
+    {
+      "id": "invariant_known_peers_max",
+      "description": "KNOWN_PEERS_MAX constant is always 50",
+      "function": "KNOWN_PEERS_MAX",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "KNOWN_PEERS_MAX === 50"
+      ]
+    },
+    {
+      "id": "invariant_rotation_interval",
+      "description": "ROTATION_INTERVAL constant is always 300000",
+      "function": "ROTATION_INTERVAL",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "ROTATION_INTERVAL === 300000"
+      ]
+    },
+    {
+      "id": "invariant_discovery_interval",
+      "description": "DISCOVERY_INTERVAL constant is always 30000",
+      "function": "DISCOVERY_INTERVAL",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "DISCOVERY_INTERVAL === 30000"
+      ]
+    },
+    {
+      "id": "cache_lru_eviction_invariant",
+      "description": "LRU eviction always removes the entry with the lowest lastSeen value",
+      "function": "KnownPeersCache.add",
+      "category": "invariant",
+      "setup_description": "",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "after eviction the entry with lowest lastSeen is gone",
+        "new entry exists",
+        "cache.size() === maxSize"
+      ]
+    }
+  ],
+  "test_language": "typescript",
+  "generated_code": "import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport {\n  KnownPeersCache,\n  getBootstrapNodes,\n  createPeerExchangeRequest,\n  createPeerExchangeResponse,\n  handlePeerExchangeRequest,\n  handlePeerExchangeResponse,\n  selectPeerForRotation,\n  selectPeerForConnection,\n  isProtocolMessage,\n  initializeDiscovery,\n  MIN_PEERS,\n  KNOWN_PEERS_MAX,\n  ROTATION_INTERVAL,\n  DISCOVERY_INTERVAL,\n} from '../src/discovery_module';\n\n// Helper: creates a mock NetworkApi with all required methods as vi.fn() stubs\nfunction createMockNetworkApi() {\n  return {\n    getConnectedPeerCount: vi.fn().mockReturnValue(0),\n    getConnectedPeerUrls: vi.fn().mockReturnValue([]),\n    connectToPeer: vi.fn().mockResolvedValue(undefined),\n    disconnectPeer: vi.fn().mockResolvedValue(undefined),\n    sendToPeer: vi.fn().mockResolvedValue(undefined),\n    broadcastRaw: vi.fn(),\n  };\n}\n\ndescribe('KnownPeersCache', () => {\n  let cache: InstanceType<typeof KnownPeersCache>;\n\n  beforeEach(() => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1000000);\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  describe('constructor', () => {\n    it('creates an empty cache with specified maxSize', () => {\n      cache = new KnownPeersCache(10);\n      expect(cache.size()).toBe(0);\n    });\n\n    it('defaults maxSize to 50 when not provided or invalid', () => {\n      // Depending on implementation, passing undefined or no arg may default to 50\n      cache = new KnownPeersCache(undefined as unknown as number);\n      expect(cache.size()).toBe(0);\n      // Verify the default by filling beyond 50 — the 51st add should trigger eviction\n      for (let i = 0; i < 51; i++) {\n        vi.setSystemTime(1000000 + i);\n        cache.add(`ws://peer${i}.com/ws`, { lastLatency: null });\n      }\n      expect(cache.size()).toBeLessThanOrEqual(50);\n    });\n  });\n\n  describe('add', () => {\n    beforeEach(() => {\n      cache = new KnownPeersCache(5);\n    });\n\n    it('inserts a new peer entry with lastSeen approximately Date.now()', () => {\n      vi.setSystemTime(2000000);\n      cache.add('ws://peer1.example.com/ws', { lastLatency: 42.5 });\n      const entry = cache.get('ws://peer1.example.com/ws');\n      expect(entry).toBeDefined();\n      expect(entry!.url).toBe('ws://peer1.example.com/ws');\n      expect(entry!.lastSeen).toBe(2000000);\n      expect(entry!.lastLatency).toBe(42.5);\n      expect(cache.size()).toBe(1);\n    });\n\n    it('updates lastSeen when URL already exists', () => {\n      vi.setSystemTime(1000000);\n      cache.add('ws://peer1.example.com/ws', { lastLatency: 10 });\n      const firstSeen = cache.get('ws://peer1.example.com/ws')!.lastSeen;\n\n      vi.setSystemTime(2000000);\n      cache.add('ws://peer1.example.com/ws', { lastLatency: 20 });\n      const entry = cache.get('ws://peer1.example.com/ws');\n      expect(entry!.lastSeen).toBe(2000000);\n      expect(entry!.lastSeen).toBeGreaterThan(firstSeen);\n    });\n\n    it('handles null lastLatency in metadata', () => {\n      cache.add('ws://peer1.example.com/ws', { lastLatency: null });\n      const entry = cache.get('ws://peer1.example.com/ws');\n      expect(entry).toBeDefined();\n      expect(entry!.lastLatency).toBeNull();\n    });\n\n    it('evicts oldest entry when cache is at maxSize and new URL is added', () => {\n      const smallCache = new KnownPeersCache(3);\n\n      vi.setSystemTime(1000);\n      smallCache.add('ws://oldest.com/ws', { lastLatency: null });\n      vi.setSystemTime(2000);\n      smallCache.add('ws://middle.com/ws', { lastLatency: null });\n      vi.setSystemTime(3000);\n      smallCache.add('ws://newest.com/ws', { lastLatency: null });\n\n      expect(smallCache.size()).toBe(3);\n\n      // Adding a 4th entry should evict the oldest (ws://oldest.com/ws)\n      vi.setSystemTime(4000);\n      smallCache.add('ws://brand-new.com/ws', { lastLatency: null });\n\n      expect(smallCache.size()).toBe(3);\n      expect(smallCache.get('ws://oldest.com/ws')).toBeUndefined();\n      expect(smallCache.get('ws://brand-new.com/ws')).toBeDefined();\n      expect(smallCache.get('ws://middle.com/ws')).toBeDefined();\n      expect(smallCache.get('ws://newest.com/ws')).toBeDefined();\n    });\n\n    it('throws on empty string url', () => {\n      expect(() => cache.add('', { lastLatency: null })).toThrow();\n    });\n\n    it('throws on non-string url', () => {\n      expect(() => cache.add(null as unknown as string, { lastLatency: null })).toThrow();\n      expect(() => cache.add(undefined as unknown as string, { lastLatency: null })).toThrow();\n      expect(() => cache.add(123 as unknown as string, { lastLatency: null })).toThrow();\n    });\n  });\n\n  describe('get', () => {\n    beforeEach(() => {\n      cache = new KnownPeersCache(10);\n    });\n\n    it('returns PeerEntry for existing URL', () => {\n      cache.add('ws://peer1.example.com/ws', { lastLatency: 5.5 });\n      const entry = cache.get('ws://peer1.example.com/ws');\n      expect(entry).toBeDefined();\n      expect(entry!.url).toBe('ws://peer1.example.com/ws');\n      expect(entry!.lastLatency).toBe(5.5);\n      expect(typeof entry!.lastSeen).toBe('number');\n    });\n\n    it('returns undefined for non-existent URL', () => {\n      const entry = cache.get('ws://unknown.example.com/ws');\n      expect(entry).toBeUndefined();\n    });\n\n    it('does not modify cache state (read-only)', () => {\n      vi.setSystemTime(1000000);\n      cache.add('ws://peer1.example.com/ws', { lastLatency: null });\n      const entryBefore = cache.get('ws://peer1.example.com/ws');\n      const lastSeenBefore = entryBefore!.lastSeen;\n\n      vi.setSystemTime(2000000);\n      // get() should NOT update lastSeen\n      cache.get('ws://peer1.example.com/ws');\n      const entryAfter = cache.get('ws://peer1.example.com/ws');\n      expect(entryAfter!.lastSeen).toBe(lastSeenBefore);\n    });\n  });\n\n  describe('getAll', () => {\n    beforeEach(() => {\n      cache = new KnownPeersCache(10);\n    });\n\n    it('returns shallow copy array of all entries', () => {\n      cache.add('ws://peer1.com/ws', { lastLatency: null });\n      cache.add('ws://peer2.com/ws', { lastLatency: 10 });\n      const all = cache.getAll();\n      expect(all).toHaveLength(2);\n      expect(Array.isArray(all)).toBe(true);\n\n      // Verify it is a new array (modifying it doesn't affect cache)\n      all.pop();\n      expect(cache.getAll()).toHaveLength(2);\n    });\n\n    it('returns empty array when cache is empty', () => {\n      const all = cache.getAll();\n      expect(all).toHaveLength(0);\n      expect(Array.isArray(all)).toBe(true);\n    });\n\n    it('each element has url, lastSeen, and lastLatency fields', () => {\n      cache.add('ws://peer1.com/ws', { lastLatency: 5 });\n      const all = cache.getAll();\n      for (const entry of all) {\n        expect(entry).toHaveProperty('url');\n        expect(entry).toHaveProperty('lastSeen');\n        expect(entry).toHaveProperty('lastLatency');\n        expect(typeof entry.url).toBe('string');\n        expect(typeof entry.lastSeen).toBe('number');\n      }\n    });\n  });\n\n  describe('remove', () => {\n    beforeEach(() => {\n      cache = new KnownPeersCache(10);\n    });\n\n    it('removes existing peer entry', () => {\n      cache.add('ws://peer1.com/ws', { lastLatency: null });\n      expect(cache.size()).toBe(1);\n      cache.remove('ws://peer1.com/ws');\n      expect(cache.get('ws://peer1.com/ws')).toBeUndefined();\n      expect(cache.size()).toBe(0);\n    });\n\n    it('is no-op for non-existent URL', () => {\n      cache.add('ws://peer1.com/ws', { lastLatency: null });\n      const sizeBefore = cache.size();\n      cache.remove('ws://unknown.com/ws');\n      expect(cache.size()).toBe(sizeBefore);\n    });\n  });\n\n  describe('size', () => {\n    it('returns 0 for empty cache', () => {\n      cache = new KnownPeersCache(10);\n      expect(cache.size()).toBe(0);\n    });\n\n    it('returns correct count after adds and removes', () => {\n      cache = new KnownPeersCache(10);\n      cache.add('ws://a.com/ws', { lastLatency: null });\n      cache.add('ws://b.com/ws', { lastLatency: null });\n      expect(cache.size()).toBe(2);\n      cache.remove('ws://a.com/ws');\n      expect(cache.size()).toBe(1);\n    });\n\n    it('size is always >= 0 and <= maxSize', () => {\n      cache = new KnownPeersCache(3);\n      expect(cache.size()).toBeGreaterThanOrEqual(0);\n      expect(cache.size()).toBeLessThanOrEqual(3);\n\n      for (let i = 0; i < 10; i++) {\n        vi.setSystemTime(1000000 + i);\n        cache.add(`ws://peer${i}.com/ws`, { lastLatency: null });\n        expect(cache.size()).toBeGreaterThanOrEqual(0);\n        expect(cache.size()).toBeLessThanOrEqual(3);\n      }\n    });\n  });\n\n  describe('LRU eviction invariant', () => {\n    it('always removes the entry with the lowest lastSeen value', () => {\n      const smallCache = new KnownPeersCache(3);\n\n      // Add 3 entries at different times\n      vi.setSystemTime(100);\n      smallCache.add('ws://a.com/ws', { lastLatency: null });\n      vi.setSystemTime(200);\n      smallCache.add('ws://b.com/ws', { lastLatency: null });\n      vi.setSystemTime(300);\n      smallCache.add('ws://c.com/ws', { lastLatency: null });\n\n      // Now update 'a' to make it more recent\n      vi.setSystemTime(400);\n      smallCache.add('ws://a.com/ws', { lastLatency: null });\n\n      // Now 'b' has the lowest lastSeen (200). Adding new entry should evict 'b'.\n      vi.setSystemTime(500);\n      smallCache.add('ws://d.com/ws', { lastLatency: null });\n\n      expect(smallCache.size()).toBe(3);\n      expect(smallCache.get('ws://b.com/ws')).toBeUndefined();\n      expect(smallCache.get('ws://a.com/ws')).toBeDefined();\n      expect(smallCache.get('ws://c.com/ws')).toBeDefined();\n      expect(smallCache.get('ws://d.com/ws')).toBeDefined();\n    });\n  });\n});\n\ndescribe('getBootstrapNodes', () => {\n  it('converts https origin to wss URL with /ws path', () => {\n    const nodes = getBootstrapNodes('https://example.com');\n    expect(nodes.length).toBeGreaterThanOrEqual(1);\n    expect(nodes[0]).toMatch(/^wss:\\/\\//);\n    expect(nodes[0]).toContain('example.com');\n    expect(nodes[0]).toMatch(/\\/ws$/);\n  });\n\n  it('converts http origin to ws URL with /ws path', () => {\n    const nodes = getBootstrapNodes('http://localhost:3000');\n    expect(nodes.length).toBeGreaterThanOrEqual(1);\n    expect(nodes[0]).toMatch(/^ws:\\/\\//);\n    expect(nodes[0]).toContain('localhost:3000');\n    expect(nodes[0]).toMatch(/\\/ws$/);\n  });\n\n  it('returns at least 1 element', () => {\n    const nodes = getBootstrapNodes('https://myapp.com');\n    expect(nodes.length).toBeGreaterThanOrEqual(1);\n  });\n\n  it('each element is a valid WebSocket URL starting with ws:// or wss://', () => {\n    const nodes = getBootstrapNodes('https://myapp.com');\n    for (const node of nodes) {\n      expect(node).toMatch(/^wss?:\\/\\//);\n    }\n  });\n\n  it('throws when origin is undefined/null and window.location is not available', () => {\n    // In a test environment without window.location, passing undefined should throw\n    expect(() => getBootstrapNodes(undefined as unknown as string)).toThrow();\n  });\n});\n\ndescribe('createPeerExchangeRequest', () => {\n  beforeEach(() => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1700000000000);\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  it('creates valid request object with correct shape', () => {\n    const req = createPeerExchangeRequest('abc123');\n    expect(req.type).toBe('peer_exchange_request');\n    expect(req.from).toBeDefined();\n    expect(req.from.pubKey).toBe('abc123');\n    expect(req.timestamp).toBe(1700000000000);\n  });\n\n  it('timestamp is approximately Date.now()', () => {\n    vi.setSystemTime(9999999);\n    const req = createPeerExchangeRequest('key1');\n    expect(req.timestamp).toBe(9999999);\n  });\n\n  it('is JSON-serializable', () => {\n    const req = createPeerExchangeRequest('key1');\n    const json = JSON.stringify(req);\n    const parsed = JSON.parse(json);\n    expect(parsed.type).toBe('peer_exchange_request');\n    expect(parsed.from.pubKey).toBe('key1');\n  });\n});\n\ndescribe('createPeerExchangeResponse', () => {\n  beforeEach(() => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1700000000000);\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  it('creates valid response object with correct shape', () => {\n    const peerUrls = ['ws://a.com/ws', 'ws://b.com/ws'];\n    const res = createPeerExchangeResponse(peerUrls, 'abc123');\n    expect(res.type).toBe('peer_exchange_response');\n    expect(res.peers).toEqual(peerUrls);\n    expect(res.from.pubKey).toBe('abc123');\n    expect(res.timestamp).toBe(1700000000000);\n  });\n\n  it('works with empty peerUrls array', () => {\n    const res = createPeerExchangeResponse([], 'abc123');\n    expect(res.type).toBe('peer_exchange_response');\n    expect(res.peers).toEqual([]);\n    expect(res.from.pubKey).toBe('abc123');\n  });\n\n  it('is JSON-serializable', () => {\n    const res = createPeerExchangeResponse(['ws://a.com/ws'], 'key1');\n    const json = JSON.stringify(res);\n    const parsed = JSON.parse(json);\n    expect(parsed.type).toBe('peer_exchange_response');\n    expect(parsed.peers).toEqual(['ws://a.com/ws']);\n  });\n});\n\ndescribe('handlePeerExchangeRequest', () => {\n  it('returns up to 5 peers excluding the requester', () => {\n    const message = {\n      type: 'peer_exchange_request' as const,\n      from: { pubKey: 'requester_key' },\n      timestamp: Date.now(),\n    };\n    const connectedPeerUrls = [\n      'ws://requester.com/ws',\n      'ws://peer1.com/ws',\n      'ws://peer2.com/ws',\n      'ws://peer3.com/ws',\n    ];\n    const result = handlePeerExchangeRequest(message, connectedPeerUrls, 'ws://requester.com/ws');\n    expect(result.length).toBeLessThanOrEqual(5);\n    expect(result).not.toContain('ws://requester.com/ws');\n    for (const url of result) {\n      expect(connectedPeerUrls).toContain(url);\n    }\n  });\n\n  it('filters out the requester URL', () => {\n    const message = {\n      type: 'peer_exchange_request' as const,\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    };\n    const connected = ['ws://peer1.com/ws', 'ws://peer2.com/ws'];\n    const result = handlePeerExchangeRequest(message, connected, 'ws://peer1.com/ws');\n    expect(result).not.toContain('ws://peer1.com/ws');\n  });\n\n  it('returns at most 5 URLs even with many connected peers', () => {\n    const message = {\n      type: 'peer_exchange_request' as const,\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    };\n    const connected = Array.from({ length: 20 }, (_, i) => `ws://peer${i}.com/ws`);\n    const result = handlePeerExchangeRequest(message, connected, 'ws://requester.com/ws');\n    expect(result.length).toBeLessThanOrEqual(5);\n  });\n\n  it('returns empty array when no connected peers', () => {\n    const message = {\n      type: 'peer_exchange_request' as const,\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    };\n    const result = handlePeerExchangeRequest(message, [], 'ws://requester.com/ws');\n    expect(result).toEqual([]);\n  });\n\n  it('throws on null message', () => {\n    expect(() =>\n      handlePeerExchangeRequest(null as any, ['ws://a.com/ws'], 'ws://b.com/ws')\n    ).toThrow();\n  });\n\n  it('throws on undefined message', () => {\n    expect(() =>\n      handlePeerExchangeRequest(undefined as any, ['ws://a.com/ws'], 'ws://b.com/ws')\n    ).toThrow();\n  });\n\n  it('throws on message missing type field', () => {\n    expect(() =>\n      handlePeerExchangeRequest({} as any, ['ws://a.com/ws'], 'ws://b.com/ws')\n    ).toThrow();\n  });\n\n  it('throws when connectedPeerUrls is not an array', () => {\n    const message = {\n      type: 'peer_exchange_request' as const,\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    };\n    expect(() =>\n      handlePeerExchangeRequest(message, 'not-an-array' as any, 'ws://b.com/ws')\n    ).toThrow();\n  });\n});\n\ndescribe('handlePeerExchangeResponse', () => {\n  let cache: InstanceType<typeof KnownPeersCache>;\n\n  beforeEach(() => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1000000);\n    cache = new KnownPeersCache(50);\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  it('adds all peer URLs from message to cache', () => {\n    const message = {\n      type: 'peer_exchange_response' as const,\n      peers: ['ws://peer1.com/ws', 'ws://peer2.com/ws', 'ws://peer3.com/ws'],\n      from: { pubKey: 'sender_key' },\n      timestamp: Date.now(),\n    };\n    handlePeerExchangeResponse(message, cache);\n    expect(cache.get('ws://peer1.com/ws')).toBeDefined();\n    expect(cache.get('ws://peer2.com/ws')).toBeDefined();\n    expect(cache.get('ws://peer3.com/ws')).toBeDefined();\n  });\n\n  it('does not exceed cache maxSize after adding peers', () => {\n    const smallCache = new KnownPeersCache(3);\n    const message = {\n      type: 'peer_exchange_response' as const,\n      peers: ['ws://a.com/ws', 'ws://b.com/ws', 'ws://c.com/ws', 'ws://d.com/ws', 'ws://e.com/ws'],\n      from: { pubKey: 'sender_key' },\n      timestamp: Date.now(),\n    };\n    handlePeerExchangeResponse(message, smallCache);\n    expect(smallCache.size()).toBeLessThanOrEqual(3);\n  });\n\n  it('throws on null message', () => {\n    expect(() => handlePeerExchangeResponse(null as any, cache)).toThrow();\n  });\n\n  it('throws on message with non-array peers', () => {\n    expect(() =>\n      handlePeerExchangeResponse(\n        { type: 'peer_exchange_response', peers: 'not-array', from: { pubKey: 'k' }, timestamp: 0 } as any,\n        cache\n      )\n    ).toThrow();\n  });\n\n  it('throws on null cache', () => {\n    const message = {\n      type: 'peer_exchange_response' as const,\n      peers: ['ws://a.com/ws'],\n      from: { pubKey: 'sender_key' },\n      timestamp: Date.now(),\n    };\n    expect(() => handlePeerExchangeResponse(message, null as any)).toThrow();\n  });\n\n  it('throws on undefined cache', () => {\n    const message = {\n      type: 'peer_exchange_response' as const,\n      peers: ['ws://a.com/ws'],\n      from: { pubKey: 'sender_key' },\n      timestamp: Date.now(),\n    };\n    expect(() => handlePeerExchangeResponse(message, undefined as any)).toThrow();\n  });\n});\n\ndescribe('selectPeerForRotation', () => {\n  it('returns URL with lowest connectedAt for multiple peers', () => {\n    const peers = [\n      { url: 'ws://peer1.com/ws', connectedAt: 3000 },\n      { url: 'ws://peer2.com/ws', connectedAt: 1000 },\n      { url: 'ws://peer3.com/ws', connectedAt: 2000 },\n    ];\n    const result = selectPeerForRotation(peers);\n    expect(result).toBe('ws://peer2.com/ws');\n  });\n\n  it('returns the only peer when list has one element', () => {\n    const peers = [{ url: 'ws://only-peer.com/ws', connectedAt: 5000 }];\n    const result = selectPeerForRotation(peers);\n    expect(result).toBe('ws://only-peer.com/ws');\n  });\n\n  it('throws or returns null on empty list', () => {\n    // Contract says error: empty_list when connectedPeers is empty or not an array\n    try {\n      const result = selectPeerForRotation([]);\n      // If it doesn't throw, it should return null\n      expect(result).toBeNull();\n    } catch (e) {\n      // If it throws, that's also acceptable per contract\n      expect(e).toBeDefined();\n    }\n  });\n\n  it('throws on non-array input', () => {\n    expect(() => selectPeerForRotation(null as any)).toThrow();\n    expect(() => selectPeerForRotation(undefined as any)).toThrow();\n  });\n});\n\ndescribe('selectPeerForConnection', () => {\n  let cache: InstanceType<typeof KnownPeersCache>;\n\n  beforeEach(() => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1000000);\n    cache = new KnownPeersCache(50);\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  it('returns a cached URL not in connectedUrls', () => {\n    cache.add('ws://peer1.com/ws', { lastLatency: null });\n    cache.add('ws://peer2.com/ws', { lastLatency: null });\n    cache.add('ws://peer3.com/ws', { lastLatency: null });\n\n    const connectedUrls = ['ws://peer1.com/ws'];\n    const result = selectPeerForConnection(cache, connectedUrls);\n\n    expect(result).not.toBeNull();\n    expect(result).not.toBe('ws://peer1.com/ws');\n    expect(['ws://peer2.com/ws', 'ws://peer3.com/ws']).toContain(result);\n  });\n\n  it('returns the only eligible peer deterministically', () => {\n    cache.add('ws://peer1.com/ws', { lastLatency: null });\n    cache.add('ws://peer2.com/ws', { lastLatency: null });\n\n    const connectedUrls = ['ws://peer1.com/ws'];\n    const result = selectPeerForConnection(cache, connectedUrls);\n    expect(result).toBe('ws://peer2.com/ws');\n  });\n\n  it('returns null when all cached peers are already connected', () => {\n    cache.add('ws://peer1.com/ws', { lastLatency: null });\n    cache.add('ws://peer2.com/ws', { lastLatency: null });\n\n    const connectedUrls = ['ws://peer1.com/ws', 'ws://peer2.com/ws'];\n    // Contract says error: no_eligible_peers — this may throw or return null\n    try {\n      const result = selectPeerForConnection(cache, connectedUrls);\n      expect(result).toBeNull();\n    } catch (e) {\n      expect(e).toBeDefined();\n    }\n  });\n\n  it('returns null when cache is empty', () => {\n    try {\n      const result = selectPeerForConnection(cache, []);\n      expect(result).toBeNull();\n    } catch (e) {\n      expect(e).toBeDefined();\n    }\n  });\n\n  it('throws on null cache', () => {\n    expect(() => selectPeerForConnection(null as any, [])).toThrow();\n  });\n\n  it('throws on undefined cache', () => {\n    expect(() => selectPeerForConnection(undefined as any, [])).toThrow();\n  });\n});\n\ndescribe('isProtocolMessage', () => {\n  it('returns isProtocol:true for valid peer_exchange_request JSON string', () => {\n    const data = JSON.stringify({\n      type: 'peer_exchange_request',\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    });\n    const result = isProtocolMessage(data);\n    expect(result.isProtocol).toBe(true);\n    expect(result.parsed).not.toBeNull();\n    expect(result.parsed!.type).toBe('peer_exchange_request');\n  });\n\n  it('returns isProtocol:true for valid peer_exchange_response JSON string', () => {\n    const data = JSON.stringify({\n      type: 'peer_exchange_response',\n      peers: ['ws://a.com/ws'],\n      from: { pubKey: 'key1' },\n      timestamp: Date.now(),\n    });\n    const result = isProtocolMessage(data);\n    expect(result.isProtocol).toBe(true);\n    expect(result.parsed).not.toBeNull();\n    expect(result.parsed!.type).toBe('peer_exchange_response');\n  });\n\n  it('returns isProtocol:false for non-string data (ArrayBuffer)', () => {\n    const result = isProtocolMessage(new ArrayBuffer(8));\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for non-string data (number)', () => {\n    const result = isProtocolMessage(42);\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for non-string data (null)', () => {\n    const result = isProtocolMessage(null);\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for invalid JSON string', () => {\n    const result = isProtocolMessage('this is not json {{{');\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for valid JSON without peer_exchange_ type', () => {\n    const data = JSON.stringify({ type: 'chat_message', content: 'hello' });\n    const result = isProtocolMessage(data);\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for valid JSON without type field', () => {\n    const data = JSON.stringify({ foo: 'bar' });\n    const result = isProtocolMessage(data);\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for JSON primitive string', () => {\n    const result = isProtocolMessage('\"just a string\"');\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('returns isProtocol:false for empty string', () => {\n    const result = isProtocolMessage('');\n    expect(result.isProtocol).toBe(false);\n    expect(result.parsed).toBeNull();\n  });\n\n  it('never throws regardless of input', () => {\n    const inputs = [\n      null,\n      undefined,\n      42,\n      true,\n      {},\n      [],\n      new Uint8Array(4),\n      '',\n      'bad json',\n      '{\"type\":\"other\"}',\n      '{\"type\":\"peer_exchange_request\"}',\n      Symbol('test'),\n    ];\n    for (const input of inputs) {\n      expect(() => isProtocolMessage(input)).not.toThrow();\n    }\n  });\n});\n\ndescribe('initializeDiscovery', () => {\n  beforeEach(() => {\n    vi.useFakeTimers();\n  });\n\n  afterEach(() => {\n    vi.useRealTimers();\n  });\n\n  it('returns a cleanup function', () => {\n    const api = createMockNetworkApi();\n    const cleanup = initializeDiscovery(api);\n    expect(typeof cleanup).toBe('function');\n    cleanup();\n  });\n\n  it('cleanup function does not throw when called', () => {\n    const api = createMockNetworkApi();\n    const cleanup = initializeDiscovery(api);\n    expect(() => cleanup()).not.toThrow();\n  });\n\n  it('cleanup function is safe to call multiple times', () => {\n    const api = createMockNetworkApi();\n    const cleanup = initializeDiscovery(api);\n    expect(() => cleanup()).not.toThrow();\n    expect(() => cleanup()).not.toThrow();\n    expect(() => cleanup()).not.toThrow();\n  });\n\n  it('starts two interval timers (discovery and rotation)', () => {\n    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');\n    const api = createMockNetworkApi();\n    const cleanup = initializeDiscovery(api);\n\n    // Should have set at least 2 intervals\n    expect(setIntervalSpy).toHaveBeenCalledTimes(2);\n\n    // Verify the intervals match the constants\n    const intervals = setIntervalSpy.mock.calls.map((call) => call[1]);\n    expect(intervals).toContain(30000); // DISCOVERY_INTERVAL\n    expect(intervals).toContain(300000); // ROTATION_INTERVAL\n\n    cleanup();\n    setIntervalSpy.mockRestore();\n  });\n\n  it('no timers remain active after cleanup', () => {\n    const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');\n    const api = createMockNetworkApi();\n    const cleanup = initializeDiscovery(api);\n\n    cleanup();\n\n    // clearInterval should have been called at least twice (once per timer)\n    expect(clearIntervalSpy.mock.calls.length).toBeGreaterThanOrEqual(2);\n\n    clearIntervalSpy.mockRestore();\n  });\n\n  it('throws on null networkApi', () => {\n    expect(() => initializeDiscovery(null as any)).toThrow();\n  });\n\n  it('throws on undefined networkApi', () => {\n    expect(() => initializeDiscovery(undefined as any)).toThrow();\n  });\n\n  it('throws when networkApi is missing required methods', () => {\n    expect(() => initializeDiscovery({} as any)).toThrow();\n    expect(() => initializeDiscovery({ getConnectedPeerCount: vi.fn() } as any)).toThrow();\n  });\n\n  it('discovery interval triggers network checks', () => {\n    const api = createMockNetworkApi();\n    api.getConnectedPeerCount.mockReturnValue(0);\n    api.getConnectedPeerUrls.mockReturnValue([]);\n\n    const cleanup = initializeDiscovery(api);\n\n    // Advance time by one discovery interval (30s)\n    vi.advanceTimersByTime(30000);\n\n    // The discovery callback should have been invoked — it checks connected peer count\n    expect(api.getConnectedPeerCount).toHaveBeenCalled();\n\n    cleanup();\n  });\n});\n\ndescribe('Invariants', () => {\n  it('MIN_PEERS is always 3', () => {\n    expect(MIN_PEERS).toBe(3);\n  });\n\n  it('KNOWN_PEERS_MAX is always 50', () => {\n    expect(KNOWN_PEERS_MAX).toBe(50);\n  });\n\n  it('ROTATION_INTERVAL is always 300000 (5 minutes in ms)', () => {\n    expect(ROTATION_INTERVAL).toBe(300000);\n  });\n\n  it('DISCOVERY_INTERVAL is always 30000 (30 seconds in ms)', () => {\n    expect(DISCOVERY_INTERVAL).toBe(30000);\n  });\n\n  it('KnownPeersCache internal Map size never exceeds the configured maxSize', () => {\n    vi.useFakeTimers();\n    const cache = new KnownPeersCache(5);\n    for (let i = 0; i < 100; i++) {\n      vi.setSystemTime(i * 1000);\n      cache.add(`ws://peer${i}.com/ws`, { lastLatency: null });\n      expect(cache.size()).toBeLessThanOrEqual(5);\n    }\n    vi.useRealTimers();\n  });\n\n  it('Peer exchange messages always have a type field starting with peer_exchange_', () => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1000000);\n\n    const req = createPeerExchangeRequest('key1');\n    expect(req.type).toMatch(/^peer_exchange_/);\n\n    const res = createPeerExchangeResponse(['ws://a.com/ws'], 'key1');\n    expect(res.type).toMatch(/^peer_exchange_/);\n\n    vi.useRealTimers();\n  });\n\n  it('Peer exchange messages are plain JSON objects', () => {\n    vi.useFakeTimers();\n    vi.setSystemTime(1000000);\n\n    const req = createPeerExchangeRequest('key1');\n    const reqJson = JSON.parse(JSON.stringify(req));\n    expect(reqJson).toEqual(req);\n\n    const res = createPeerExchangeResponse(['ws://a.com/ws'], 'key1');\n    const resJson = JSON.parse(JSON.stringify(res));\n    expect(resJson).toEqual(res);\n\n    // Verify no extra fields like TTL, signature, padding, encryption\n    const reqKeys = Object.keys(req);\n    expect(reqKeys).not.toContain('ttl');\n    expect(reqKeys).not.toContain('signature');\n    expect(reqKeys).not.toContain('padding');\n    expect(reqKeys).not.toContain('encrypted');\n\n    vi.useRealTimers();\n  });\n});\n"
+}
