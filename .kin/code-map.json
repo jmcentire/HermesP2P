@@ -1,0 +1,1616 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "HermesP2P",
+    "description": "Code map exported from Kindex for HermesP2P.",
+    "languages": [
+      "JavaScript",
+      "Python"
+    ],
+    "frameworks": [],
+    "analyzedAt": "2026-05-24T14:57:57",
+    "gitCommitHash": "61e117cf09e206961af908d30f560f23ad22a185"
+  },
+  "nodes": [
+    {
+      "id": "code-mod-hermesp2p-b10564ab7d2c",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "main.py",
+      "summary": "Language: Python | Path: main.py | ~201 lines ## Functions - after_request(response)",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": 15,
+      "languageNotes": {
+        "language": "Python",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "file",
+      "name": "static/js/messages.js",
+      "filePath": "static/js/messages.js",
+      "summary": "Language: JavaScript | Path: static/js/messages.js | ~356 lines ## Functions - appendMessage(sender, content, type = 'public')",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 10,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "file",
+      "name": "static/js/crypto.js",
+      "filePath": "static/js/crypto.js",
+      "summary": "Language: JavaScript | Path: static/js/crypto.js | ~167 lines ## Functions - base64Decode(base64String)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 14,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "file",
+      "name": "static/js/ui.js",
+      "filePath": "static/js/ui.js",
+      "summary": "Language: JavaScript | Path: static/js/ui.js | ~222 lines ## Functions - copyToClipboard(text)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 11,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-4db228725a72",
+      "type": "file",
+      "name": "static/js/padding.js",
+      "filePath": "static/js/padding.js",
+      "summary": "Language: JavaScript | Path: static/js/padding.js | ~67 lines ## Functions - padMessage(messageBytes)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "file",
+      "name": "static/js/ttl.js",
+      "filePath": "static/js/ttl.js",
+      "summary": "Language: JavaScript | Path: static/js/ttl.js | ~108 lines ## Functions - getDefaultTTL(messageType)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 6,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "file",
+      "name": "static/js/bot-identities.js",
+      "filePath": "static/js/bot-identities.js",
+      "summary": "Language: JavaScript | Path: static/js/bot-identities.js | ~40 lines",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "file",
+      "name": "static/js/bots.js",
+      "filePath": "static/js/bots.js",
+      "summary": "Language: JavaScript | Path: static/js/bots.js | ~224 lines ## Functions - getNextMessage(botKey, channel)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 6,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "file",
+      "name": "static/js/discovery.js",
+      "filePath": "static/js/discovery.js",
+      "summary": "Language: JavaScript | Path: static/js/discovery.js | ~231 lines ## Classes - KnownPeersCache",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 10,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "class",
+      "name": "KnownPeersCache",
+      "filePath": "static/js/discovery.js",
+      "summary": "class KnownPeersCache (static/js/discovery.js:17)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "concept",
+        "toolTier": ""
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "file",
+      "name": "static/js/pseudonyms.js",
+      "filePath": "static/js/pseudonyms.js",
+      "summary": "Language: JavaScript | Path: static/js/pseudonyms.js | ~78 lines ## Functions - generatePseudonym(privateKeyBase64, channelId)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 2,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "file",
+      "name": "static/js/network-panel.js",
+      "filePath": "static/js/network-panel.js",
+      "summary": "Language: JavaScript | Path: static/js/network-panel.js | ~200 lines ## Functions - addTrafficEntry(type, channel, content, from, direction = 'in')",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 5,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "file",
+      "name": "static/js/network.js",
+      "filePath": "static/js/network.js",
+      "summary": "Language: JavaScript | Path: static/js/network.js | ~487 lines ## Functions - broadcastMessage(frame)",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 28,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "file",
+      "name": "static/js/config.js",
+      "filePath": "static/js/config.js",
+      "summary": "Language: JavaScript | Path: static/js/config.js | ~359 lines ## Functions - addChannel(name, key = \"\", configuration, editingItem = getEditingItem())",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 18,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    },
+    {
+      "id": "code-mod-hermesp2p-fbb58109552d",
+      "type": "file",
+      "name": "static/js/client.js",
+      "filePath": "static/js/client.js",
+      "summary": "Language: JavaScript | Path: static/js/client.js | ~45 lines",
+      "tags": [
+        "code",
+        "javascript"
+      ],
+      "complexity": 1,
+      "languageNotes": {
+        "language": "JavaScript",
+        "kindexType": "artifact",
+        "toolTier": "C"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-a5ee95cbaae1",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-d49d28c5f110",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-ade6ad8f124d",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-4db228725a72",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-515b2568f3ad",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9ba400406e0b",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9a9485b6bbc3",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-9b318fb2a9a1",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "contains",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-sym-hermesp2p-f0e5594513b7",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-71e75b8aee23",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-cd7bed1e31c5",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-bafa6e4152b3",
+      "target": "code-mod-hermesp2p-fbb58109552d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-a5ee95cbaae1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-ade6ad8f124d",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-bafa6e4152b3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-d49d28c5f110",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-4db228725a72",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-515b2568f3ad",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-9ba400406e0b",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-9a9485b6bbc3",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-9b318fb2a9a1",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-sym-hermesp2p-f0e5594513b7",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-71e75b8aee23",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    },
+    {
+      "source": "code-mod-hermesp2p-fbb58109552d",
+      "target": "code-mod-hermesp2p-cd7bed1e31c5",
+      "type": "related",
+      "direction": "outbound",
+      "weight": 0.0108
+    }
+  ],
+  "layers": [
+    {
+      "id": "core",
+      "name": "Core",
+      "description": "Kindex-inferred core layer.",
+      "nodeIds": [
+        "code-mod-hermesp2p-4db228725a72",
+        "code-mod-hermesp2p-515b2568f3ad",
+        "code-mod-hermesp2p-71e75b8aee23",
+        "code-mod-hermesp2p-9a9485b6bbc3",
+        "code-mod-hermesp2p-9b318fb2a9a1",
+        "code-mod-hermesp2p-9ba400406e0b",
+        "code-mod-hermesp2p-a5ee95cbaae1",
+        "code-mod-hermesp2p-b10564ab7d2c",
+        "code-mod-hermesp2p-b7fdcbdc9ae5",
+        "code-mod-hermesp2p-bafa6e4152b3",
+        "code-mod-hermesp2p-cd7bed1e31c5",
+        "code-mod-hermesp2p-d49d28c5f110",
+        "code-mod-hermesp2p-fbb58109552d"
+      ]
+    },
+    {
+      "id": "domain",
+      "name": "Domain",
+      "description": "Kindex-inferred domain layer.",
+      "nodeIds": [
+        "code-sym-hermesp2p-f0e5594513b7"
+      ]
+    },
+    {
+      "id": "ui",
+      "name": "Ui",
+      "description": "Kindex-inferred ui layer.",
+      "nodeIds": [
+        "code-mod-hermesp2p-ade6ad8f124d"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Core",
+      "description": "Review 13 node(s) in the Core layer.",
+      "nodeIds": [
+        "code-mod-hermesp2p-4db228725a72",
+        "code-mod-hermesp2p-515b2568f3ad",
+        "code-mod-hermesp2p-71e75b8aee23",
+        "code-mod-hermesp2p-9a9485b6bbc3",
+        "code-mod-hermesp2p-9b318fb2a9a1",
+        "code-mod-hermesp2p-9ba400406e0b",
+        "code-mod-hermesp2p-a5ee95cbaae1",
+        "code-mod-hermesp2p-b10564ab7d2c",
+        "code-mod-hermesp2p-b7fdcbdc9ae5",
+        "code-mod-hermesp2p-bafa6e4152b3",
+        "code-mod-hermesp2p-cd7bed1e31c5",
+        "code-mod-hermesp2p-d49d28c5f110",
+        "code-mod-hermesp2p-fbb58109552d"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Domain",
+      "description": "Review 1 node(s) in the Domain layer.",
+      "nodeIds": [
+        "code-sym-hermesp2p-f0e5594513b7"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Ui",
+      "description": "Review 1 node(s) in the Ui layer.",
+      "nodeIds": [
+        "code-mod-hermesp2p-ade6ad8f124d"
+      ]
+    }
+  ]
+}
