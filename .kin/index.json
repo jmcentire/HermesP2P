@@ -1,0 +1,178 @@
+{
+  "domains": [
+    "code",
+    "javascript",
+    "python"
+  ],
+  "node_count": 15,
+  "nodes": [
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-4db228725a72",
+      "title": "static/js/padding.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-515b2568f3ad",
+      "title": "static/js/ttl.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-71e75b8aee23",
+      "title": "static/js/pseudonyms.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-9a9485b6bbc3",
+      "title": "static/js/bots.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-9b318fb2a9a1",
+      "title": "static/js/discovery.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-9ba400406e0b",
+      "title": "static/js/bot-identities.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-a5ee95cbaae1",
+      "title": "static/js/messages.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-ade6ad8f124d",
+      "title": "static/js/ui.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "python"
+      ],
+      "id": "code-mod-hermesp2p-b10564ab7d2c",
+      "title": "main.py",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-b7fdcbdc9ae5",
+      "title": "static/js/network-panel.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-bafa6e4152b3",
+      "title": "static/js/config.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-cd7bed1e31c5",
+      "title": "static/js/network.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-d49d28c5f110",
+      "title": "static/js/crypto.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-mod-hermesp2p-fbb58109552d",
+      "title": "static/js/client.js",
+      "type": "artifact",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    },
+    {
+      "domains": [
+        "code",
+        "javascript"
+      ],
+      "id": "code-sym-hermesp2p-f0e5594513b7",
+      "title": "KnownPeersCache",
+      "type": "concept",
+      "updated_at": "2026-05-30T14:56:18",
+      "weight": 0.5
+    }
+  ],
+  "repo": "hermesp2p",
+  "source_updated_at": "2026-05-30T14:56:18",
+  "version": 1
+}
