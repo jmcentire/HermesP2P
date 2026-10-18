@@ -1,0 +1,2681 @@
+{
+  "component_id": "privacy_sandbox",
+  "name": "HP2P dummy credits and subscription contracts",
+  "description": "Reference-only dummy accounting, monthly subscription cryptography and closed economic use-case adapters. Single-process state; no production payment or anonymous settlement guarantee.",
+  "version": 1,
+  "types": [],
+  "functions": [
+    {
+      "name": "issue",
+      "description": "Accept system-signed dummy issuance into one authority.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Wrong issuer or invalid signature",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Expired issuance or invalid amount",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_2",
+          "condition": "Conflicting operation identifier",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "clock_rollback",
+          "condition": "now precedes the last observed authority time, including after a rejected prior request",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "now is trusted authority time expressed as a nonnegative safe integer and is at least the last observed authority time."
+      ],
+      "postconditions": [
+        "Only the configured issuer may issue.",
+        "Issued and outstanding totals increase by the same positive safe integer.",
+        "An exact retry returns its prior receipt without minting again.",
+        "Request identity is currency/action/signer/id, so another signer or action may independently use the same local id. Conflicts within that namespace reject.",
+        "A rejected request does not change monetary state but may advance the monotonic observed-time guard."
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy-credit state and observed clock",
+          "description": "Observe nondecreasing trusted time before validation; mutate monetary records only after all monetary and signature checks pass."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "transfer",
+      "description": "Consume holder-owned unspent provenance and create conserved outputs.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Duplicate or spent input",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Wrong holder or currency kind",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_2",
+          "condition": "Inflation, unsafe integers or expired provenance",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_3",
+          "condition": "Conflicting operation identifier",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "clock_rollback",
+          "condition": "now precedes the last observed authority time, including after a rejected prior request",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "now is trusted authority time expressed as a nonnegative safe integer and is at least the last observed authority time."
+      ],
+      "postconditions": [
+        "Input total equals output total for one currency kind.",
+        "Outputs expire no later than the earliest consumed input.",
+        "47 issued units cannot create 50 units.",
+        "Rejection does not consume inputs or mutate totals.",
+        "Request identity is currency/action/signer/id, so another signer or action may independently use the same local id. Conflicts within that namespace reject.",
+        "A rejected request does not change monetary state but may advance the monotonic observed-time guard."
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy-credit state and observed clock",
+          "description": "Observe nondecreasing trusted time before validation; mutate monetary records only after all monetary and signature checks pass."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "redeem",
+      "description": "Consume unspent dummy provenance for a named sandbox service.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Spent input, expired input or wrong holder",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Forged signature or conflicting operation identifier",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "clock_rollback",
+          "condition": "now precedes the last observed authority time, including after a rejected prior request",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "now is trusted authority time expressed as a nonnegative safe integer and is at least the last observed authority time."
+      ],
+      "postconditions": [
+        "Outstanding decreases and redeemed increases by the same amount.",
+        "Same signed request is idempotent; a different request cannot spend those inputs.",
+        "Request identity is currency/action/signer/id, so another signer or action may independently use the same local id. Conflicts within that namespace reject.",
+        "A rejected request does not change monetary state but may advance the monotonic observed-time guard."
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy-credit state and observed clock",
+          "description": "Observe nondecreasing trusted time before validation; mutate monetary records only after all monetary and signature checks pass."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "reward",
+      "description": "Apply advertising-only signed offer and recipient claim.",
+      "inputs": [
+        {
+          "name": "offerEnvelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "claimEnvelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Ordinary credits used as advertising funding",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Wrong recipient, challenge or offer hash",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_2",
+          "condition": "Expired offer, replayed claim or unavailable inputs",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "clock_rollback",
+          "condition": "now precedes the last observed authority time, including after a rejected prior request",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "now is trusted authority time expressed as a nonnegative safe integer and is at least the last observed authority time."
+      ],
+      "postconditions": [
+        "Only advertising-designated inputs may fund a reward.",
+        "Recipient signature binds offerHash and challenge.",
+        "Evidence commitment is recorded as a request assertion, not verified attention.",
+        "Reward plus change equals consumed advertising inputs.",
+        "Replay cannot increase issued supply or reward twice.",
+        "Request identity is currency/action/signer/id, so another signer or action may independently use the same local id. Conflicts within that namespace reject.",
+        "A rejected request does not change monetary state but may advance the monotonic observed-time guard."
+      ],
+      "idempotent": true,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy-credit state and observed clock",
+          "description": "Observe nondecreasing trusted time before validation; mutate monetary records only after all monetary and signature checks pass."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "snapshot",
+      "description": "Read immutable accounting totals and unspent outputs.",
+      "inputs": [],
+      "output_type": "dict",
+      "error_cases": [],
+      "preconditions": [],
+      "postconditions": [
+        "For each kind issued equals outstanding plus redeemed, including expired but unspent outputs.",
+        "Public snapshot cannot mutate authority state."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "publisherMessage",
+      "description": "Sign a text message under the publisher subscription domain.",
+      "inputs": [
+        {
+          "name": "body",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "identity",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Malformed channel, month, identifier or oversized text",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Signature covers channel, epoch, identifier and text."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "readPublisherMessage",
+      "description": "Verify publisher, channel, epoch and signed text.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "scope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Wrong publisher, channel, epoch or signature",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Only the named publisher for the named channel and epoch is accepted."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "addEpoch",
+      "description": "Install a distinct 32-byte symmetric key for one UTC month.",
+      "inputs": [
+        {
+          "name": "epoch",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "encodedKey",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "None",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Repeated epoch or repeated key",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Invalid month or key length",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "An epoch cannot be overwritten.",
+        "A previously used key cannot be reused within this channel instance."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local symmetric channel keys",
+          "description": "Stores the epoch key and its reuse marker in this channel instance."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "seal",
+      "description": "Encrypt text with the current UTC monthly key and authenticated header.",
+      "inputs": [
+        {
+          "name": "text",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "messageId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Missing current key",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "reject_1",
+          "condition": "Oversized text or invalid identifier",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Channel, epoch and identifier are AEAD authenticated.",
+        "No other epoch is substituted when the current key is absent."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Reads the operating-system CSPRNG to generate a fresh 96-bit GCM nonce."
+      ],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "open",
+      "description": "Decrypt a symmetric envelope using the named monthly key.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Wrong channel, missing monthly key or authentication failure",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Modified ciphertext, tag or header is rejected.",
+        "All group key holders can author group messages; this is not publisher-only authentication."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "negotiationWindow",
+      "description": "Check the inclusive seven-day window around a UTC month boundary.",
+      "inputs": [
+        {
+          "name": "epoch",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "bool",
+      "error_cases": [
+        {
+          "name": "reject_0",
+          "condition": "Invalid UTC month or timestamp",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "True exactly when boundary minus seven days <= now <= boundary plus seven days.",
+        "No payment or key negotiation side effects occur."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "sealPublisherMessage",
+      "description": "Sign publisher text and complete subscription scope, then encrypt the signed envelope with the current monthly group key.",
+      "inputs": [
+        {
+          "name": "text",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "messageId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "publisherIdentity",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "invalid_scope_or_size",
+          "condition": "Invalid channel, month, message id, text or signed-envelope size",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "missing_current_key",
+          "condition": "The current UTC month has no configured key",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "The publisher signature covers channel, UTC month, message id and text.",
+        "The signed envelope is encrypted under the same current monthly epoch.",
+        "The 64 KiB symmetric plaintext limit includes signed JSON overhead."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [
+        "Reads the operating-system CSPRNG for a fresh 96-bit GCM nonce."
+      ],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "openPublisherMessage",
+      "description": "Decrypt a publisher subscription and verify the configured publisher plus inner and outer subscription scope.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "expectedPublisher",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "ciphertext_or_key",
+          "condition": "Missing monthly key, wrong channel or AEAD authentication failure",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "invalid_signed_payload",
+          "condition": "Decrypted value is not valid signed JSON or has the wrong publisher/signature",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "scope_mismatch",
+          "condition": "Inner and outer channel, epoch or message id differ",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [],
+      "postconditions": [
+        "Success requires both the monthly decryption key and the configured publisher signature.",
+        "Inner and outer channel, UTC month and message id must match.",
+        "A group key holder cannot impersonate another publisher or rewrap a signature into another subscription scope.",
+        "An unchanged authentic envelope may be opened repeatedly; this helper does not claim application replay resistance."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "receivePromise",
+      "description": "Collect a signed transfer proposal without treating it as funds.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Invalid transfer signature or object fields",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Adapter record capacity reached",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "A newly collected signed proposal has pending status and does not mutate monetary balances.",
+        "The stored signed proposal is copied so caller mutation cannot change the accepted pending object.",
+        "An exact repeat refers to the same promise identifier."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "settlePromise",
+      "description": "Ask the authority to accept the stored pending transfer.",
+      "inputs": [
+        {
+          "name": "promiseId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown promise",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Authority rejects provenance, value, signature, expiry or time",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state.",
+        "now is trusted nondecreasing adapter time; the adapter observes it before application prechecks, including rejected requests."
+      ],
+      "postconditions": [
+        "Only successful authority acceptance marks the promise settled and returns its receipt.",
+        "Unbacked or invalid proposals cannot create balances.",
+        "Exact accepted retries rely on the authority idempotency and monotonic-time contract.",
+        "A rejected application precheck may advance the adapter clock guard but does not alter monetary state, campaign paid totals or token capacity."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "redeemSuperlike",
+      "description": "Attempt an optional ordinary-credit creator-service redemption with ordinary-like fallback.",
+      "inputs": [
+        {
+          "name": "target",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "creator",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state.",
+        "now is trusted nondecreasing adapter time; the adapter observes it before application prechecks, including rejected requests."
+      ],
+      "postconditions": [
+        "Only a verified ordinary-credit redemption bound to target and creator produces settled superlike status.",
+        "Every failed request returns ordinary like with unverified funding, no entitlement and ranking weight one.",
+        "The sandbox records service redemption, not an actual credit payout or creator balance.",
+        "A rejected application precheck may advance the adapter clock guard but does not alter monetary state, campaign paid totals or token capacity."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "registerCampaign",
+      "description": "Record a signed campaign budget, action hash and expiry.",
+      "inputs": [
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Invalid campaign signature, fields or limits",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Conflicting campaign id",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_2",
+          "condition": "Adapter record capacity reached",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Campaign identity commits to its signed configuration.",
+        "Same advertiser/id cannot change configuration; an exact repeat is idempotent.",
+        "Registration declares a spending cap but does not reserve or create credits."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "collectAdvertisingProof",
+      "description": "Collect advertiser offer and recipient claim bound to one campaign action.",
+      "inputs": [
+        {
+          "name": "campaign",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "offerEnvelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "claimEnvelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown campaign",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Wrong owner, currency, action, recipient, challenge or signature",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_2",
+          "condition": "Adapter record capacity reached",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Offer owner must be the campaign advertiser.",
+        "Requirement digest binds campaign, action hash and recipient; recipient signature binds the exact offer and challenge.",
+        "Collection returns collected status without monetary redemption.",
+        "An evidence hash is a signed assertion, not proof of human attention."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "redeemAdvertisingProof",
+      "description": "Settle a collected proof within designated campaign credit and budget constraints.",
+      "inputs": [
+        {
+          "name": "proofId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown proof",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Expired campaign",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_2",
+          "condition": "Recipient already rewarded or budget exhausted",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_3",
+          "condition": "Authority rejects advertisement inputs or proof",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state.",
+        "now is trusted nondecreasing adapter time; the adapter observes it before application prechecks, including rejected requests."
+      ],
+      "postconditions": [
+        "Only successful authority advertising reward acceptance consumes budget and marks the proof settled.",
+        "Paid campaign amount cannot exceed its declared cap.",
+        "One recipient public key can receive the campaign action reward once.",
+        "Exact settled retries return the authority receipt without spending budget twice.",
+        "Budget does not guarantee escrow or availability of the signed offer inputs.",
+        "A rejected application precheck may advance the adapter clock guard but does not alter monetary state, campaign paid totals or token capacity."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "campaignStatus",
+      "description": "Read campaign paid and remaining budget.",
+      "inputs": [
+        {
+          "name": "campaign",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown campaign",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Budget equals paid plus remaining; the returned snapshot cannot mutate stored state."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "registerSubscription",
+      "description": "Configure a trusted local monthly product and dummy access token.",
+      "inputs": [
+        {
+          "name": "product",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Malformed product or non-dummy token",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Conflicting subscription configuration",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_2",
+          "condition": "Adapter record capacity reached",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Product binds id, epoch, creator, exact price, capacity and a dummy: token.",
+        "Conflicting reconfiguration rejects; an exact repeat is idempotent.",
+        "Configuration does not imply verified payment or token release."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "releaseSubscription",
+      "description": "Release a monthly dummy token only after exact settled ordinary-credit redemption.",
+      "inputs": [
+        {
+          "name": "productId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "epoch",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "envelope",
+          "type_ref": "dict",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "now",
+          "type_ref": "int",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown product or wrong payment purpose",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_1",
+          "condition": "Forged or pending payment, wrong owner, currency, amount, expired/spent inputs",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_2",
+          "condition": "Capacity exhausted or authority clock rollback",
+          "error_type": "Error",
+          "error_data": {}
+        },
+        {
+          "name": "rejection_3",
+          "condition": "Adapter record capacity reached",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state.",
+        "now is trusted nondecreasing adapter time; the adapter observes it before application prechecks, including rejected requests."
+      ],
+      "postconditions": [
+        "Signed redemption binds product, month and creator via service digest and payer via signing key.",
+        "Inputs must be settled, unspent ordinary credits owned by the signing payer and sum to the exact price.",
+        "Authority acceptance precedes token release and capacity consumption.",
+        "An exact completed retry returns the prior result without consuming capacity twice.",
+        "The dummy token is not a real monthly cryptographic key or authenticated delivery channel.",
+        "A rejected application precheck may advance the adapter clock guard but does not alter monetary state, campaign paid totals or token capacity."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [
+        {
+          "kind": "mutates_state",
+          "target": "local dummy use-case records and authority",
+          "description": "May store pending/proof/configuration state or request verified dummy settlement; no network, real funds or service delivery."
+        }
+      ],
+      "performance_budget": null
+    },
+    {
+      "name": "subscriptionStatus",
+      "description": "Read the configured monthly product capacity.",
+      "inputs": [
+        {
+          "name": "productId",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "epoch",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "dict",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Unknown subscription",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Issued plus remaining equals configured capacity."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "superlikeService",
+      "description": "Compute the service identifier binding a post target and creator key.",
+      "inputs": [
+        {
+          "name": "target",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "creator",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Malformed target or creator key",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Service digest binds both target and creator."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "subscriptionService",
+      "description": "Compute the service identifier binding product, epoch and creator.",
+      "inputs": [
+        {
+          "name": "product",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "epoch",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "creator",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [
+        {
+          "name": "rejection_0",
+          "condition": "Malformed product, month or creator key",
+          "error_type": "Error",
+          "error_data": {}
+        }
+      ],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "A different product, month or creator produces a distinct committed service scope."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    },
+    {
+      "name": "advertisingRequirement",
+      "description": "Commit campaign, action hash and recipient in the offer requirement.",
+      "inputs": [
+        {
+          "name": "campaign",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "actionHash",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        },
+        {
+          "name": "recipient",
+          "type_ref": "str",
+          "required": true,
+          "default": "",
+          "description": "",
+          "validators": []
+        }
+      ],
+      "output_type": "str",
+      "error_cases": [],
+      "preconditions": [
+        "The adapter and its authority are trusted local dummy-model instances; there is no remote caller authentication or durable state."
+      ],
+      "postconditions": [
+        "Digest binds all three provided values; collection compares it to the configured campaign and signed recipient."
+      ],
+      "idempotent": false,
+      "is_async": false,
+      "side_effects": [],
+      "structured_side_effects": [],
+      "performance_budget": null
+    }
+  ],
+  "dependencies": [],
+  "dependency_contracts": {},
+  "invariants": [
+    "Issuer signature authorizes dummy issuance; holder signature authorizes each transfer and redemption.",
+    "Unspent provenance is single-use within one authority process; duplicate requests with identical currency/action/signer/id namespace and fingerprint return the prior receipt when authority time has not moved backwards.",
+    "Conflicting operation ids within the same currency/action/signer namespace, spent inputs, forged signatures, cross-kind claims, unsafe integers, expired inputs, and supply inflation must reject before monetary mutation.",
+    "For each currency kind, issued equals outstanding plus redeemed; expiry does not erase the accounting record.",
+    "47 issued dummy units cannot produce 50 redeemable units. No exchange rate or dollar-to-unit conversion is implied.",
+    "Rewards require separately designated advertising inputs and an advertising offer and claim, bound by offerHash and challenge.",
+    "evidenceHash is a commitment supplied by the recipient, not proof of viewing, humanity, or attention. Bots and colluding recipients can produce signed claims.",
+    "State is necessary for single-use provenance and idempotency. Restart, independent replicas and offline acceptance do not provide monetary finality.",
+    "Every mutating entry point observes a nondecreasing trusted authority timestamp, including rejected requests. Clock rollback rejects; observing later time may update the clock guard while leaving monetary state unchanged.",
+    "Advertising claim replay identifiers are scoped to recipient signer plus claim id; unrelated recipients may use the same local id.",
+    "Publisher messages verify publisher identity, channel and UTC month under hp2p.sandbox.subscription.publisher.v1.",
+    "Symmetric channels authenticate channel, epoch and message id as AEAD associated data. Every member knowing the key can author a group message.",
+    "Keys must rotate monthly and cannot repeat in the same channel instance. Rotation does not revoke a recipient's saved historical keys.",
+    "Negotiation window is inclusive from seven days before through seven days after the month boundary. This helper neither takes payment nor distributes keys.",
+    "Composed publisher subscriptions sign channel, epoch, message id and text before monthly encryption; opening verifies the configured publisher and matching inner/outer scope. Group key possession alone cannot impersonate the publisher. Unchanged authentic messages remain replayable.",
+    "A pending signed proposal or IOU is not settled funds. A verified authority acceptance is required before counting monetary value or granting a paid entitlement.",
+    "An unfunded or failed optional superlike reduces to an ordinary like, without fabricating settled creator income or paid access. Self-controlled sender and creator keys cannot turn an unbacked promise into payout.",
+    "Advertising uses only separately designated credits in a closed campaign budget. Collected proofs bind campaign, action, recipient and amount; replay and concurrent claims cannot spend beyond accepted funding.",
+    "Subscription access requires verified settled funds scoped to recipient, channel and monthly epoch. Pending promises, forged receipt objects and transplanted settlement references must not unlock it.",
+    "Proof collection provides attributable confirmation of a defined action and recipient-directed value; it does not prove human attention, unique people or advertising effectiveness.",
+    "All settlement, budget and access records are local dummy-model state. No service or token is issued against live funds, and no financial integration is connected.",
+    "Pseudonymous signing keys and transaction provenance are linkable; this reference model is not an anonymous payment system.",
+    "No signatures-only solution to double spending, ordering, revocation or offline finality is claimed.",
+    "Transport state is bounded local cache/peer state; monetary accounting remains a separate stateful component.",
+    "No real funds, token issuance, wallet, financial account, settlement or production backend is connected."
+  ],
+  "requires": [],
+  "processing_register": "",
+  "data_access": {
+    "reads": [
+      "pseudonymous public keys",
+      "dummy credit provenance",
+      "local symmetric keys"
+    ],
+    "writes": [
+      "dummy accounting state",
+      "local symmetric key map"
+    ],
+    "rationale": "Reads signed requests and local keys to reject unauthorized dummy transfers and authenticate subscription messages; records single-use provenance locally.",
+    "side_effects": []
+  },
+  "authority": {
+    "domains": [
+      "dummy.credit.accounting",
+      "local.subscription.keys",
+      "dummy.campaign.budget",
+      "dummy.subscription.capacity",
+      "dummy.pending.promises"
+    ],
+    "rationale": "A single local authority records unspent provenance and operation receipts; no remote replica, real balance or global finality is represented."
+  },
+  "boundary_identifiers": [
+    {
+      "id": "credits.ordinary",
+      "kind": "enum",
+      "relation": "equal",
+      "description": "Exact ordinary identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "ordinary",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 4,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "ordinary",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 4,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "ordinary",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 10,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.advertising",
+      "kind": "enum",
+      "relation": "equal",
+      "description": "Exact advertising identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "advertising",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 5,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "advertising",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 4,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "advertising",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 21,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.offerHash",
+      "kind": "field",
+      "relation": "equal",
+      "description": "Exact offerHash identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "offerHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 26,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "offerHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 106,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "offerHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 109,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.challenge",
+      "kind": "field",
+      "relation": "equal",
+      "description": "Exact challenge identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "challenge",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 26,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "challenge",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 105,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "challenge",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 106,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.evidenceHash",
+      "kind": "field",
+      "relation": "equal",
+      "description": "Exact evidenceHash identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "evidenceHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 27,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "evidenceHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 106,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "evidenceHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 109,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.requirementsHash",
+      "kind": "field",
+      "relation": "equal",
+      "description": "Exact requirementsHash identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "requirementsHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 49,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "requirementsHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 105,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "requirementsHash",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 106,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credits.expiresAt",
+      "kind": "field",
+      "relation": "equal",
+      "description": "Exact expiresAt identifier across dummy credit requirements, implementation and adversarial tests.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "expiresAt",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 50,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "expiresAt",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 41,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "expiresAt",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 11,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subscription.publisher-domain",
+      "kind": "claim",
+      "relation": "equal",
+      "description": "Publisher signature domain must match the explicit subscription specification.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "hp2p.sandbox.subscription.publisher.v1",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 13,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "hp2p.sandbox.subscription.publisher.v1",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 5,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.FEE_BASIS_POINTS",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "FEE_BASIS_POINTS",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/credits.js",
+              "line": 5,
+              "sha256": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "FEE_BASIS_POINTS",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-credits.test.js",
+              "line": 4,
+              "sha256": "6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.negotiationWindow",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "negotiationWindow",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 12,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "negotiationWindow",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-subscriptions.test.js",
+              "line": 6,
+              "sha256": "0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.MonthlySymmetricChannel",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "MonthlySymmetricChannel",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 30,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "MonthlySymmetricChannel",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-subscriptions.test.js",
+              "line": 6,
+              "sha256": "0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.readPublisherMessage",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "readPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 21,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "readPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-subscriptions.test.js",
+              "line": 6,
+              "sha256": "0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.sealPublisherMessage",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "sealPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 61,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "sealPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-subscriptions.test.js",
+              "line": 50,
+              "sha256": "0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interface.openPublisherMessage",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact exported interface used by the executable sandbox tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "openPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/subscriptions.js",
+              "line": 65,
+              "sha256": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "openPublisherMessage",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-subscriptions.test.js",
+              "line": 51,
+              "sha256": "0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.CAMPAIGN_DOMAIN",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "CAMPAIGN_DOMAIN",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 7,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "CAMPAIGN_DOMAIN",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 6,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.receivePromise",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "receivePromise",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 27,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "receivePromise",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 42,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.settlePromise",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "settlePromise",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 37,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "settlePromise",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 44,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.redeemSuperlike",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "redeemSuperlike",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 45,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "redeemSuperlike",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 54,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.registerCampaign",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "registerCampaign",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 57,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "registerCampaign",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 26,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.collectAdvertisingProof",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "collectAdvertisingProof",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 68,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "collectAdvertisingProof",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 77,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.redeemAdvertisingProof",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "redeemAdvertisingProof",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 85,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "redeemAdvertisingProof",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 80,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.campaignStatus",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "campaignStatus",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 103,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "campaignStatus",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 83,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.registerSubscription",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "registerSubscription",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 107,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "registerSubscription",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 21,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.releaseSubscription",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "releaseSubscription",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 117,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "releaseSubscription",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 125,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.subscriptionStatus",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "subscriptionStatus",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 146,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "subscriptionStatus",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 126,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.superlikeService",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "superlikeService",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 12,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "superlikeService",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 6,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.subscriptionService",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "subscriptionService",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 13,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "subscriptionService",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 6,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "use-case.advertisingRequirement",
+      "kind": "name",
+      "relation": "equal",
+      "description": "Exact dummy economic adapter interface used by executable acceptance tests.",
+      "sides": [
+        {
+          "party": "privacy_sandbox",
+          "role": "defines",
+          "value": "advertisingRequirement",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 15,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "external:sandbox_tests",
+          "role": "consumes",
+          "value": "advertisingRequirement",
+          "records": [
+            {
+              "kind": "file",
+              "path": "tests/sandbox-use-cases.test.js",
+              "line": 6,
+              "sha256": "f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "advertising.campaign-domain",
+      "kind": "claim",
+      "relation": "equal",
+      "description": "Campaign signatures are domain-separated from currency issuance and reward claims.",
+      "sides": [
+        {
+          "party": "external:specification",
+          "role": "defines",
+          "value": "hp2p.sandbox.advertising.campaign.v1",
+          "records": [
+            {
+              "kind": "file",
+              "path": "contracts/privacy_sandbox/requirements.json",
+              "line": 14,
+              "sha256": "d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        },
+        {
+          "party": "privacy_sandbox",
+          "role": "consumes",
+          "value": "hp2p.sandbox.advertising.campaign.v1",
+          "records": [
+            {
+              "kind": "file",
+              "path": "sandbox/use-cases.js",
+              "line": 7,
+              "sha256": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c",
+              "command": "",
+              "observed_at": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

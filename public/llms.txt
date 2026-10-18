@@ -1,34 +1,31 @@
 # HermesP2P
 
-> Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.
+> Experimental browser text messaging, working toward ephemeral peer-to-peer communication.
 
-HermesP2P is a transient communication network with a cryptographically secure messaging overlay. Every node contributes to the network's resilience — no centralized servers store or relay your messages. The hp2p.net host is a thin WebSocket relay that bootstraps peers; message content never touches the server in readable form.
+The implementation uses known WebSocket hubs for signalling and relay delivery, and attempts bounded direct WebRTC links. Relay delivery stays active. No STUN/TURN service is configured; broad NAT traversal and anonymity are unproven.
 
-## Core properties
+## Available in the prototype
 
-- **Decentralized**: peer-to-peer mesh; the relay is a bootstrap convenience, not a trust anchor.
-- **Ephemeral**: messages are not persisted on any node.
-- **End-to-end encrypted**: Ed25519 signatures, X25519 key exchange, XSalsa20-Poly1305 (NaCl) authenticated encryption. DMs use ephemeral X25519 for forward secrecy. Channels use NaCl secretbox (symmetric key).
-- **User-sovereign config**: keys, channels, and friends live in a downloadable JSON config file the user controls.
+- Public text channels, symmetric-key private channels, encrypted direct messages, and experimental direct WebRTC data channels.
+- Browser-generated identities and downloadable JSON configuration containing private keys.
+- Temporary connection and duplicate-tracking state; no application message-history database.
+
+## Limits
+
+The hub can observe connection metadata and public messages. Direct peers may learn each other’s network addresses; relay copies remain active even when direct connections work. Pseudonyms and padding do not guarantee unlinkability. Recipients and infrastructure may retain data. The current DM scheme does not provide full forward secrecy against later compromise of the recipient's long-term key.
+
+## Planned or sandbox-only
+
+Resilient anonymous mesh routing, broad NAT traversal, explicit optional caching/rebroadcast, signed publisher-only subscriptions, monthly channel-key rotation, and images/video are future work. Hermes credits are dummy-credit sandbox research only; no live purchases, rewards, wallets, or settlement. Proposed ordinary fees are about 5%; advertising purchases would carry a 20% fee and a separate signature domain. The advertising goal is greater advertiser control and confirmation with direct rewards to audience participants; effectiveness remains unproven. Advertisers collect and verify backchannel proofs within funded offers. Viewing evidence does not prove human attention.
+
+Subscriptions and superlike donations would support creators. Pending promises are not paid entitlements: only verified settled funds may support payouts or subscription-key release. An unfunded or failed superlike becomes an ordinary like. Self-tipping creates no new redeemable value. Proof validation, replay protection, and settlement checks still require testing; fraud is not claimed to be eliminated.
 
 ## Links
 
 - [Homepage](https://hp2p.net/)
-- [Client](https://hp2p.net/client)
-- [Source](https://github.com/jmcentire/HermesP2P)
-- [Long-form summary](https://hp2p.net/llms-full.txt)
-- [Book: *Privacy* (McEntire)](https://a.co/d/05PSJFBK)
+- [Experimental text client](https://hp2p.net/client)
+- [Source and current status](https://github.com/jmcentire/HermesP2P)
+- [Detailed capability summary](https://hp2p.net/llms-full.txt)
+- [Book: Privacy](https://a.co/d/05PSJFBK)
 
-## Privacy stack
-
-HermesP2P is one layer in a broader architecture:
-
-- **Signet** — cryptographic vault, ZK proofs, Ed25519 root of trust. https://signet.tools
-- **Agent-Safe (SPL)** — authorization policy in the token. https://jmcentire.github.io/agent-safe/
-- **Tessera** — self-validating documents. https://jmcentire.github.io/tessera/
-- **BlindDB** — storage the operator cannot read. https://jmcentire.github.io/BlindDB/
-- **HermesP2P** — this project.
-
-## Contact
-
-contact@hp2p.net
+Public signing pseudonyms are stable per channel across sessions. Signed DMs are not deniable. The hub keeps recent frame hashes for up to 30 seconds, evicting earlier under load. Bounded replay-cache eviction can permit repeat display. A single hub has no Sybil resistance and may be disrupted.

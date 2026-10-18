@@ -31,8 +31,7 @@ export function generateChannelKey() {
 
 export function signMessage(message, privateKey) {
     if (!message || !privateKey) {
-        console.error('Message or private key is missing');
-        return '';
+        throw new Error('Message and signing key required');
     }
     const messageUint8 = new TextEncoder().encode(message);
     return base64Encode(sign.detached(messageUint8, base64Decode(privateKey)));
@@ -93,9 +92,12 @@ function inv25519(o, a) {
  * Formula: u = (1 + y) / (1 - y) mod p
  */
 function ed25519PubKeyToX25519(edPubKey) {
+    if (edPubKey.length !== 32) throw new Error('Invalid recipient key length');
     const edPk = new Uint8Array(edPubKey);
     edPk[31] &= 0x7f; // clear sign bit to get y coordinate
 
+    const coordinate = BigInt('0x' + Array.from(edPk).reverse().map(b => b.toString(16).padStart(2, '0')).join(''));
+    if (coordinate >= (1n << 255n) - 19n) throw new Error('Noncanonical recipient key');
     const y = ll.gf();
     ll.unpack25519(y, edPk);
 
@@ -112,6 +114,8 @@ function ed25519PubKeyToX25519(edPubKey) {
 
     const result = new Uint8Array(32);
     ll.pack25519(result, u);
+    const shared = window.nacl.scalarMult(new Uint8Array(32).fill(7), result);
+    if (shared.every(byte => byte === 0)) throw new Error('Weak recipient key');
     return result;
 }
 
@@ -180,4 +184,15 @@ export function decryptDirectMessage(encryptedBase64, nonceBase64, ephemeralPubK
     } catch {
         return null;
     }
+}
+
+/** Domain-separated per-channel signing key; visible public keys link only within that scope. */
+export async function deriveChannelSigner(privateKey, scope, kind) {
+    const seed = base64Decode(privateKey);
+    if (seed.length !== 64 || typeof scope !== 'string' || !scope || !['public', 'private'].includes(kind)) throw new Error('Invalid signing scope');
+    const material = await crypto.subtle.importKey('raw', seed.slice(0, 32), 'HKDF', false, ['deriveBits']);
+    const derived = await crypto.subtle.deriveBits({name:'HKDF', hash:'SHA-256', salt:new Uint8Array(0),
+        info:new TextEncoder().encode(JSON.stringify(['hp2p:channel-signer:v2',kind,scope]))}, material, 256);
+    const pair = sign.keyPair.fromSeed(new Uint8Array(derived));
+    return {pubKey:base64Encode(pair.publicKey),privKey:base64Encode(pair.secretKey)};
 }

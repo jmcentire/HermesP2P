@@ -1,7 +1,7 @@
 /**
  * Fixed-Size Message Padding Module
  *
- * Pads outgoing messages to canonical frame sizes to prevent traffic analysis.
+ * Pads outgoing messages to canonical frame sizes to reduce message-size leakage (not timing or network metadata).
  * Uses random fill bytes and a 2-byte big-endian length suffix.
  */
 

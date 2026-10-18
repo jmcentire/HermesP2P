@@ -25,10 +25,6 @@
         {
           "href": "wss://hp2p.net/ws",
           "title": "WebSocket relay (peer bootstrap)"
-        },
-        {
-          "href": "https://hp2p.net/validate-config",
-          "title": "Config schema validation (POST multipart/form-data)"
         }
       ]
     }

@@ -1,547 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HermesP2P - Safe. Secure. Sovereign.</title>
-  <meta name="description" content="Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.">
-  <meta property="og:title" content="HermesP2P - Safe. Secure. Sovereign.">
-  <meta property="og:description" content="Decentralized, ephemeral peer-to-peer messaging with cryptographic key sovereignty.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://jmcentire.github.io/HermesP2P/">
-  <style>
-    :root {
-      --navy: #000033;
-      --navy-light: #000055;
-      --white: #ffffff;
-      --gray: #f8f9fa;
-      --text: #333333;
-      --text-muted: #6c757d;
-      --border: #dee2e6;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--white);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    a { color: var(--navy); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-
-    /* Nav */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-      padding: 12px 0;
-    }
-    nav .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    nav .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    nav .logo img { height: 32px; }
-    nav .links { display: flex; gap: 24px; align-items: center; }
-    nav .links a { color: var(--text-muted); font-size: 0.9rem; }
-    nav .links a:hover { color: var(--navy); text-decoration: none; }
-    .btn {
-      display: inline-block;
-      padding: 10px 24px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: all 0.15s ease;
-    }
-    .btn-primary {
-      background: var(--navy);
-      color: var(--white) !important;
-    }
-    .btn-primary:hover {
-      background: var(--navy-light);
-      text-decoration: none;
-    }
-    .btn-outline {
-      border: 1px solid var(--border);
-      color: var(--navy) !important;
-    }
-    .btn-outline:hover {
-      border-color: var(--navy);
-      text-decoration: none;
-    }
-
-    /* Hero */
-    .hero {
-      padding: 140px 0 80px;
-      text-align: center;
-      background: var(--white);
-    }
-    .hero img {
-      width: 160px;
-      margin-bottom: 24px;
-    }
-    .hero h1 {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--navy);
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin-bottom: 12px;
-    }
-    .hero .tagline {
-      font-size: 1.4rem;
-      font-style: italic;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    .hero .subtitle {
-      font-size: 1.15rem;
-      color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 auto 36px;
-      line-height: 1.5;
-    }
-    .hero .cta-group {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* Principles */
-    .principles {
-      padding: 72px 0;
-      background: var(--gray);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-    .section-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .section-header h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 8px;
-    }
-    .section-header p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 560px;
-      margin: 0 auto;
-    }
-    .principle-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 28px;
-    }
-    .principle-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 28px;
-    }
-    .principle-card h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 8px;
-    }
-    .principle-card p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-
-    /* How it works */
-    .how-it-works {
-      padding: 72px 0;
-    }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 32px;
-      align-items: start;
-    }
-    .step {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-    .step-num {
-      flex-shrink: 0;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--navy);
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-    .step h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 4px;
-    }
-    .step p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    /* Architecture */
-    .architecture {
-      padding: 72px 0;
-      background: var(--gray);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-    .arch-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: center;
-    }
-    .architecture h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 16px;
-    }
-    .architecture p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      margin-bottom: 14px;
-    }
-    .architecture .highlight {
-      color: var(--text);
-      font-weight: 600;
-    }
-    .arch-diagram {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 28px;
-      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
-      font-size: 0.85rem;
-      line-height: 1.8;
-      color: var(--text-muted);
-    }
-    .arch-diagram .label { color: var(--navy); font-weight: 600; }
-    .arch-diagram .arrow { color: var(--navy); }
-
-    /* Quick start */
-    .quickstart {
-      padding: 72px 0;
-    }
-    .quickstart-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-    }
-    .quickstart h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 16px;
-    }
-    .quickstart p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      margin-bottom: 14px;
-    }
-    pre {
-      background: var(--navy);
-      color: #e6edf3;
-      border-radius: 8px;
-      padding: 20px;
-      overflow-x: auto;
-      font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
-      font-size: 0.85rem;
-      line-height: 1.7;
-    }
-    .code-comment { color: #6c757d; }
-    .code-cmd { color: #7ec8e3; }
-
-    /* Book */
-    .book {
-      padding: 72px 0;
-      background: var(--gray);
-      border-top: 1px solid var(--border);
-    }
-    .book-inner {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 48px;
-      text-align: center;
-    }
-    .book-inner h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 14px;
-    }
-    .book-inner p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 600px;
-      margin: 0 auto 24px;
-    }
-
-    /* Footer */
-    footer {
-      padding: 40px 0;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2rem; }
-      .hero .tagline { font-size: 1.1rem; }
-      .principle-grid { grid-template-columns: 1fr; }
-      .steps { grid-template-columns: 1fr; }
-      .arch-grid,
-      .quickstart-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-
-<nav>
-  <div class="container">
-    <a href="#" class="logo">
-      <img src="hermesp2p_logo.png" alt="HermesP2P" onerror="this.style.display='none'">
-      HermesP2P
-    </a>
-    <div class="links">
-      <a href="#principles">Principles</a>
-      <a href="#how-it-works">How It Works</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#quickstart">Quick Start</a>
-      <a href="https://hp2p.net" class="btn btn-outline">Live App</a>
-      <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-primary">GitHub</a>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HermesP2P — Ephemeral messaging, in progress</title>
+<meta name="description" content="Try the experimental HermesP2P text client. Explore experimental hub and direct-peer transport for ephemeral communication, with explicit privacy limits.">
+<meta property="og:title" content="HermesP2P — Ephemeral messaging, in progress">
+<meta property="og:description" content="Experimental text messaging and direct links today. Resilient mesh, subscriptions, and rich media ahead. Explore the implementation and its privacy limits.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="hermesp2p_logo.png">
+<style>
+:root { --navy:#000033; --ink:#24374b; --muted:#50647a; --wash:#edf3f9; --line:#c8d5e3; --accent:#076a68; --white:#fff; }
+* { box-sizing:border-box; } html { scroll-behavior:smooth; scroll-padding-top:24px; }
+body { margin:0; background:var(--white); color:var(--ink); font:17px/1.65 Avenir, 'Avenir Next', 'Segoe UI', sans-serif; }
+a { color:var(--navy); text-underline-offset:4px; } a:hover { color:var(--accent); }
+a:focus-visible, summary:focus-visible { outline:3px solid var(--accent); outline-offset:5px; }
+.wrap { width:min(1120px, calc(100% - 48px)); margin:auto; }
+header { display:flex; align-items:center; justify-content:space-between; padding:24px 0; gap:24px; }
+.brand { display:flex; align-items:center; gap:12px; font-weight:750; text-decoration:none; }
+.brand img { width:52px; height:52px; object-fit:contain; }
+nav { display:flex; flex-wrap:wrap; gap:24px; font-size:.9rem; } nav a { text-decoration:none; }
+.hero { display:grid; grid-template-columns:1.2fr 1fr; align-items:center; gap:60px; padding:76px 0 84px; }
+h1,h2,h3 { color:var(--navy); line-height:1.12; } h1 { font-size:clamp(2.8rem,6.1vw,5rem); letter-spacing:-.055em; font-weight:650; margin:0 0 28px; max-width:13ch; }
+h2 { font-size:clamp(1.85rem,3vw,2.7rem); letter-spacing:-.035em; margin:0 0 22px; } h3 { font-size:1.15rem; margin:0 0 10px; }
+p { margin:0 0 18px; max-width:68ch; } .lead { font-size:1.14rem; max-width:43ch; }
+.actions { display:flex; flex-wrap:wrap; align-items:center; gap:18px; margin:30px 0 16px; }
+.button { display:inline-block; padding:12px 22px; border-radius:4px; background:var(--navy); color:white; text-decoration:none; font-weight:650; } .button:hover { background:var(--accent); color:white; }
+.note { font-size:.88rem; color:var(--muted); } .status { display:inline-block; color:var(--accent); font-weight:650; margin:0 0 18px; }
+.network { margin:0; padding:32px 26px; background:var(--wash); border-radius:60px 8px 60px 8px; }
+.network img { width:140px; height:140px; object-fit:contain; display:block; margin:0 auto 28px; }
+.route { display:flex; align-items:center; gap:0; text-align:center; }
+.node { flex:1; padding:16px 6px; background:white; border:1px solid var(--line); border-radius:6px; font-size:.88rem; line-height:1.4; }
+.node.hub { background:var(--navy); color:white; } .wire { width:20px; height:2px; background:var(--muted); flex-shrink:0; }
+figcaption { color:var(--muted); font-size:.88rem; margin-top:22px; }
+.band { background:var(--wash); padding:58px 0; }
+.split { display:grid; grid-template-columns:1fr 1.5fr; gap:64px; }
+.hero > *, .split > * { min-width:0; }
+.facts { display:grid; grid-template-columns:1fr 1fr; gap:32px; } .facts p { margin:0; font-size:.95rem; }
+.section { padding:76px 0; } .section + .section { border-top:1px solid var(--line); }
+.status-table { width:100%; border-collapse:collapse; margin:30px 0 0; text-align:left; }
+th,td { padding:20px 18px 20px 0; border-bottom:1px solid var(--line); vertical-align:top; }
+th { font-weight:650; color:var(--navy); } td:first-child { width:22%; color:var(--navy); font-weight:650; } td:nth-child(2) { width:23%; } .phase { color:var(--accent); font-size:.9rem; }
+details { border-top:1px solid var(--line); padding:20px 0; } details:last-child { border-bottom:1px solid var(--line); } summary { cursor:pointer; color:var(--navy); font-weight:650; } details p { margin:18px 0 0; }
+pre { background:var(--wash); padding:22px; border-radius:5px; overflow-x:auto; font-size:.85rem; }
+footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; font-size:.88rem; } footer p { margin:0; } footer a { margin-right:18px; }
+.skip { position:absolute; left:16px; top:-100px; background:white; padding:12px; z-index:5; } .skip:focus { top:12px; }
+@media(max-width:760px) { .wrap { width:calc(100% - 36px); } header { align-items:flex-start; } nav { gap:12px; justify-content:flex-end; } nav a:first-child { display:none; } .hero { grid-template-columns:1fr; gap:36px; padding:36px 0 52px; } h1 { max-width:12ch; } .network { max-width:500px; width:100%; } .split { grid-template-columns:1fr; gap:24px; } .section { padding:48px 0; } .facts { gap:24px; } th,td { padding:16px 8px 16px 0; font-size:.88rem; } .status-table td:first-child { width:27%; } }
+@media(max-width:400px) { .brand { font-size:.9rem; gap:6px; } .brand img { width:34px; height:34px; } nav { font-size:.8rem; } .facts { grid-template-columns:1fr; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+</style></head><body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<header>
+  <a class="brand" href="#"><img src="hermesp2p_logo.png" alt="">HermesP2P</a>
+  <nav aria-label="Main navigation"><a href="#today">Today</a><a href="#roadmap">Roadmap</a><a href="https://github.com/jmcentire/HermesP2P">Source</a></nav>
+</header>
+</div>
+<main id="main">
+<div class="wrap">
+  <section class="hero" aria-labelledby="hero-title">
+    <div>
+      <p class="status">Experimental text messaging</p>
+      <h1 id="hero-title">Messages for<br>the moment.</h1>
+      <p class="lead">Building toward an ephemeral, peer-to-peer network. Start with the browser text client. Help shape a system that keeps less and puts keys in your hands.</p>
+      <div class="actions"><a class="button" href="https://hp2p.net/client">Open text client</a><a href="#today">Understand the prototype</a></div>
+      <p class="note">Research software. The hub relay stays active alongside experimental direct links. Anonymity is a design goal, not a guarantee.</p>
     </div>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="container">
-    <img src="hermesp2p_logo.png" alt="HermesP2P Logo" onerror="this.style.display='none'">
-    <h1>HermesP2P</h1>
-    <p class="tagline">Safe. Secure. Sovereign.</p>
-    <p class="subtitle">
-      Decentralized, ephemeral peer-to-peer messaging. No servers store your messages.
-      No accounts to breach. Your config is your identity &mdash; upload it and you're you.
-    </p>
-    <div class="cta-group">
-      <a href="https://hp2p.net" class="btn btn-primary">Try It Live</a>
-      <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-outline">View Source</a>
-      <a href="#how-it-works" class="btn btn-outline">Learn More</a>
+    <figure class="network">
+      <img src="hermesp2p_logo.png" alt="HermesP2P logo">
+      <div class="route" aria-label="Bootstrap and fallback transport: your browser connects through a WebSocket hub to another browser">
+        <div class="node">Your<br>browser</div><span class="wire" aria-hidden="true"></span><div class="node hub">WebSocket<br>hub</div><span class="wire" aria-hidden="true"></span><div class="node">Another<br>browser</div>
+      </div>
+      <figcaption>Bootstrap through a known hub.<br>Try direct WebRTC links where connectivity permits; the relay remains active.</figcaption>
+    </figure>
+  </section>
+</div>
+<section id="today" class="band" aria-labelledby="today-title">
+  <div class="wrap split">
+    <div><h2 id="today-title">What you can try today</h2><p>Public text channels, shared-key private channels, and encrypted direct messages in an experimental browser client.</p></div>
+    <div class="facts">
+      <div><h3>Bring your own keys</h3><p>The browser generates an identity. Save its configuration to keep your keys and contacts. Treat that unencrypted file as a secret.</p></div>
+      <div><h3>Choose the conversation</h3><p>Public channels are readable by others. Private channels use a shared key. Direct messages use the recipient’s public key.</p></div>
+      <div><h3>Keep less by default</h3><p>The relay has no message database. Connections, duplicate suppression, and the open client still need temporary state. Recent frame hashes expire after 30 seconds or earlier under load. Recipients can keep copies.</p></div>
+      <div><h3>Inspect the experiment</h3><p>The implementation and tests are open for review. Clients use hub signalling to try direct WebRTC links. The relay stays active. Wide-area connectivity and anonymity remain unproven. A single hub has no Sybil resistance and can be disrupted.</p></div>
     </div>
   </div>
 </section>
-
-<section class="principles" id="principles">
-  <div class="container">
-    <div class="section-header">
-      <h2>Three Principles</h2>
-      <p>Every design decision flows from these non-negotiable commitments.</p>
-    </div>
-    <div class="principle-grid">
-      <div class="principle-card">
-        <h3>Ephemeral by Design</h3>
-        <p>Messages are transient and never persisted. Once received, they exist only in memory. No server stores your history. No database to subpoena. No breach to disclose.</p>
-      </div>
-      <div class="principle-card">
-        <h3>Decentralized Network</h3>
-        <p>No central servers, no authority, no single point of failure. Every node contributes to the network's resilience. Peer discovery builds a diverse, adaptive connection graph.</p>
-      </div>
-      <div class="principle-card">
-        <h3>Key Sovereignty</h3>
-        <p>Your Ed25519 keypair is your identity. Private keys never leave your device. No passwords, no accounts, no third-party authentication. You control who you are.</p>
-      </div>
-    </div>
+<div class="wrap">
+<section class="section split" aria-labelledby="privacy-title">
+  <div><h2 id="privacy-title">Privacy starts with honest limits.</h2><p>Encryption protects content in some contexts. It does not make a connection invisible.</p></div>
+  <div>
+    <p>A hub or network observer can observe addresses, timing, message sizes, and traffic patterns. Direct peers may learn one another’s network addresses. Public messages are readable. Pseudonyms and padding do not, by themselves, prevent linking activity.</p>
+    <p>The current direct-message scheme does not provide a full forward-secrecy guarantee: compromise of a recipient’s long-term key can expose recorded messages. Signed direct messages are not deniable, and stable per-channel keys link posts over time. Browsers and the code they load are also part of the trust boundary.</p>
+    <p class="note">“Ephemeral” describes the intended retention model. It cannot prevent screenshots, recipient archives, compromised devices, or independent infrastructure logs.</p>
   </div>
 </section>
-
-<section class="how-it-works" id="how-it-works">
-  <div class="container">
-    <div class="section-header">
-      <h2>How It Works</h2>
-      <p>From bootstrap to encrypted messaging in four steps.</p>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div>
-          <h3>Bootstrap</h3>
-          <p>Visit a host node to connect to the network. Upload your config file or generate a fresh keypair with default channel subscriptions.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div>
-          <h3>Peer Discovery</h3>
-          <p>Your node discovers peers and builds a diverse connection graph. The network self-organizes for resilience &mdash; no coordinator needed.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div>
-          <h3>Channels &amp; Messages</h3>
-          <p>Join public channels, create private channels with AES-256 symmetric keys, or send direct messages encrypted with recipients' public keys.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div>
-          <h3>Message Propagation</h3>
-          <p>Messages propagate through the network with TTL hop counts. Fixed-size padding prevents traffic analysis. Messages are signed and verified at every hop.</p>
-        </div>
-      </div>
-    </div>
+<section id="roadmap" class="section" aria-labelledby="roadmap-title">
+  <h2 id="roadmap-title">The direction, with the status attached.</h2>
+  <p>A small transport core, explicit optional services, and tests for the promises that matter.</p>
+  <table class="status-table">
+    <caption class="note" style="text-align:left">Development scope; planned features are not available in the text client.</caption>
+    <thead><tr><th scope="col">Capability</th><th scope="col">Status</th><th scope="col">Direction</th></tr></thead>
+    <tbody>
+      <tr><td>Text messaging</td><td><span class="phase">Experimental client</span></td><td>Public channels, shared-key channels, and direct messages over hubs and experimental direct links.</td></tr>
+      <tr><td>Direct peer links</td><td><span class="phase">Experimental</span></td><td>Known hubs signal bounded WebRTC connections. No STUN/TURN service is configured, so many network setups need the active relay path. A resilient anonymous ad hoc mesh remains future work.</td></tr>
+      <tr><td>Optional rebroadcast</td><td><span class="phase">Planned</span></td><td>Explicit cloud caching and rebroadcast with a stated retention period. Persistence is an opt-in service with different privacy tradeoffs.</td></tr>
+      <tr><td>Subscriptions</td><td><span class="phase">Planned</span></td><td>Signed publisher-only broadcasts and symmetric-key channels, funded by verified settled payments. Monthly decryption keys; payment and key negotiation through a backchannel during the week before and after each month boundary.</td></tr>
+      <tr><td>Images and video</td><td><span class="phase">Future work</span></td><td>Rich media will need bandwidth, retention, and abuse controls. The current client is for text.</td></tr>
+      <tr><td>Hermes credits</td><td><span class="phase">Sandbox research</span></td><td>Dummy-credit accounting and adversarial validation. No live purchases, wallets, rewards, or blockchain settlement.</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="section split" aria-labelledby="credits-title">
+  <div><h2 id="credits-title">Explore the economics without real funds.</h2><p>The transport should forget. A monetary system must remember enough to reject duplicate spending.</p><p class="note">Proposed economics only. These are not purchase offers.</p></div>
+  <div>
+    <details><summary>Ordinary Hermes credits</summary><p>The proposed acquisition fee is about 5%, potentially adjusted by volume. Issuance is system-signed; transfers and IOUs are user-signed and refer to their provenance. A signature cannot create spendable value beyond what was issued.</p><p>The $100 / 47-token example is a design fixture, not a published exchange rate. The pricing and rounding rules remain to be specified. A claim to 50 tokens cannot redeem more than an issued 47.</p></details>
+    <details><summary>Advertising that rewards the audience</summary><p>The proposal gives advertisers more control over being seen and better confirmation of participation, while directing rewards to the person taking part. Advertising effectiveness remains to be demonstrated.</p><p>Advertising coin purchases carry a proposed 20% fee. Only separately signed, advertising-designated credits fund this rewards mechanism, which is closed only while the authority is reached through the advertiser-operated adapter. Advertisers collect and verify the required backchannel proofs against funded offers; accepted proofs support redemption within that funding limit. Ordinary credits cannot be relabeled.</p><p>Viewing evidence confirms only what the proof establishes, not human attention. Proof validation and duplicate-redemption controls still need tests against replay, fabricated evidence, bots, Sybil identities, and collusion.</p></details>
+    <details><summary>Subscriptions and superlikes reward creators</summary><p>Subscriptions and superlike donations are proposed ways to support creators. A pending promise is not paid revenue or a subscription entitlement. Only verified settled funds can support a payout or subscription-key release.</p><p>An unfunded or failed superlike degrades to an ordinary like. The creator does not receive an advance against it. Controlling both the sender and creator accounts creates no new value: only verified settled funds can be paid out.</p></details>
+    <details><summary>What validation must establish</summary><p>Separate signature domains and currency types; conservation of issued supply; duplicate-redemption rejection; expiry; and safe failure, retry, and idempotency behavior. Test that pending or failed payments never unlock keys or payouts, and that self-tipping cannot increase redeemable value.</p><p>The settlement boundary limits financial exposure from unfulfilled promises. It still needs explicit accounting and proof verification; signatures alone do not establish settled funds. Tests must also examine transaction linkability and the privacy cost of stronger evidence checks. The reference work uses dummy credits only.</p></details>
   </div>
 </section>
-
-<section class="architecture" id="architecture">
-  <div class="container">
-    <div class="arch-grid">
-      <div>
-        <h2>Stateless Authentication</h2>
-        <p>
-          There are no accounts. No passwords. No sessions stored on a server.
-        </p>
-        <p>
-          <span class="highlight">Your configuration file IS your identity.</span>
-          It contains your Ed25519 keypair, your channel subscriptions, your friends' public keys,
-          and your peer list. Upload it to any node and you're authenticated.
-        </p>
-        <p>
-          Download it when you leave. The node forgets you existed.
-          This is authentication without state &mdash; more secure than any password database.
-        </p>
-      </div>
-      <div class="arch-diagram">
-        <div><span class="label">Config File</span></div>
-        <div>&nbsp; <span class="arrow">|</span></div>
-        <div>&nbsp; <span class="arrow">+--</span> <span class="label">keypair</span>: Ed25519 public/private</div>
-        <div>&nbsp; <span class="arrow">+--</span> <span class="label">channels</span>: subscribed topics</div>
-        <div>&nbsp; <span class="arrow">+--</span> <span class="label">friends</span>: public keys of contacts</div>
-        <div>&nbsp; <span class="arrow">+--</span> <span class="label">peers</span>: known network nodes</div>
-        <div>&nbsp;</div>
-        <div><span class="arrow">&gt;</span> Upload to any node = authenticated</div>
-        <div><span class="arrow">&gt;</span> Download when done = node forgets you</div>
-        <div><span class="arrow">&gt;</span> No server state. No breach surface.</div>
-      </div>
-    </div>
-  </div>
+<section class="section split" aria-labelledby="contribute-title">
+  <div><h2 id="contribute-title">Build it in the open.</h2><p>Run a local text relay, review the boundaries, or help turn the next protocol claim into a reproducible test.</p><div class="actions"><a class="button" href="https://github.com/jmcentire/HermesP2P">Explore the source</a><a href="https://a.co/d/05PSJFBK">Read <em>Privacy</em></a></div></div>
+  <div><h3>Run locally</h3><pre><code>git clone https://github.com/jmcentire/HermesP2P.git
+cd HermesP2P
+python3 -m venv .venv
+. .venv/bin/activate
+pip install flask flask-sock jsonschema
+python main.py</code></pre><p class="note">Open http://localhost:5000. See the README for testing and deployment boundaries.</p></div>
 </section>
-
-<section class="quickstart" id="quickstart">
-  <div class="container">
-    <div class="quickstart-grid">
-      <div>
-        <h2>Get Started</h2>
-        <p>
-          Try the live instance at <a href="https://hp2p.net">hp2p.net</a> or run your own node.
-        </p>
-        <p>
-          Self-hosting means you control the bootstrap point. Your node, your rules,
-          your contribution to network resilience.
-        </p>
-        <p style="margin-top: 24px;">
-          <a href="https://hp2p.net" class="btn btn-primary">Try Live</a>
-          <a href="https://github.com/jmcentire/HermesP2P" class="btn btn-outline" style="margin-left: 8px;">GitHub</a>
-        </p>
-      </div>
-      <div>
-        <pre><code><span class="code-comment"># Clone and run your own node</span>
-<span class="code-cmd">git clone</span> https://github.com/jmcentire/HermesP2P.git
-<span class="code-cmd">cd</span> HermesP2P
-<span class="code-cmd">npm install</span>
-<span class="code-cmd">npm run</span> start
-
-<span class="code-comment"># Or use the live instance</span>
-<span class="code-comment"># https://hp2p.net</span></code></pre>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="book">
-  <div class="container">
-    <div class="book-inner">
-      <h2>Built on the ideas in <em>Privacy</em></h2>
-      <p>
-        HermesP2P is the practical implementation of the concepts in
-        <strong>Privacy</strong> &mdash; covering ephemeral communication,
-        key sovereignty, and decentralized trust.
-      </p>
-      <a href="https://a.co/d/05PSJFBK" class="btn btn-outline">Read the Book</a>
-    </div>
-  </div>
-</section>
-
-<section style="padding:48px 0;border-top:1px solid var(--border);">
-  <div class="container">
-    <div class="section-header">
-      <h2>Privacy Stack</h2>
-      <p>HermesP2P is one layer of a larger privacy architecture.</p>
-    </div>
-    <div class="principle-grid">
-      <div class="principle-card">
-        <h3><a href="https://signet.tools">Signet</a></h3>
-        <p>Cryptographic vault. Three-tier data model, ZK proofs, Ed25519 root of trust. Your agent proves things about you without revealing you.</p>
-      </div>
-      <div class="principle-card">
-        <h3><a href="https://jmcentire.github.io/agent-safe/">Agent-Safe (SPL)</a></h3>
-        <p>Authorization policy embedded in the token, evaluated locally in microseconds. No policy server in the critical path.</p>
-      </div>
-      <div class="principle-card">
-        <h3><a href="https://jmcentire.github.io/tessera/">Tessera</a></h3>
-        <p>Self-validating executable documents. Hash chain, Ed25519 signatures, embedded validators. The document proves itself.</p>
-      </div>
-    </div>
-    <div class="principle-grid" style="margin-top:28px;">
-      <div class="principle-card">
-        <h3><a href="https://jmcentire.github.io/BlindDB/">BlindDB</a></h3>
-        <p>Storage where the operator cannot read what they store. Client-side encryption, opaque record IDs.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <p>HermesP2P License &middot; <a href="https://hp2p.net">hp2p.net</a> &middot; <a href="https://github.com/jmcentire/HermesP2P">GitHub</a> &middot; Built by <a href="https://github.com/jmcentire">Jeremy McEntire</a></p>
-  </div>
-</footer>
-
-</body>
-</html>
+</div>
+</main>
+<div class="wrap">
+<footer><p>HermesP2P · An experiment in communicating with less retention.</p><div><a href="https://github.com/jmcentire/HermesP2P">GitHub</a><a href="mailto:contact@hp2p.net">Contact</a></div></footer>
+</div>
+</body></html>

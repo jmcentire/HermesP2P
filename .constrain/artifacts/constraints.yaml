@@ -1,0 +1,34 @@
+constraints:
+  - id: sandbox-only
+    severity: must
+    text: No live funds, network settlement, wallets, financial accounts, token sales, or production financial backend.
+  - id: conserve-supply
+    severity: must
+    text: Issued dummy units equal outstanding plus redeemed separately for ordinary and advertising credits.
+  - id: single-authority-state
+    severity: must
+    text: Keep unspent provenance and accepted operation fingerprints in one authority; reject duplicate spends and conflicting retries within the currency/action/signer/id namespace before monetary mutation.
+  - id: honest-privacy
+    severity: must
+    text: Declare pseudonym linkage, replica double-spend risk and the inability of signed video evidence to prove human attention.
+  - id: monthly-keys
+    severity: must
+    text: Rotate symmetric monthly keys; bind publisher messages to publisher, channel and epoch; use an inclusive seven-day negotiation window on each side of the month boundary.
+  - id: composed-publisher-encryption
+    severity: must
+    text: Sign publisher text and its channel, epoch and message id before monthly encryption; verify the configured publisher and matching inner/outer scope after decryption. Group keys do not grant publisher authority.
+  - id: monotonic-authority-time
+    severity: must
+    text: Reject backwards trusted authority time even after a rejected request; later observations may advance the clock guard without changing monetary state.
+  - id: pending-is-not-settled
+    severity: must
+    text: A signed proposal or IOU is pending until the dummy settlement authority accepts it; caller-supplied claims must not create settled balances or paid entitlements.
+  - id: superlike-fallback
+    severity: must
+    text: An optional superlike without verified settled funds reduces to an ordinary like and conveys no settled donation or paid entitlement.
+  - id: closed-ad-campaign
+    severity: must
+    text: Advertising rewards are restricted to separately designated campaign credits, with proofs bound to campaign, action, recipient and budget; exact retries must not spend twice.
+  - id: subscription-settlement-gate
+    severity: must
+    text: Release monthly subscription access only for verified settled funds tied to the recipient, channel and epoch; pending promises and fabricated receipt objects must not unlock access.

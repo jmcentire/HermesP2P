@@ -47,16 +47,9 @@ export function initializeUI(configuration) {
 
     setupEventListeners(configuration);
 
-    // Add event listener for message logging
-    window.addEventListener("messageBroadcast", (event) => {
-        console.log("Message Broadcast Event:");
-        console.log(JSON.stringify(event.detail, null, 2));
-    });
+    // sessionStorage survives reload/import within the tab and is cleared by Save & Exit.
+    // Browser tab closure ends the storage session; never erase unrelated origin storage.
 
-    // Clear session storage when window is closed or refreshed
-    window.addEventListener("beforeunload", () => {
-        sessionStorage.clear();
-    });
 }
 
 // Setup all event listeners

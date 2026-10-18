@@ -1,117 +1,120 @@
 # HermesP2P
 
-Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.
+An experimental text-messaging client working toward ephemeral, anonymous peer-to-peer communication.
 
-HermesP2P is a transient communication network with a cryptographically secure messaging overlay. Every node contributes to the network's resilience — no centralized servers store or relay your messages.
+The browser connects to known WebSocket hubs for signalling and relay delivery, and attempts bounded direct WebRTC data channels. The relay remains active even when direct links work. This is an **experimental partial mesh**, with no configured STUN/TURN service and no demonstrated wide-area interoperability. Privacy and anonymity are design goals, not guarantees of the prototype.
 
-**Website:** [hp2p.net](https://hp2p.net)
+[Website](https://hp2p.net) · [Text client](https://hp2p.net/client) · [*Privacy*](https://a.co/d/05PSJFBK)
 
-**Book:** [*Privacy*](https://a.co/d/05PSJFBK) — the theoretical foundation behind HermesP2P's design decisions around ephemeral communication, key sovereignty, and decentralized trust.
+## What is implemented
 
-## Key Features
+- Browser-generated Ed25519 identities, downloadable JSON configuration, channels, contacts, and aliases.
+- Public text channels, symmetric-key private channels using NaCl secretbox (XSalsa20-Poly1305), and direct messages using NaCl box with X25519.
+- WebSocket connections to hubs, hub-signalled WebRTC data channels where browser/network conditions permit, message padding, forwarding controls, and temporary duplicate tracking.
+- A Flask relay with an in-memory connection set. There is no application message-history database.
 
-- **Decentralized Network**: Peer-to-peer architecture where every node contributes to the network's resilience and scalability.
-- **Transient Messaging**: Messages are ephemeral and not stored on any centralized system, ensuring privacy and reducing overhead.
-- **Cryptographic Security**: Ed25519 signatures, X25519 key exchange with XSalsa20-Poly1305 authenticated encryption (NaCl/TweetNaCl), and per-channel HKDF pseudonyms.
-- **Public and Private Channels**: Open public channels plus symmetric-key encrypted private channels (NaCl secretbox).
-- **End-to-End Encrypted DMs**: Direct messages use ephemeral X25519 keypairs for perfect forward secrecy.
-- **Self-Managed Configuration**: Users control their channels, friends, and key management via a downloadable JSON configuration file.
-- **Live Network Panel**: Real-time feed of mesh traffic with direction indicators and sender aliasing.
-- **Dynamic Peer Management**: The network adapts to maximize peer diversity and minimize redundancy for optimal performance.
+Protocol v2 rejects old envelopes: clients must be upgraded together. Public pseudonyms are per-channel signing keys; they authenticate key control, not a person. Private and direct envelopes hide local names and bind their random outer proof key inside authenticated ciphertext. Browser per-conversation replay tracking is limited to this tab lifetime and bounded capacity; under pressure, eviction permits old messages to recur. Public channel keys are stable across sessions, so posts within a channel remain linkable.
 
-## How It Works
+A local data structure or test is not evidence of a deployed distributed protocol. In particular, mocked WebRTC negotiation tests do not prove connectivity across real NATs, and a signature alone does not establish an anonymous, replay-resistant identity protocol.
 
-1. **Join the Network**:
-   - Visit a host node to bootstrap your connection.
-   - Load or generate your configuration file containing your keys, subscribed channels, and friends' public keys.
+## Privacy and security boundaries
 
-2. **Peer Discovery**:
-   - Connect with other nodes in the network and share peer information to build a diverse and resilient connection graph.
+**The hub is part of the current data path.** Losing it interrupts clients that rely on it. It can observe client addresses, connection times, traffic sizes, and message envelopes. Public-channel content is readable. Direct peers may learn each other’s network addresses. Relay copies continue even when direct data channels are open. Padding and pseudonyms do not eliminate traffic correlation or linkability.
 
-3. **Message Propagation**:
-   - Messages are broadcasted through the network with a Time-to-Live (TTL) hop count to control redundancy and ensure efficient delivery.
+**Ephemeral does not mean zero state.** Connections, peer candidates, duplicate suppression, browser message history, and configuration require state. The browser stores configuration in `sessionStorage`; the exported JSON contains unencrypted private keys. Recipients, browsers, infrastructure, or compromised devices may retain data independently of the relay. A future cache must disclose retention and be an explicit optional service.
 
-4. **Cryptographic Security**:
-   - Messages are signed with Ed25519 and encrypted with NaCl (X25519 + XSalsa20-Poly1305).
-   - Channel messages use symmetric secretbox encryption; DMs use ephemeral public-key box encryption.
-   - Only authorized recipients can read private messages.
+**The current DM scheme does not provide full forward secrecy.** A fresh sender key per message does not protect recorded messages from later compromise of the recipient's long-term decryption key. Key verification, device compromise, revocation, metadata leakage, and browser code delivery remain relevant threats.
 
-5. **Ephemeral Design**:
-   - Messages are transient and not persisted by nodes, ensuring privacy and reducing attack surfaces.
+Direct messages are signed and are not deniable: a recipient can disclose the signed plaintext to others. The hub retains recent frame hashes for up to 30 seconds, with earlier eviction under load. A single hub has no Sybil resistance; connection turnover and spam can deny service even with bounded buffers.
 
-## Getting Started
+This is research software. It is not a reviewed anonymity system or a production financial service.
 
-### Prerequisites
-- Python 3.11+
-- A modern browser (Chrome, Firefox, Safari, Edge)
+## Run the text client locally
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/jmcentire/HermesP2P.git
-   cd HermesP2P
-   ```
-2. Install dependencies:
-   ```bash
-   pip install flask flask-sock jsonschema
-   ```
+Requires Python 3.11+ and a modern browser.
 
-3. Start the server:
-   ```bash
-   python main.py
-   ```
+```bash
+git clone https://github.com/jmcentire/HermesP2P.git
+cd HermesP2P
+python3 -m venv .venv
+. .venv/bin/activate
+pip install flask flask-sock jsonschema
+python main.py
+```
 
-4. Visit `http://localhost:5000` in your browser.
+Open `http://localhost:5000`, then select **Open text client**. The client creates an identity if the tab has no saved configuration. Use **Save & Exit** to download configuration for safekeeping; protect the file as you would a private key. Public channels are public, even when accessed over HTTPS.
 
-### Deployment
-HermesP2P is deployed on [fly.io](https://fly.io) at [hp2p.net](https://hp2p.net). The included `Dockerfile` and `fly.toml` handle production deployment. The relay requires a single machine instance since peer state is held in memory.
+Use **Import identity locally** in the client to restore a saved file; validation happens in the browser. Imported files cannot silently select new bootstrap destinations. Save & Exit clears this tab's stored configuration after downloading it. Do not send private identity files to a remote validation service.
 
-### Usage
-- **Join**: Upload an existing configuration file or generate a fresh identity automatically.
-- **Send Messages**: Select a channel or friend from the sidebar and type your message.
-- **Network Panel**: Open the NETWORK panel at the bottom to see real mesh traffic with direction indicators. Click the pencil icon next to a sender name to set a preferred alias.
-- **Manage Configuration**: Add/edit/remove channels and friends. Copy your public key from the profile section to share with others.
-- **Save & Exit**: Download your configuration file to preserve your identity, channels, friends, and aliases for next time.
+## Development and validation
 
-## Project Goals
+```bash
+npm ci
+npm test
+python -m pip install pytest
+python -m pytest tests/test_relay.py
+```
 
-HermesP2P aims to:
-- Provide a secure, decentralized messaging platform free from centralized control.
-- Enable users to take full ownership of their communication data and privacy.
-- Create a scalable and efficient P2P network with minimal entry barriers.
+Use the executable test suites to check implementation behavior. The existing JSON contract suites and design documents also describe intended behavior; they are not, by themselves, passing execution evidence. Check actual test output and the review report for coverage and known gaps.
 
-## Roadmap
+See [validation evidence and limits](docs/validation.md), [protocol contracts](docs/protocol-contracts.md), and [Constrain/PACT rerun instructions](contracts/privacy_sandbox/README.md).
 
-- **Phase 1**: Implement basic public/private messaging and peer-to-peer networking.
-- **Phase 2**: Enhance the cryptographic layer and introduce spam prevention mechanisms.
-- **Phase 3**: Add features like message receipts, advanced peer diversity algorithms, and integration with decentralized storage.
+Relevant boundaries:
+
+| Files | Responsibility |
+| --- | --- |
+| `main.py` | HTTP pages and WebSocket hub relay |
+| `static/js/network.js`, `discovery.js`, `mesh.js` | Hub connections, discovery scaffolding, and experimental direct WebRTC transport |
+| `static/js/messages.js`, `crypto.js` | Message handling and cryptographic operations |
+| `static/js/config.js` | Browser identity, contacts, channels, and configuration export |
+| `templates/index.html`, `docs/index.html` | Hosted and static public website |
+| `public/llms*.txt` | Public machine-readable capability summaries |
+| `contracts/`, `tests/` | Protocol contracts and validation artifacts |
+
+## Protocol direction
+
+The intended transport is a lightweight, unstructured ad hoc mesh. The prototype joins through a known hub and attempts direct peer links; resilient cross-hub discovery and broad NAT traversal remain future work. Retain bounded local peer and recent-message state rather than a global routing directory. Novelty, trust weighting, probabilistic forwarding, and peer churn need adversarial evaluation; they are not established security properties.
+
+Optional cloud caching and rebroadcast must be separate from the default ephemeral transport, with explicit retention and failure behavior. Rich images and video are future work, not current client capabilities.
+
+### Subscription channels — planned
+
+Support both signed publisher-only broadcasts and shared symmetric-key channels. The proposed subscription protocol rotates decryption keys monthly, with payment and key negotiation through a backchannel during the week before and the week after the month boundary. Only verified settled subscription payments may release the relevant key or paid entitlement; a signed payment promise is insufficient. Define the exact time boundary, key versions, publisher authority, renewal/revocation rules, and late/offline behavior in testable contracts before deployment. Rotation cannot make a previously disclosed key or plaintext disappear.
+
+### Hermes credits — dummy sandbox only
+
+The proposed ordinary acquisition fee is about 5%, optionally adjusted by volume. The $100 → 47-token example is a design fixture, not a quoted exchange rate: exchange units, fee arithmetic, and rounding still need an explicit pricing rule.
+
+System-signed issuance establishes provenance; user-signed transfers or IOUs refer to it. Invalid claims must be rejected. If only 47 tokens were issued, a claim to send 50 cannot redeem more than 47. That ceiling alone does not determine which competing recipient has a valid claim.
+
+A stateless transport cannot substitute for monetary accounting. The proposed settlement boundary is explicit: pending promises are not paid balances, creator revenue, or subscription entitlements. Only verified settled funds may support payouts or subscription-key release. Accounting must reject duplicate redemption and distinguish signatures from settlement. Provenance can expose transaction relationships, so linkability remains a separate privacy concern. Service redemption and eventual economical blockchain settlement remain design choices.
+
+No real funds, wallet operations, live issuance, financial accounts, or settlement are enabled by this work. Charging a fee and relinquishing control does not establish immunity from legal or compliance obligations.
+
+### Advertising rewards — planned
+
+The goal is to give advertisers more control over being seen and better confirmation of audience participation, while paying the participating person rather than directing all value to the platform. Advertising effectiveness remains unproven.
+
+The proposed purchase fee is 20%. Only credits separately issued and signed for the advertising domain may fund this rewards mechanism, which is closed only while the authority is reached through the advertiser-operated adapter. Ordinary credits cannot be converted merely by relabeling a payload. Advertisers collect and verify the required backchannel proofs against funded offers; accepted proofs support redemption within those funding limits.
+
+A video-view receipt establishes only what its proof verifies, **not human attention**. Proof forgery, replay, duplicate redemption, bots, Sybil identities, and collusion still need adversarial tests. Stronger identity or device checks can reduce privacy. The bounded, funded mechanism limits financial exposure; it does not demonstrate that fraud or abuse has been eliminated.
+
+### Creator support — subscriptions and superlike donations, planned
+
+Subscriptions and superlikes reward creators, like subscriptions and donations on other channels. A superlike is an optional contribution, not a payment the creator is entitled to expect in advance. A pending promise is not paid revenue: an unfunded or failed superlike degrades to an ordinary like. No advance or payout is made against it.
+
+Only verified settled funds may be paid out or release a subscription key. Controlling both the sender and the creator account cannot generate new value through self-tipping; the same settled-value limit applies.
+
+The dummy reference and its tests should establish signature-domain and currency-type separation, supply conservation, proof-bound and duplicate redemption controls, expiry, safe failure/retry/idempotency, and transaction-linkability limits. Test that pending or failed payments never cause key release or payout, and that self-tipping cannot increase redeemable value. These are sandbox validation targets, not claims that live payments, audience rewards, subscriptions, or donations are available in the browser client.
+
+## Website and deployment
+
+`templates/index.html` is served by Flask. `docs/index.html` is the static website version and links to the hosted client. Both preserve the existing logo assets and distinguish current behavior from future capabilities.
+
+`Dockerfile` and `fly.toml` describe the existing host configuration. The relay's peer set is process-local: independent replicas do not automatically exchange messages. Inspect the target and deployment configuration before publishing. A website update does not authorize deploying a live monetary backend.
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and development process.
+Open an issue or pull request with a reproducible scenario, the intended property, and tests for failure behavior. Keep private research histories, identity files, credentials, and real transaction data out of the repository.
 
-## License
-
-This project is licensed under the HermesP2P License. See [LICENSE](LICENSE) for details.
-
----
-
-### Why "HermesP2P"?
-
-Named after Hermes, the Greek god of communication and messages, HermesP2P embodies the principles of speed, security, and seamless connection in a decentralized network.
-
-## Privacy Stack
-
-HermesP2P is one layer of a larger privacy architecture. Each component addresses a different failure mode.
-
-| Component | What It Does | Link |
-|-----------|-------------|------|
-| **Signet** | Cryptographic vault. Three-tier data model, ZK proofs, Ed25519 root of trust. | [signet.tools](https://signet.tools) |
-| **Agent-Safe (SPL)** | Authorization policy in the token. Local eval in ~2 us. No policy server. | [jmcentire.github.io/agent-safe](https://jmcentire.github.io/agent-safe/) |
-| **Tessera** | Self-validating documents. Hash chain, Ed25519 signatures, embedded validators. | [jmcentire.github.io/tessera](https://jmcentire.github.io/tessera/) |
-| **BlindDB** | Storage the operator can't read. Client-side encryption, opaque record IDs. | [jmcentire.github.io/BlindDB](https://jmcentire.github.io/BlindDB/) |
-| **HermesP2P** | Ephemeral P2P messaging. No servers, no metadata, no persistence. | *(this project)* |
-
----
-
-For any questions or feedback, please contact us at [contact@hp2p.net](mailto:contact@hp2p.net).
+See [LICENSE](LICENSE) for terms. Questions: [contact@hp2p.net](mailto:contact@hp2p.net).

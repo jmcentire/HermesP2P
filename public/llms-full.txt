@@ -1,83 +1,76 @@
-# HermesP2P — Full Summary for LLMs
+# HermesP2P — implementation and design status
 
-> Decentralized, ephemeral peer-to-peer messaging. No servers, no persistence, no compromise.
+HermesP2P is an experimental browser text client working toward ephemeral, anonymous peer-to-peer communication. Current behavior must be distinguished from intended protocol properties.
 
-## What it is
+## Current transport
 
-HermesP2P is a browser-based peer-to-peer messaging network. The website hp2p.net runs a thin Flask + WebSocket relay whose only job is to bootstrap peer discovery — it holds no user accounts, stores no messages, and cannot read ciphertext. Once peers are connected, messages traverse the mesh directly.
+The browser connects to known WebSocket hubs. A Flask host relays frames among connected clients, answers peer-exchange requests, and forwards bounded WebRTC signalling. Browsers attempt direct data channels; relay delivery stays active even when direct channels work. No STUN/TURN service is configured, so direct connectivity across NAT is not guaranteed. This is an experimental partial mesh, not a demonstrated wide-area anonymous network. Hub loss affects clients that depend on it and tears down the current hub-associated direct links.
 
-Every participant is both a client and a relay. The network's resilience scales with participation.
+Connections, peer candidates, duplicate suppression, and the browser's displayed messages require temporary state. The relay does not have an application message-history database. This does not guarantee that browsers, recipients, operators, or infrastructure retain nothing. Independent relay processes do not automatically share their connection sets.
 
-## Architecture
+## Current text client
 
-### Transport
+The client supports public channels, shared-key private channels, and encrypted direct messages. Its cryptographic building blocks include Ed25519, X25519, and NaCl XSalsa20-Poly1305. Public channels are readable by others. A cryptographic primitive is not a proof of the full protocol's security.
 
-- WebSocket relay at `/ws` on the bootstrap host. The relay forwards opaque frames between connected peers without inspecting them, except to answer `peer_exchange_request` messages with the current peer count. Peer IP addresses are never exposed in responses.
-- Peers hold ephemeral state only. The relay uses an in-memory peer table (`peers` dict) and a single Fly.io machine; horizontal scaling is not required because the relay is stateless beyond the connection set.
+The direct-message scheme uses an ephemeral sender key with a long-term recipient key. It does not provide full forward secrecy against later compromise of the recipient's long-term decryption key. Pseudonyms and message padding do not eliminate correlation or linkability.
 
-### Cryptography
+Identity and configuration are generated in the browser and stored in sessionStorage. Downloaded JSON configuration contains unencrypted private keys, channels, contacts, and aliases. Protect it as a secret. The homepage does not send configuration files to the host for validation. Browser code delivery, dependencies, device compromise, and key verification remain trust boundaries.
 
-- **Identity**: Ed25519 signing keypair. The public key is the user's identity across the network. Private keys never leave the browser.
-- **Key exchange**: X25519 for establishing per-DM shared secrets.
-- **Encryption**: XSalsa20-Poly1305 via NaCl (TweetNaCl in the browser).
-  - **Channels** (public and private) use symmetric `secretbox`. Public channels publish the key; private channels distribute it out-of-band.
-  - **DMs** use ephemeral X25519 keypairs per message for perfect forward secrecy.
-- **Pseudonyms**: per-channel HKDF-derived pseudonyms so the same user appears under different stable handles in different channels.
+## What can be observed
 
-### Configuration
+Hubs and network observers can observe addresses, connection timing, message sizes, and traffic patterns. Direct peers may learn each other’s network addresses. Hub signalling is a trust boundary, and relay copies are still sent when direct links work. Public message content is readable; envelopes may expose further metadata. Recipients can copy plaintext. Encryption does not establish anonymous communication, prevent screenshots, or prove the absence of logs.
 
-A user's identity — keys, subscribed channels, friend list, aliases — lives in a JSON file conforming to `hp2p-config-schema.json`. The file is generated in-browser and downloaded by the user. The `/validate-config` endpoint checks schema conformance but does not retain the file. Users are free to edit the file directly.
+## Planned transport and services
 
-### Message propagation
+- Extend the current known-hub bootstrap and direct-link experiment into a resilient unstructured ad hoc mesh with tested wide-area connectivity.
+- Keep bounded local peer and recent-message state; do not assume a global routing directory.
+- Evaluate novelty/trust weighting, probabilistic forwarding, and churn under hostile conditions.
+- Offer optional cloud caching and rebroadcast only with explicit retention semantics.
+- Add images and video in future work; the current browser client is for text.
 
-Messages carry a Time-to-Live (TTL) hop count. Each peer relays to its neighbors until TTL expires, ensuring reachability without unbounded flooding. Peer diversity heuristics favor connections that maximize graph coverage.
+## Planned subscriptions
 
-## Endpoints (host)
+Support signed publisher-only broadcasts and symmetric-key channels. Rotate subscription decryption keys monthly. Negotiate payment and keys via a backchannel during the week before and after each month boundary. Only verified settled funds may release subscription keys or paid entitlements; a pending payment promise is insufficient. Exact boundaries, key epochs, publisher authority, retry rules, revocation, and offline/late renewal require explicit contracts. Rotation cannot erase previously disclosed keys or plaintext.
 
-| Path | Method | Purpose |
-|------|--------|---------|
-| `/` | GET | Main client page (loads the in-browser peer) |
-| `/client` | GET | Alternate client view |
-| `/ws` | WS | Bootstrap relay — peer exchange + opaque frame forwarding |
-| `/validate-config` | POST | JSON schema validation for user config files (stateless) |
-| `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt` | GET | Agent discovery |
-| `/.well-known/*` | GET | Standard discovery endpoints (api-catalog, oauth-*, http-message-signatures-directory) |
+## Dummy-credit research, not a financial service
 
-## What the server can and cannot see
+Ordinary acquisition fees are proposed at about 5%, optionally volume-adjusted. The $100 / 47-token example is a fixture, not a quoted conversion rate; pricing units, fee arithmetic, and rounding remain to be specified.
 
-**Can see**: the fact that a connection exists, connection duration, total peer count, opaque frame byte counts.
+System-signed issuance and user-signed transfers/IOUs must reference provenance and reject invalid claims. A claim to send 50 cannot redeem beyond an issued balance of 47. This does not determine priority among competing claims.
 
-**Cannot see**: message plaintext, sender/receiver identity within a channel (beyond pseudonyms), channel membership, friend graphs, config file contents after validation.
+Stateless transport must remain separate from monetary accounting. Pending promises are not paid balances, creator revenue, or subscription entitlements. Only verified settled funds may support payouts or subscription-key release. Accounting must reject duplicate redemption and distinguish a signed promise from settlement. Provenance may expose transaction relationships. Service redemption and economical blockchain settlement remain future options.
 
-## Deployment
+No live funds, wallet transactions, token issuance, financial accounts, or settlement are part of this sandbox. A fee model does not establish legal or compliance immunity.
 
-- Python 3.11+, Flask 3.1, flask-sock for WebSockets, jsonschema for config validation.
-- Container: `python:3.11-slim`, single process.
-- Host: Fly.io (`ord` region), single machine (`min_machines_running = 1`, `max_machines_running = 1`) — required because peer state is in-process.
-- Port 8080 internal, HTTPS forced at the edge.
+## Proposed advertising rewards
 
-## Design choices
+The goal is to give advertisers greater control over being seen and better confirmation of participation, while directing rewards to the participating person. Advertising effectiveness remains unproven.
 
-- **No database**: persistence would create metadata that could be subpoenaed or breached. The entire point is that there is nothing to compromise.
-- **Single relay machine**: sharding peer state across machines would require a coordination layer, which would become an attack surface. The relay is intentionally a single failure point for the bootstrap function only — peers that have already discovered each other continue communicating if the relay goes offline.
-- **Client-managed config**: users own their identity. Losing the config file means losing the identity. This is a feature, not a bug — there is no "recover account" flow for an operator to coerce.
+Advertising coin purchases would carry a 20% fee. Only separately signed advertising-designated credits could fund this rewards mechanism, which is closed only while the authority is reached through the advertiser-operated adapter. Signature domains and currency types must prevent ordinary credits from being relabeled. Advertisers collect and verify the required backchannel proofs against funded offers; accepted proofs support redemption within those funding limits.
 
-## Privacy Stack context
+Viewing evidence establishes only what the proof verifies, not human attention. Proof forgery, replay, duplicate redemption, bots, Sybil identities, and collusion still require adversarial testing. Stronger identity checks can reduce privacy. A funded, bounded reward mechanism limits financial exposure; it does not establish that fraud has been eliminated.
 
-HermesP2P addresses the "messages in transit" failure mode in a broader privacy architecture:
+## Proposed creator support
 
-| Layer | Failure mode addressed | Project |
-|-------|------------------------|---------|
-| Vault | Key theft, operator coercion | [Signet](https://signet.tools) |
-| Authorization | Over-permissioned agents | [Agent-Safe (SPL)](https://jmcentire.github.io/agent-safe/) |
-| Documents | Tampering, unverifiable provenance | [Tessera](https://jmcentire.github.io/tessera/) |
-| Storage | Operator reads user data | [BlindDB](https://jmcentire.github.io/BlindDB/) |
-| Messaging | Persistent metadata, centralized relay | **HermesP2P** |
+Subscriptions and superlike donations reward creators. A pending superlike is not revenue the creator may spend or an advance they are entitled to receive. An unfunded or failed superlike degrades to an ordinary like. Only verified settled funds may support payouts or subscription-key release. Controlling the sender and creator accounts creates no new redeemable value through self-tipping.
 
-## License
+The dummy reference and tests should establish domain separation, supply conservation, proof-bound and duplicate-redemption controls, expiry, safe failure/retry/idempotency, and linkability limits. Pending or failed payments must never cause payout or key release; self-tipping must never increase redeemable value. These are sandbox validation targets, not live browser-client services or a claim that abuse has been eliminated.
 
-See [LICENSE](https://github.com/jmcentire/HermesP2P/blob/main/LICENSE).
+## Public surfaces
 
-## Contact
+- `/`: website describing the experiment; content negotiation may return this summary.
+- `/client`: experimental browser text client.
+- `/ws`: WebSocket hub relay.
+- `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`: public discovery and descriptions.
+- `/.well-known/api-catalog`, `/.well-known/http-message-signatures-directory`, `/.well-known/agent-skills/index.json`: discovery documents; presence does not imply implemented authentication or agent capabilities.
 
-contact@hp2p.net
+## Sources
+
+- [Repository and README](https://github.com/jmcentire/HermesP2P)
+- [Website](https://hp2p.net/)
+- [Privacy book](https://a.co/d/05PSJFBK)
+- [License](https://github.com/jmcentire/HermesP2P/blob/main/LICENSE)
+
+Contact: contact@hp2p.net
+
+Public signing pseudonyms are stable per channel across sessions. Signed DMs are not deniable. The hub keeps recent frame hashes for up to 30 seconds, evicting earlier under load. Bounded replay-cache eviction can permit repeat display. A single hub has no Sybil resistance and may be disrupted.
