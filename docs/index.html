@@ -4,7 +4,7 @@
 <title>HermesP2P — Ephemeral messaging, in progress</title>
 <meta name="description" content="Try the experimental HermesP2P text client. Explore experimental hub and direct-peer transport for ephemeral communication, with explicit privacy limits.">
 <meta property="og:title" content="HermesP2P — Ephemeral messaging, in progress">
-<meta property="og:description" content="Experimental text messaging through hubs today. Direct peer delivery remains unverified; resilient mesh, subscriptions, and rich media are ahead.">
+<meta property="og:description" content="Experimental hub text messaging. A same-tab Safari direct-link test passed; Chrome and wide-area connectivity remain unresolved.">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/png" href="hermesp2p_logo.png">
 <style>
@@ -62,14 +62,14 @@ footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify
       <h1 id="hero-title">Messages for<br>the moment.</h1>
       <p class="lead">Building toward an ephemeral, peer-to-peer network. Start with the browser text client. Help shape a system that keeps less and puts keys in your hands.</p>
       <div class="actions"><a class="button" href="https://hp2p.net/client">Open text client</a><a href="#today">Understand the prototype</a></div>
-      <p class="note">Research software. Hub relay delivery has been demonstrated locally; direct peer delivery remains unverified. Anonymity is a design goal, not a guarantee.</p>
+      <p class="note">Research software. Local hub delivery and a same-tab Safari direct-link test have passed. Chrome direct connectivity remains unresolved. Anonymity is a design goal, not a guarantee.</p>
     </div>
     <figure class="network">
       <img src="hermesp2p_logo.png" alt="HermesP2P logo">
       <div class="route" aria-label="Bootstrap and fallback transport: your browser connects through a WebSocket hub to another browser">
         <div class="node">Your<br>browser</div><span class="wire" aria-hidden="true"></span><div class="node hub">WebSocket<br>hub</div><span class="wire" aria-hidden="true"></span><div class="node">Another<br>browser</div>
       </div>
-      <figcaption>Bootstrap through a known hub.<br>Clients attempt direct WebRTC links; successful direct delivery has not been demonstrated.</figcaption>
+      <figcaption>Bootstrap through a known hub.<br>A same-tab Safari direct-link test passed; cross-tab and cross-device delivery remain unverified.</figcaption>
     </figure>
   </section>
 </div>
@@ -80,7 +80,7 @@ footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify
       <div><h3>Bring your own keys</h3><p>The browser generates an identity. Save its configuration to keep your keys and contacts. Treat that unencrypted file as a secret.</p></div>
       <div><h3>Choose the conversation</h3><p>Public channels are readable by others. Private channels use a shared key. Direct messages use the recipient’s public key.</p></div>
       <div><h3>Keep less by default</h3><p>The relay has no message database. Connections, duplicate suppression, and the open client still need temporary state. Recent frame hashes expire after 30 seconds or earlier under load. Recipients can keep copies.</p></div>
-      <div><h3>Inspect the experiment</h3><p>The implementation and tests are open for review. Clients use hub signalling to try direct WebRTC links. Only local hub delivery has been demonstrated; direct delivery, wide-area connectivity and anonymity remain unproven. A single hub has no Sybil resistance and can be disrupted.</p></div>
+      <div><h3>Inspect the experiment</h3><p>The implementation and tests are open for review. Clients use hub signalling to try direct WebRTC links. A same-tab Safari fixture exchanged direct dummy frames. Chrome direct connectivity remains unresolved; wide-area delivery and anonymity remain unproven. A single hub has no Sybil resistance and can be disrupted.</p></div>
     </div>
   </div>
 </section>
@@ -101,7 +101,7 @@ footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify
     <thead><tr><th scope="col">Capability</th><th scope="col">Status</th><th scope="col">Direction</th></tr></thead>
     <tbody>
       <tr><td>Text messaging</td><td><span class="phase">Experimental client</span></td><td>Public channels, shared-key channels, and direct messages with locally demonstrated hub delivery.</td></tr>
-      <tr><td>Direct peer links</td><td><span class="phase">Experimental</span></td><td>Known hubs signal bounded WebRTC connections, but direct delivery has not been demonstrated. No STUN/TURN service is configured; the relay stays active. A resilient anonymous ad hoc mesh remains future work.</td></tr>
+      <tr><td>Direct peer links</td><td><span class="phase">Experimental</span></td><td>Known hubs signal bounded WebRTC connections. A same-tab Safari dummy-frame test passed; Chrome direct connectivity remains unresolved. No STUN/TURN service is configured; the relay stays active. A resilient anonymous ad hoc mesh remains future work.</td></tr>
       <tr><td>Optional rebroadcast</td><td><span class="phase">Planned</span></td><td>Explicit cloud caching and rebroadcast with a stated retention period. Persistence is an opt-in service with different privacy tradeoffs.</td></tr>
       <tr><td>Subscriptions</td><td><span class="phase">Planned</span></td><td>Signed publisher-only broadcasts and symmetric-key channels, funded by verified settled payments. Monthly decryption keys; payment and key negotiation through a backchannel during the week before and after each month boundary.</td></tr>
       <tr><td>Images and video</td><td><span class="phase">Future work</span></td><td>Rich media will need bandwidth, retention, and abuse controls. The current client is for text.</td></tr>

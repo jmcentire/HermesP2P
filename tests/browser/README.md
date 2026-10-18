@@ -51,7 +51,7 @@ Do not collect or publish raw browser networking exports.
 
 ## Observed results on the development Mac
 
-On 2026-10-18, native trickle and complete-SDP loopbacks reached stable signalling
+On 2026-10-18, Chrome native trickle and complete-SDP loopbacks reached stable signalling
 and complete ICE gathering but stayed in ICE `new`, with no remote candidates or
 candidate pairs in pre-close snapshots. The real-hub mesh also timed out.
 
@@ -80,10 +80,28 @@ Read-only checks found the system mDNS responder running and no Chrome firewall
 application block. Dummy UDP loopback and the system resolver's lookup of the
 machine's own `.local` hostname succeeded. These are baseline controls, not proof
 that Chrome's generated ICE names are registered or resolvable. The next useful
-isolation is that browser mDNS path, or an independently controlled browser/device
-comparison if authorized. The root cause and direct delivery remain unresolved.
+isolation is that browser mDNS path versus another post-acceptance processing
+failure. The Chrome failure's root cause remains unresolved.
 
 The fixture never changes permissions, replaces mDNS candidates with addresses,
 or adds external ICE services to force a connection. No firewall/router/browser
 flag changes or external services were used in these reruns. Restarting an active
 user's browser requires considering their work and obtaining approval.
+
+### Safari comparison: local direct transport passed
+
+The same unchanged version 3 fixture passed native trickle and actual mesh tests
+in already-installed Safari 26.6.2 on the same Mac. Native ICE/RTC connected,
+the channel opened, and the dummy frame was received. The real `MeshTransport`
+pair used the local hub for signalling, connected both data channels, and each
+peer received three direct dummy frames (one per send at two/eight/twelve
+seconds). Both runs cleaned up normally. The complete-SDP mode was not run in
+Safari; the requested minimal native and real-mesh comparison was sufficient.
+
+No permissions, security settings, installation or restart were required. Only
+the test tab and servers were closed afterward. This is a same-tab, same-Mac
+transport smoke test, not a separate-tab or Chrome–Safari pair, cross-device/WAN
+test, or proof
+that the encrypted product UI uses the direct path correctly. The comparison
+narrows the failing environment to the tested Chrome browser/session stack; it
+does not establish an engine bug or identify mDNS as the cause. No low-level Chrome ICE/mDNS trace was captured.
