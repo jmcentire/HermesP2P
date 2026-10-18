@@ -1,4 +1,4 @@
-import { MeshTransport } from '../../static/js/mesh.js';
+import { MeshTransport } from '../../static/js/mesh.js?sha256=a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451';
 
 // This fixture is served separately from Flask and excluded from Docker images.
 const HUB_URL = 'ws://localhost:8787/ws';
@@ -46,7 +46,7 @@ function beginRun(label) {
         },
     };
     activeRun = run;
-    run.log(label + ' secure-context=' + window.isSecureContext);
+    run.log(label + ' fixture-version=3 secure-context=' + window.isSecureContext);
     run.schedule(() => run.finish('22-second absolute deadline'), 22000);
     return run;
 }
@@ -81,6 +81,8 @@ async function environment(run) {
 
 function descriptionFlags(description) {
     const sdp = description?.sdp || '';
+    const candidateLines = sdp.split(/\r?\n/).filter(line => line.startsWith('a=candidate:'));
+    const mdnsCount = candidateLines.filter(line => line.split(/\s+/)[4]?.endsWith('.local')).length;
     return {
         application: /^m=application (?!0 )/m.test(sdp),
         iceUfrag: /^a=ice-ufrag:/m.test(sdp),
@@ -88,6 +90,9 @@ function descriptionFlags(description) {
         fingerprint: /^a=fingerprint:/m.test(sdp),
         mid: /^a=mid:/m.test(sdp),
         candidates: /^a=candidate:/m.test(sdp),
+        candidateCount: Math.min(candidateLines.length, 4096),
+        mdnsCandidateCount: Math.min(mdnsCount, 4096),
+        otherCandidateCount: Math.min(candidateLines.length - mdnsCount, 4096),
     };
 }
 
@@ -171,16 +176,34 @@ async function nativeLoopback(run, nontrickle) {
         rtcpMuxPolicy: known(config.rtcpMuxPolicy, ['require', 'negotiate']), externalIceServers: 0,
     }));
     const pendingA = [], pendingB = [];
+    const applications = { a: { attempted: 0, resolved: 0, rejected: 0 },
+        b: { attempted: 0, resolved: 0, rejected: 0 } };
+    async function applyCandidate(label, pc, candidate) {
+        if (!run.active) return;
+        const counts = applications[label];
+        if (counts.attempted >= 64) { run.finish('candidate application limit'); return; }
+        counts.attempted = Math.min(counts.attempted + 1, 4096);
+        try {
+            await pc.addIceCandidate(candidate);
+            counts.resolved = Math.min(counts.resolved + 1, 4096);
+            run.log(label + ' candidate-application ' + JSON.stringify(counts));
+        } catch (error) {
+            counts.rejected = Math.min(counts.rejected + 1, 4096);
+            run.log(label + ' candidate-application ' + JSON.stringify({ ...counts,
+                errorName: known(error?.name, ['TypeError', 'OperationError', 'InvalidStateError', 'NotSupportedError']) }));
+            run.finish('candidate application failed');
+        }
+    }
     if (!nontrickle) {
-        const deliver = (pc, pending, candidate) => {
+        const deliver = (label, pc, pending, candidate) => {
             if (!candidate || !run.active) return;
             if (!pc.remoteDescription) {
                 if (pending.length >= 64) { run.finish('candidate limit'); return; }
                 pending.push(candidate);
-            } else pc.addIceCandidate(candidate).catch(() => run.finish('candidate application failed'));
+            } else void applyCandidate(label, pc, candidate);
         };
-        listen(run, a, 'icecandidate', event => deliver(b, pendingB, event.candidate));
-        listen(run, b, 'icecandidate', event => deliver(a, pendingA, event.candidate));
+        listen(run, a, 'icecandidate', event => deliver('b', b, pendingB, event.candidate));
+        listen(run, b, 'icecandidate', event => deliver('a', a, pendingA, event.candidate));
     }
     const channel = a.createDataChannel('local-connectivity-probe');
     run.dispose(() => channel.close());
@@ -198,12 +221,22 @@ async function nativeLoopback(run, nontrickle) {
     if (nontrickle) await gathered(run, a);
     if (!run.active) return;
     await b.setRemoteDescription(a.localDescription);
-    for (const candidate of pendingB.splice(0)) await b.addIceCandidate(candidate);
+    run.log('b remote-description-applied ' + JSON.stringify(descriptionFlags(b.remoteDescription)));
+    for (const candidate of pendingB.splice(0)) {
+        if (!run.active) break;
+        await applyCandidate('b', b, candidate);
+    }
+    if (!run.active) return;
     await b.setLocalDescription(await b.createAnswer());
     if (nontrickle) await gathered(run, b);
     if (!run.active) return;
     await a.setRemoteDescription(b.localDescription);
-    for (const candidate of pendingA.splice(0)) await a.addIceCandidate(candidate);
+    run.log('a remote-description-applied ' + JSON.stringify(descriptionFlags(a.remoteDescription)));
+    for (const candidate of pendingA.splice(0)) {
+        if (!run.active) break;
+        await applyCandidate('a', a, candidate);
+    }
+    if (!run.active) return;
     for (const delay of [2000, 8000]) run.schedule(() => Promise.all([
         snapshot(run, 'native a ' + delay, a), snapshot(run, 'native b ' + delay, b),
     ]), delay);

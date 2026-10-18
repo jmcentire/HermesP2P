@@ -9,13 +9,13 @@
   <h1>HP2P local connectivity fixture</h1>
   <p>Test-only dummy frames. No external ICE servers, media capture, permission requests,
     or browser setting changes. The mesh test connects only to localhost:8787.</p>
-  <p>Runs last at most 22 seconds. Results show states, aggregate counts, and SDP-presence
-    flags. Raw addresses, candidate strings, SDP, keys, and routing IDs are omitted.</p>
+  <p>Runs last at most 22 seconds. Diagnostic version 3 shows states, candidate API results, and SDP candidate
+    counts. Raw addresses, candidate strings, SDP, keys, and routing IDs are omitted.</p>
   <button id="native">Native trickle loopback</button>
   <button id="nontrickle">Native complete-SDP loopback</button>
   <button id="mesh">Mesh through local hub</button>
   <button id="stop" disabled>Stop and clean up</button>
   <pre id="results" aria-live="polite">Start one test at a time.</pre>
-  <script type="module" src="./connectivity.js"></script>
+  <script type="module" src="./connectivity.js?v=3"></script>
 </body>
 </html>

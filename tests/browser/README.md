@@ -17,7 +17,11 @@ From the repository root, using the project's existing Python environment:
 .venv/bin/python -m http.server 8788 --bind 127.0.0.1
 ```
 
-Open `http://localhost:8788/tests/browser/connectivity.html`. Run each button once:
+Open `http://localhost:8788/tests/browser/connectivity.html`. Confirm the page and
+run output both identify diagnostic version 3; reload after source changes. The
+fixture module URL is versioned, and its mesh import uses a source-hash query
+parameter to avoid stale diagnostic dependencies. Update that query when the
+mesh source changes; it is cache identification, not runtime integrity checking. Run each button once:
 
 1. **Native trickle loopback:** two browser peer connections exchange descriptions
    and candidates directly, without MeshTransport or the hub.
@@ -29,7 +33,8 @@ Open `http://localhost:8788/tests/browser/connectivity.html`. Run each button on
 
 Only one run is allowed at a time. Stop, page navigation, errors, and the absolute
 22-second deadline clean up sockets, peer connections, listeners, and timers.
-Gathering waits are bounded at five seconds and stats waits at one second. Stop
+Native candidate application stops after cleanup and is capped at 64 calls per
+side. Gathering waits are bounded at five seconds and stats waits at one second. Stop
 both local servers with Ctrl-C when finished. Do not expose the fixture server
 outside localhost; it serves repository files.
 
@@ -37,7 +42,10 @@ Success requires a channel-open event and a dummy-frame-received marker. Record
 the browser/OS version, test mode, result, and the safe pre-close snapshots at
 two/eight seconds (mesh also at twelve seconds). Counts and states alone do not
 prove application delivery. The fixture prints only fixed status vocabularies,
-capped counts, candidate class/protocol, and SDP-presence booleans; no candidate
+capped counts, candidate class/protocol, SDP-presence booleans and candidate-line
+counts. Native trickle runs also count resolved/rejected `addIceCandidate` calls
+and restrict error names to a fixed vocabulary. An accepted API call does not
+prove candidate reachability or successful mDNS resolution. No candidate
 strings, raw addresses, SDP, keys, routing IDs, or error messages are printed.
 Do not collect or publish raw browser networking exports.
 
@@ -54,10 +62,28 @@ Both native tests and the real-hub mesh were then rerun: all still failed, with
 four local candidates, zero remote candidates and zero pairs. The mesh reported
 zero direct sends. The browser's separate permission query still read `prompt`.
 
-This reproduces failure without HP2P signalling but does not identify the root
-cause. Enabling the OS permission did not prove or fix the cause. A fresh browser
-process or another test device is the next useful isolation step; do not restart
-an active user's browser without considering their work and obtaining approval.
+The owner then approved Chrome's pending update and relaunch. The new process
+ran Chrome `155.0.8059.85` with the same profile and previously observed tab URLs.
+All three fixtures were repeated without changes: the native tests still had
+four local candidates, zero remote candidates/pairs and ICE `new` at two/eight
+seconds; the mesh matched at two/eight/twelve seconds, sent zero direct frames,
+timed out and cleaned up. The update/relaunch did not resolve the failure.
+
+Instrumented native trickle runs recorded one attempted/resolved candidate API
+call per side and zero rejections. Both final remote descriptions retained one
+mDNS candidate. The complete-SDP test retained one mDNS candidate immediately
+after each description was applied. Despite API acceptance and SDP retention,
+ICE statistics still reported zero remote candidates/pairs; this does not prove
+which later browser step failed. Instrumented mesh sends also remained zero.
+
+Read-only checks found the system mDNS responder running and no Chrome firewall
+application block. Dummy UDP loopback and the system resolver's lookup of the
+machine's own `.local` hostname succeeded. These are baseline controls, not proof
+that Chrome's generated ICE names are registered or resolvable. The next useful
+isolation is that browser mDNS path, or an independently controlled browser/device
+comparison if authorized. The root cause and direct delivery remain unresolved.
+
 The fixture never changes permissions, replaces mDNS candidates with addresses,
 or adds external ICE services to force a connection. No firewall/router/browser
-flag changes or external services were used in this rerun.
+flag changes or external services were used in these reruns. Restarting an active
+user's browser requires considering their work and obtaining approval.
