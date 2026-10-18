@@ -2,7 +2,7 @@
 
 An experimental text-messaging client working toward ephemeral, anonymous peer-to-peer communication.
 
-The browser connects to known WebSocket hubs for signalling and relay delivery, and attempts bounded direct WebRTC data channels. The relay remains active even when direct links work. This is an **experimental partial mesh**, with no configured STUN/TURN service and no demonstrated wide-area interoperability. Privacy and anonymity are design goals, not guarantees of the prototype.
+The browser connects to known WebSocket hubs for signalling and relay delivery, and attempts bounded direct WebRTC data channels. The relay remains active even when direct links work. This is an **experimental partial mesh**, with no configured STUN/TURN service. Only local hub delivery has been demonstrated; direct peer delivery and wide-area interoperability remain unverified. Privacy and anonymity are design goals, not guarantees of the prototype.
 
 [Website](https://hp2p.net) · [Text client](https://hp2p.net/client) · [*Privacy*](https://a.co/d/05PSJFBK)
 
