@@ -105,3 +105,98 @@ test, or proof
 that the encrypted product UI uses the direct path correctly. The comparison
 narrows the failing environment to the tested Chrome browser/session stack; it
 does not establish an engine bug or identify mDNS as the cause. No low-level Chrome ICE/mDNS trace was captured.
+
+
+## Separate browsing contexts (one-shot fixture v3)
+
+Use the dedicated controller below **instead of either server above**. The sole
+supported launch binds to loopback and patches data forwarding only in this
+process. It imports the actual application hub and `MeshTransport`; it does not
+modify their production source or settings. Stop it before starting another pair.
+
+```sh
+.venv/bin/python tests/browser/check_context_server.py
+.venv/bin/python tests/browser/context_server.py
+```
+
+Open these URLs in two new tabs (two Safari tabs, then a fresh process with one
+Safari tab and one Chrome tab):
+
+- `http://localhost:8787/__test__/contexts.html?role=A`
+- `http://localhost:8787/__test__/contexts.html?role=B`
+
+Each page owns exactly one transport and one hub socket. The controller assigns
+a fresh run token at process startup and one-time role credentials. Reusing a
+role, joining a finished run, or reporting with a stale run is rejected. The
+client also requires its own received counts and phase history before displaying
+PASS. Restart the dedicated process for every pair, even after an interrupted
+attempt; reload is deliberately not a new run.
+
+Once both direct channels open, the controller disables only its application-data
+forwarding while retaining actual hub signalling. Each peer sends two identical
+dummy frames through WebRTC and one dummy WebSocket relay probe. Both direct
+receipts and blocked probes from two distinct live hub connections are required.
+Peer A then closes its transport and socket; B must observe A's old routing ID
+absent from an actual hub roster. A reconnects with a new hub identity and both
+peers repeat direct duplicate delivery while forwarding remains disabled.
+
+A PASS requires exactly two received frames per peer before and after reconnect.
+The transport intentionally passes identical frames to its callback; this is
+**not** the authenticated product-message replay test. Those rules are covered
+separately in the network/message unit tests. The fixture does not exercise the
+product UI or its encryption pipeline. Tabs are separate JavaScript contexts;
+process isolation is not measured.
+
+The server verifies the imported mesh file's SHA-256 at startup. Its status route
+reports that hash and aggregate counts only. Run/role credentials, routing IDs,
+SDP, candidates, addresses and message contents are never logged. The import URL
+hash remains cache identification, not browser subresource integrity. The fixture
+allows only loopback clients with the expected Host and same-origin POSTs. It is
+a controlled two-tab diagnostic, not an adversarial authentication service.
+
+The pair deadline is 90 seconds after both reports arrive; each page has a
+180-second absolute deadline and three-second controller-request limits. Stop,
+navigation, failure and completion close owned connections and timers. Close
+only the test tabs and terminate this server when finished. No external ICE
+service, permission grant, profile reset, or browser restart is required by the
+fixture. Seven controller checks cover stale/duplicate joins, request origin and
+remote-address restrictions, missing/extra duplicate counts, incomplete disconnect
+evidence, deadline failure, probe attribution, wrong-role credentials, and import isolation; CI runs these checks.
+
+### Separate Safari result
+
+The corrected v2 fixture and final v3 fixture passed on Safari 26.6.2 in two separate tabs on the same
+Mac. Both peers opened channels and each received two identical dummy frames
+before and two after A disconnected and rejoined. B observed the old routing ID
+absent from the actual hub roster. The local hub recorded two blocked probes from
+two distinct peers and stayed disabled for data forwarding. Both pages completed
+cleanup. Reloading A after completion was rejected, demonstrating that a fresh
+page could not inherit PASS. A preliminary v1 run also passed with a fresh server,
+but the corrected runs supersede that evidence after Claude's stale-run,
+source-hash and roster-observation review fixes. Final v3 also requires exactly
+one remote roster peer and adds probe/role-attribution negative controls.
+Production transport source was unchanged.
+
+
+### Final Safari–Chrome result (v3)
+
+A fresh v3 process and fresh run/role credentials paired Safari 26.6.2 with
+Chrome 155.0.8059.85 on the same Mac. Both pages reported a negotiation timeout,
+then the 90-second pair deadline and cleanup. No direct channel opened; both
+received counts stayed zero. Data forwarding remained enabled because the test
+never reached its connected prerequisite. Thus the relay-off, duplicate-delivery
+and reconnect stages are **not tested for this mixed pair**. Corrected v2 had the
+same failure in its own fresh run. An earlier interrupted v1 mixed run remains
+preliminary and is not counted as completed validation.
+
+The mixed-browser root cause remains unresolved. No speculative production fix,
+additional security permission, external ICE service, browser flag or extra device
+was introduced. The seven fixture checks pass alongside the existing 206 Vitest,
+32 Node sandbox and 11 Python relay tests. Claude's final source review reported
+no blockers; it explicitly did not run the browser tests. The test reconnects one
+peer once and does not establish that both offer directions occurred.
+
+Safe aggregate evidence and source hashes are in
+[`separate-contexts-2026-10-18.json`](results/separate-contexts-2026-10-18.json).
+Original Safari/Chrome tabs were retained (9/29 respectively); all owned test tabs
+and local test-server processes were closed afterward.

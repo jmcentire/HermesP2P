@@ -70,7 +70,7 @@ The complete local automated run passed **206 Vitest tests across six files**, *
 
 Two Chrome clients against the local Gunicorn relay exchanged public text, authenticated encrypted direct messages, and encrypted channel messages using different local channel names with the same key. The final scoped-signing version also delivered the shared-key channel message once. Configuration survived reload. These checks used generated test identities and no live funds.
 
-Direct WebRTC did **not** connect in that local browser run. Offer, answer and ICE signalling reached both clients, but the 15-second negotiation timeout fired; relay delivery remained available. The later Safari comparison below demonstrates one local host-candidate path; cross-browser, cross-device and WAN mesh delivery remain unverified. Aggregate timeout diagnostics are best effort and do not establish a root cause. No browser security policy, public STUN service or paid relay was introduced to bypass the result.
+Direct WebRTC did **not** connect in that local browser run. Offer, answer and ICE signalling reached both clients, but the 15-second negotiation timeout fired; relay delivery remained available. The later Safari comparisons below demonstrate a local host-candidate path, including separate tabs and reconnect. The mixed Safari–Chrome test failed; cross-device and WAN mesh delivery remain unverified. Aggregate timeout diagnostics are best effort and do not establish a root cause. No browser security policy, public STUN service or paid relay was introduced to bypass the result.
 
 The Flask and static Pages website variants were checked at desktop and 390-pixel mobile widths; the existing logo assets are unchanged. The feature branch does not deploy either the Pages main-branch site or the relay.
 
@@ -99,6 +99,64 @@ The unchanged version 3 fixture was run in an existing **Safari 26.6.2** session
 
 The actual `MeshTransport` pair then used the real local WebSocket hub for signalling. Both direct channels connected. At two/eight/twelve seconds each peer reported one successful direct send and received the other peer's dummy frame: three received markers per peer. This fixture sends its dummy data only through WebRTC, so these markers cannot come from a WebSocket data fallback. It completed its normal cleanup. No new permissions, settings, installation or restart were needed. Only the test tab and temporary servers were closed; the original Safari tabs remained.
 
-This demonstrates a **same-tab, same-Mac Safari direct-transport smoke test**. It does not validate the encrypted product UI over that direct path, connections between separate tabs, a Chrome–Safari connection, cross-device/WAN delivery, NAT traversal, resilient mesh routing or anonymity. Safari's successful path means the failure is not universal to this fixture and Mac; it does not establish a Chrome engine defect or exclude browser-specific profile, permission, runtime or network-policy differences. The native accessibility view truncated long result text, so channel-open, received-frame and connection-state markers were verified visually; unobserved numeric ICE fields are not claimed.
+This earlier comparison demonstrates a **same-tab, same-Mac Safari direct-transport smoke test**. By itself it does not validate the encrypted product UI over that direct path, connections between separate tabs, a Chrome–Safari connection, cross-device/WAN delivery, NAT traversal, resilient mesh routing or anonymity. Safari's successful path means the failure is not universal to this fixture and Mac; it does not establish a Chrome engine defect or exclude browser-specific profile, permission, runtime or network-policy differences. The native accessibility view truncated long result text, so channel-open, received-frame and connection-state markers were verified visually; unobserved numeric ICE fields are not claimed.
 
 Claude Validator reviewed successive source snapshots through a dedicated CLI session on the existing subscription. Its final transport review found the two availability defects fixed, and its final economics review found no critical or high defect within the explicit trusted, single-process sandbox boundary. It requested the two trust-boundary disclosures above. Claude inspected source; the executable checks reported here were run separately. Its follow-up reviews of the permission and update/relaunch reruns found no justified application-code correction from the observed native and HP2P failures. It recommended the additional candidate-application instrumentation above; the root cause remains unresolved.
+
+
+### Separate-tab direct path and reconnect
+
+The new `tests/browser/contexts.html` fixture creates one actual `MeshTransport`
+per browsing context, with the application's real hub signalling. Its dedicated
+loopback controller disables only that process's data forwarding after both data
+channels open, then verifies direct duplicates, one peer's disconnect, actual
+hub-roster removal, reconnect and another direct exchange. It has fresh per-process
+run credentials, one-time role claims, local PASS evidence guards, startup source
+hash enforcement, bounded deadlines and a loopback-only launch. Production
+transport code and security settings are unchanged; test files are excluded from
+the deployment image.
+
+Final fixture v3 passed in **two separate Safari 26.6.2 tabs on one Mac**. Each
+peer received exactly two identical dummy frames before and two after reconnect.
+The hub blocked two probes from distinct live connections and kept application
+data forwarding disabled. B observed A's old routing ID disappear from an actual
+hub roster before A rejoined. Both pages displayed PASS from their own counts and
+phase history and cleaned up. Reloading a completed v2 page was also explicitly
+rejected rather than inheriting PASS. The final v3 adds a one-remote-peer guard;
+seven automated controller checks pass and are included in CI.
+
+These are transport-level duplicate receipts, not proof of product-message
+replay suppression: `MeshTransport` delivers duplicates by design. The existing
+network/message tests check authenticated replay behavior separately. This test
+does not validate encrypted product UI delivery over the direct path, independent
+Safari processes, other devices, NAT/WAN reachability, anonymity or mesh resilience.
+
+Claude Validator reviewed actual v1, v2 and final v3 source snapshots. Its review
+found and drove fixes to stale-run PASS reuse, source attribution, roster-removal
+observation and probe attribution. The earlier v1 fresh-process Safari pass is
+retained only as preliminary evidence; corrected v2 and final v3 runs are distinct.
+All final test pairs use separate fresh server processes and run credentials.
+
+
+### Final Safari–Chrome result (v3)
+
+A fresh v3 process and fresh run/role credentials paired Safari 26.6.2 with
+Chrome 155.0.8059.85 on the same Mac. Both pages reported a negotiation timeout,
+then the 90-second pair deadline and cleanup. No direct channel opened; both
+received counts stayed zero. Data forwarding remained enabled because the test
+never reached its connected prerequisite. Thus the relay-off, duplicate-delivery
+and reconnect stages are **not tested for this mixed pair**. Corrected v2 had the
+same failure in its own fresh run. An earlier interrupted v1 mixed run remains
+preliminary and is not counted as completed validation.
+
+The mixed-browser root cause remains unresolved. No speculative production fix,
+additional security permission, external ICE service, browser flag or extra device
+was introduced. The seven fixture checks pass alongside the existing 206 Vitest,
+32 Node sandbox and 11 Python relay tests. Claude's final source review reported
+no blockers; it explicitly did not run the browser tests. The test reconnects one
+peer once and does not establish that both offer directions occurred.
+
+Safe aggregate evidence and source hashes are in
+[`separate-contexts-2026-10-18.json`](../tests/browser/results/separate-contexts-2026-10-18.json).
+Original Safari/Chrome tabs were retained (9/29 respectively); all owned test tabs
+and local test-server processes were closed afterward.

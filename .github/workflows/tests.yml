@@ -21,3 +21,4 @@ jobs:
       - run: npm test
       - run: python -m pip install flask flask-sock pytest
       - run: python -m pytest tests/test_relay.py
+      - run: python tests/browser/check_context_server.py
