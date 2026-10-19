@@ -160,3 +160,91 @@ Safe aggregate evidence and source hashes are in
 [`separate-contexts-2026-10-18.json`](../tests/browser/results/separate-contexts-2026-10-18.json).
 Original Safari/Chrome tabs were retained (9/29 respectively); all owned test tabs
 and local test-server processes were closed afterward.
+### Exact generated-candidate comparison
+
+A passive, test-only observer compared the generated candidate strings, successful
+`addIceCandidate` calls, SDP MID/ufrag matching and ICE stats. A loopback controller
+queried the OS resolver for the exact generated `.local` names while connections
+were alive. Names, addresses, SDP and credentials were not retained in the result. The OS
+resolver may query mDNS on the local link. Repeated names are deduplicated; the
+native Chrome pair produced one retained distinct-name result.
+
+In the native Chrome loopback, every emitted candidate was delivered and accepted:
+one per peer, no rejections, matching MID/ufrag and one local/remote SDP candidate.
+Chrome still reported zero remote candidates/pairs at 2/8/12 seconds. Four local
+stats entries were two host UDP and two host TCP entries; the exposed candidate
+count and native local-candidate API count were each one. The exact generated
+Chrome name did not resolve through the OS probe. Safari's exact names resolved
+to IPv4 and its native pair connected with one remote candidate and candidate pair.
+
+In the mixed pair, the generated Safari name resolved and the generated Chrome
+name did not. Both browsers accepted one remote candidate with matching MID/ufrag,
+but neither formed a candidate pair. The bounded controller ended failed with no
+direct frames. This supports investigating Chrome's mDNS registration/resolver or
+later candidate-processing path; it does **not** identify a root cause. In
+particular, Chrome also failed to admit Safari's OS-resolvable candidate, so
+Chrome-name registration failure alone is not a complete explanation. Browser
+policy, permission and resolver behavior remain distinct from the OS probe.
+
+The official [WebRTC two-tab data-channel sample](https://webrtc.github.io/samples/src/content/datachannel/channel/)
+also failed to produce a usable channel in the existing Chrome process. Its
+source forwards the end-of-candidates marker. No precise duration or candidate
+trace was recorded for that control. None of these observations justifies a
+speculative production-code correction or a browser security bypass.
+
+Sanitized observations are in
+`tests/browser/results/candidate-comparison-2026-10-18.json`. Five background
+controller checks cover origin, name/record restrictions, count limits, resolver
+timeout and no raw-name persistence. The resolver is mocked in those tests.
+
+### Partial encrypted product-UI acceptance
+
+The actual product client and crypto were loaded in two separate Safari 26.6.2
+tabs using public deterministic dummy identities. Product sources and vendored
+crypto hashes were pinned to commit `9dd2115a0c1a5d18cba5402afab5ce3131451a1a`.
+Both direct channels opened before the dedicated test hub disabled data
+forwarding. Product messages were submitted through the normal sidebar/input/Send
+controls. The hub blocked five data frames; both observers reported zero sends
+while forwarding was enabled and no observed link loss.
+
+The following steps were observed by the operator through the native product UI
+and observer panel. They are not per-step controller snapshots:
+
+- B's General conversation showed one public post after receiving its original
+  signed frame and two exact direct replays. This is combined transport/application
+  replay suppression, not isolated proof of the inner replay cache.
+- B received one invalid public frame with altered text, a fresh ID/current
+  timestamp and the unchanged original signature. General did not display its
+  tampered token. A background mutation control independently confirms the real
+  verifier rejects this probe while a temporary signature-disabled copy accepts it.
+- B decrypted the private post under ReceiverRoom using the same key that A used
+  under SenderRoom. Different local labels did not prevent decryption.
+- B decrypted A's direct message in the Dummy Alice conversation.
+
+**Acceptance is partial.** The reply was attempted but not verified before screen
+work was paused. Wrong-key, missing-key, wrong-recipient browser checks and the
+final inspection of every conversation remain pending. The observer's displayed
+counts refer only to the currently selected conversation; later zero counts must
+not erase earlier observations or be treated as proof of absence elsewhere.
+Private/direct tampering, WAN delivery and anonymity were not tested.
+
+A preliminary four-client attempt never satisfied the requirement of three open
+direct channels at every client. It sent no product messages and kept data
+forwarding enabled. Per-page periodic reports were not a synchronized topology
+snapshot, and no connection/candidate trace was captured for that attempt; its
+cause is unresolved. This does not establish an encryption defect or a generally
+reliable four-peer mesh.
+
+See `tests/browser/results/product-ui-partial-2026-10-19.json` for exact completed
+and pending checks, selected conversations and the executed fixture hashes. Nine
+background controller checks now reject stale, malformed, cross-origin and
+incomplete readiness evidence. The result records executed and current fixture hashes separately; the observer
+JavaScript is unchanged. This subsequent controller hardening has not had
+another browser run. No automatic product-UI PASS is issued by the harness.
+
+Claude Validator reviewed the current fixture source and sanitized observations in
+a background CLI session. Its two evidence-labeling blockers were corrected; a
+follow-up found no remaining publication blockers in the result files. Claude
+did not run the browser tests or CI. The previously executed UI controller was
+uncommitted and its original bytes were not retained; the result preserves its
+hash and distinguishes the reproducible, subsequently hardened controller.

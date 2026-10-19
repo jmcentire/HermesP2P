@@ -200,3 +200,92 @@ Safe aggregate evidence and source hashes are in
 [`separate-contexts-2026-10-18.json`](results/separate-contexts-2026-10-18.json).
 Original Safari/Chrome tabs were retained (9/29 respectively); all owned test tabs
 and local test-server processes were closed afterward.
+## Product UI and candidate diagnostics
+
+These manual fixtures use foreground browser tabs. Coordinate screen availability
+before running them; automated controller checks below require no browser.
+Use one server at a time. All bind only to loopback and must never be deployed.
+
+## Product UI pairs
+
+```sh
+python tests/browser/ui_server.py AB
+```
+
+Open `http://localhost:8787/__ui__/setup.html?role=A` and the same URL with `role=B`
+in two disposable tabs. Click **Start disposable product client** in each. The
+public test seeds are dummy credentials, never real identities. Configuration is
+tab-local session storage. Product source files and crypto libraries must exactly
+match the starting Git commit; `/__ui__/status` records their hashes and the
+fixture hashes captured at startup.
+
+Wait for one open direct channel in both clients, then use A's **Disable TEST hub
+data forwarding** button. Both pages must show **DISABLED** before sending any
+product messages. Recent client reports and exactly two hub sockets are required.
+Reject an acceptance claim if either page reports a lost link or a send while
+forwarding was enabled. Require a positive blocked-frame count at the hub as well
+as actual received direct frames and displayed product messages.
+
+Use the actual sidebar, message input and Send button:
+
+- A → General: `accept-public-01`; replay twice, then send the fresh-ID tampered
+  copy using the observer buttons. B should receive three valid raw public frames
+  but show one copy, and receive an invalid frame without displaying the tampered
+  text in General.
+- A → SenderRoom: `accept-private-01`; B uses ReceiverRoom with the same key.
+- A → Dummy Bobby: `accept-direct-01`; B selects Dummy Alice.
+- B → Dummy Alice: `accept-reply-01`; A selects Dummy Bobby.
+
+After the final send, inspect **every configured conversation** on each tab,
+recording its header and token counts. The current counts are for the selected
+conversation only; a zero without a recorded conversation is not negative proof.
+No automatic PASS is issued. Replays exercise combined transport/application
+suppression, not an isolated inner replay cache. The tamper probe checks public
+envelope integrity, not private or direct ciphertext tampering.
+
+Restart the dedicated server for each further pair: `AC` uses Carol's wrong
+shared key, `AD` uses Delta's missing shared key. Open the corresponding role URL.
+In each, send the private token to SenderRoom and a DM to **Dummy Bobby**, who is
+absent. Require the active receiver to observe valid outer private/direct frames,
+then inspect all its conversations for absence of plaintext. These browser
+negative cases remain pending in the recorded partial run.
+
+Stop the test connections and close only owned test tabs when screen use is
+permitted, then stop the server. The observer also stops on controller failure,
+page exit or its 15-minute deadline. It clears its dummy session storage and
+closes owned connections; a stopped tab should be closed rather than reused.
+
+## Exact generated-candidate comparison
+
+```sh
+python tests/browser/candidate_server.py
+```
+
+Open `http://localhost:8787/__diag__/connectivity.html?browser=chrome` (or
+`browser=safari`) and run **Native trickle loopback** once per fresh page. For a
+mixed pair use `/__test__/contexts.html?role=A&browser=safari` and
+`/__test__/contexts.html?role=B&browser=chrome`.
+The observer retains candidates only in memory, checks API acceptance and
+MID/ufrag matching, and requests a bounded OS lookup of the exact generated
+`.local` name while the peer connection is alive. Names travel only to the
+loopback test server and via stdin to its resolver subprocess. Reports retain
+only booleans, counts and address-family labels. The OS resolver may emit multicast
+mDNS queries on the local link; names are deduplicated within each server run. `/__diag__/status` contains
+sanitized observations. It does not establish the browser's resolver behavior.
+
+Never rewrite candidates, disable privacy controls, grant media permissions or
+add external ICE services to make this comparison pass. Stop owned test pages and
+the server afterward. See `results/candidate-comparison-2026-10-18.json` for the
+observed Chrome failure and Safari success; no root cause is established.
+
+## Background-only controls
+
+```sh
+python tests/browser/check_ui_server.py
+python tests/browser/check_candidate_server.py
+node tests/browser/check_signature_control.mjs
+```
+
+These checks open no browsers or listening sockets. Resolver calls are mocked.
+The mutation control removes signature verification only in an owned temporary
+copy and proves the tamper probe distinguishes the original from that mutant.
