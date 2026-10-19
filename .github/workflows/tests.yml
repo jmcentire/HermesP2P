@@ -24,4 +24,5 @@ jobs:
       - run: python tests/browser/check_context_server.py
       - run: python tests/browser/check_ui_server.py
       - run: python tests/browser/check_candidate_server.py
+      - run: python tests/browser/check_four_peer_server.py
       - run: node tests/browser/check_signature_control.mjs

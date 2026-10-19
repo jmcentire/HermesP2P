@@ -248,7 +248,8 @@ shared key, `AD` uses Delta's missing shared key. Open the corresponding role UR
 In each, send the private token to SenderRoom and a DM to **Dummy Bobby**, who is
 absent. Require the active receiver to observe valid outer private/direct frames,
 then inspect all its conversations for absence of plaintext. These browser
-negative cases remain pending in the recorded partial run.
+negative cases passed in the recorded resumed Safari pairs; see
+`results/product-ui-resumed-2026-10-19.json`.
 
 Stop the test connections and close only owned test tabs when screen use is
 permitted, then stop the server. The observer also stops on controller failure,
@@ -283,9 +284,34 @@ observed Chrome failure and Safari success; no root cause is established.
 ```sh
 python tests/browser/check_ui_server.py
 python tests/browser/check_candidate_server.py
+python tests/browser/check_four_peer_server.py
 node tests/browser/check_signature_control.mjs
 ```
 
 These checks open no browsers or listening sockets. Resolver calls are mocked.
 The mutation control removes signature verification only in an owned temporary
 copy and proves the tamper probe distinguishes the original from that mutant.
+
+
+## Bounded four-client setup diagnostic
+
+Run `python tests/browser/four_peer_server.py` instead of any other server, then
+open setup roles A, B, C and D in four disposable tabs. This loads the actual
+product through the unchanged acceptance observer, preceded by a passive RTC
+counter wrapper. It samples each connection at 2 and 12 seconds and retains only
+states/counts, never candidates, addresses, SDP or keys. `/__four__/status`
+contains sanitized reports and startup hashes. It does not automatically declare
+success. The UI's inherited "both clients" button text is pair-specific; the
+controller checks **all four** reports for three open channels and four hub sockets.
+
+This diagnostic is for connection setup, not four-peer message acceptance. Send
+no application data. Save the bounded samples, stop and close only the four owned
+tabs, then stop the server. The existing observer also enforces a 15-minute stop.
+One recorded setup succeeded; the earlier incomplete setup remains unexplained.
+
+
+The four-client counter wrapper captures the most-derived `createDataChannel`
+method before installing its instance wrapper. This construction order preserves
+`observe.js`'s channel watcher. Do not reorder these wrappers without verifying
+both observers still receive every created channel; the setup remains diagnostic
+instrumentation rather than a production extension point.

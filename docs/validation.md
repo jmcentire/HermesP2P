@@ -197,7 +197,7 @@ Sanitized observations are in
 controller checks cover origin, name/record restrictions, count limits, resolver
 timeout and no raw-name persistence. The resolver is mocked in those tests.
 
-### Partial encrypted product-UI acceptance
+### Initial encrypted product-UI acceptance (historical partial run)
 
 The actual product client and crypto were loaded in two separate Safari 26.6.2
 tabs using public deterministic dummy identities. Product sources and vendored
@@ -221,9 +221,9 @@ and observer panel. They are not per-step controller snapshots:
   under SenderRoom. Different local labels did not prevent decryption.
 - B decrypted A's direct message in the Dummy Alice conversation.
 
-**Acceptance is partial.** The reply was attempted but not verified before screen
-work was paused. Wrong-key, missing-key, wrong-recipient browser checks and the
-final inspection of every conversation remain pending. The observer's displayed
+**This initial run was partial when paused.** The reply was attempted but not
+verified. Wrong-key, missing-key, wrong-recipient checks and the final inspection
+were completed in the resumed runs below. The observer's displayed
 counts refer only to the currently selected conversation; later zero counts must
 not erase earlier observations or be treated as proof of absence elsewhere.
 Private/direct tampering, WAN delivery and anonymity were not tested.
@@ -239,8 +239,7 @@ See `tests/browser/results/product-ui-partial-2026-10-19.json` for exact complet
 and pending checks, selected conversations and the executed fixture hashes. Nine
 background controller checks now reject stale, malformed, cross-origin and
 incomplete readiness evidence. The result records executed and current fixture hashes separately; the observer
-JavaScript is unchanged. This subsequent controller hardening has not had
-another browser run. No automatic product-UI PASS is issued by the harness.
+JavaScript is unchanged. The hardened controller was subsequently used in the resumed browser runs below. No automatic product-UI PASS is issued by the harness.
 
 Claude Validator reviewed the current fixture source and sanitized observations in
 a background CLI session. Its two evidence-labeling blockers were corrected; a
@@ -248,3 +247,62 @@ follow-up found no remaining publication blockers in the result files. Claude
 did not run the browser tests or CI. The previously executed UI controller was
 uncommitted and its original bytes were not retained; the result preserves its
 hash and distinguishes the reproducible, subsequently hardened controller.
+
+
+### Resumed product acceptance and four-client setup
+
+The remaining enumerated same-Mac Safari product cases passed on 2026-10-19.
+Fresh AB, AC and AD runs used the committed controller and observer from
+`ea9c2df72d1377e582c2ba66b4a4ae6fd81474d5`, with unchanged product source hashes.
+Every configured conversation was selected and inspected after the final send:
+
+- The stopped initial AB tabs retained exactly the expected public/private/DM
+  messages, with no tampered token anywhere. Their final history sweep does not
+  imply that their intentionally stopped channels were still connected.
+- In fresh AB, B's encrypted reply appeared once in A's Dummy Bobby conversation,
+  and only in the corresponding sender conversation on B. The hub blocked two
+  frames and both clients reported zero pre-disable sends or link loss.
+- In fresh AC and AD, the wrong-key and missing-key clients each received one valid
+  outer private frame and one valid direct frame addressed to absent Bobby.
+  Every private/friend conversation remained empty. The public positive control
+  appeared once in General. The hub blocked five frames in each run; both clients
+  retained their direct channel with no observed link loss or pre-disable sends.
+
+The operator attributed the earlier failed reply attempt to input focus; that
+earlier cause was not separately reproduced, and no product defect was confirmed. The resumed interaction verified focus and the exact
+text field value before sending. Sanitized controller snapshots and forty
+operator-recorded conversation readings are in
+`tests/browser/results/product-ui-resumed-2026-10-19.json`. Operator readings are
+not automatically captured per-step controller records. Private/direct tampering,
+cross-device/WAN behavior and anonymity remain untested.
+
+One additional four-client setup run succeeded: all four Safari tabs reported
+three open direct channels, and all 24 passive samples (twelve local connection
+objects at 2 and 12 seconds) showed connected channels. The controller accepted
+disabling its data relay. No application messages were sent in this setup-only
+run, so it is not four-peer data-delivery acceptance. The earlier failed setup did
+not reproduce; neither a cause nor a reliability fix is established. See
+`tests/browser/results/four-peer-setup-2026-10-19.json` for source/fixture hashes and
+counts. Three additional background checks validate this diagnostic's loader,
+authentication, bounded scalar records and origin protection.
+
+A read-only native-UI inspection of Chrome 155.0.8059.85's effective policy page
+reported no Chrome, precedence, extension-install or displayed extension policies
+set. Its active command line contained only two restart markers and empty
+flag-switch delimiters. No displayed enterprise policy or WebRTC/network flag
+explains the prior candidate failure. This does not establish a root cause or
+inspect every browser-internal runtime state. Evidence is in
+`tests/browser/results/chrome-effective-policy-2026-10-19.json`.
+
+All owned test tabs and servers were closed, the original tabs were preserved,
+and the screen was released. No production code, permissions or security settings
+were changed for these resumed checks.
+
+
+Claude Validator reviewed the resumed source and evidence without running the
+browser tests. Its two publication-labeling blockers were corrected with an
+explicit case/run/controller-hash map and retained-versus-executed fixture hashes.
+Its follow-up found no remaining publication blockers; Claude did not independently
+verify test execution or hash equality. The negative-party pairs do not claim
+simultaneous delivery to the absent intended
+recipient. All 274 automated checks passed locally after these additions.
