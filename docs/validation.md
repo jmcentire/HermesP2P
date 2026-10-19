@@ -306,3 +306,69 @@ Its follow-up found no remaining publication blockers; Claude did not independen
 verify test execution or hash equality. The negative-party pairs do not claim
 simultaneous delivery to the absent intended
 recipient. All 274 automated checks passed locally after these additions.
+
+
+### Background sealed-message tampering checks
+
+The 2026-10-19 follow-up adds 24 real-crypto module checks. For both private
+secretbox and direct box encryption, the unchanged positive control decrypts;
+changed authentication-tag/body bits, truncated/empty ciphertext, changed first/
+last nonce bits and short/long/empty nonces return no plaintext. The same original
+payload still decrypts after each rejection.
+
+Four of those checks exercise the real receive module with correctly signed outer
+envelopes containing damaged ciphertext or a nonce bit flip. The known disposable
+proof key keeps the outer signature valid, so rejection cannot be credited merely
+to the envelope verifier. The same-ID original is then accepted once and its
+repeat rejected. Network and traffic-panel dependencies are mocked, and DOM
+rendering is absent. These are module-admission checks, **not live transport/UI
+acceptance**. Receive rejection may occur at decryption, inner parsing or inner
+verification; these four checks establish overall module rejection. Authentication
+failure specifically is exercised by the direct decryptor checks and mutation
+control. The direct-message `ephemeralPubKey` input, including small-order values,
+is not mutated by these new tests.
+
+A separate temporary-copy mutation control changes each decryptor's explicit
+failed-authentication branch to return an unauthenticated sentinel. Four valid-length
+bit-flip probes distinguish each mutant from the real decryptor; unchanged positives
+still decrypt. This detects those two fail-open regressions, not every cryptographic
+implementation defect. Malformed-length rejection is covered by the real-module
+checks but is not claimed to kill these mutants. Product files are never modified.
+
+The full background run passed 230 Vitest, 32 Node sandbox, 11 Python relay
+and 24 controller tests, plus both mutation-control scripts (297 individual tests).
+See [sealed-module results](../tests/sealed-tampering-results-2026-10-19.json) for
+test/source hashes and exact scope.
+
+No production crypto fix was required. The earlier completed public browser tamper
+check remains distinct; private/direct ciphertext tampering over live transport/UI
+is still pending. The [bounded Chrome diagnostic plan](chrome-diagnostic-plan.md)
+uses the displayed version's source tag and pinned WebRTC revision, identifies a
+possible browser-level local-network permission gate after name resolution, and
+requires scoped/redacted evidence before any later live tracing. It was not executed.
+
+### Standalone website framing and source history
+
+The unsupported stack wording predates this review. Commit
+[`999c70de`](https://github.com/jmcentire/HermesP2P/commit/999c70de22c7b23bceeefa152b730ca67a21bfd4),
+2026-03-01, added it to both landing pages and README. Our initial October rewrite,
+[`52dbc14a`](https://github.com/jmcentire/HermesP2P/commit/52dbc14a67ce952a309de69e08882a06d3e1c796),
+already removed that section from this draft branch. It was not introduced by the
+current revision, and the draft was not deployed.
+
+A tracked-source and dependency-manifest/lockfile inspection found no use of
+Signet, Agent-Safe, Tessera or BlindDB as a dependency or integration. At the March
+commit, their names occurred only in the website/README cross-links. Both current
+website variants now explicitly describe HermesP2P as standalone and label these
+links **Related projects**, with no integration promise. README carries the same
+scope. Existing logo bytes are unchanged. This copy correction was checked with
+static HTML parsing and Flask's in-process test client; no browser or screen capture
+was used, and visual layout was not rechecked in this background pass.
+
+
+Claude Validator found no blockers in the sealed-message tests, mutation control,
+Chrome plan or standalone copy. Its review did not execute tests or independently
+verify source citations/history. Its precision suggestions are reflected above;
+no permission-state observation is treated as proof of a root cause. Publication
+remains a draft-branch change: the live Pages source is still `main:/docs` and this
+pass performs no merge or deployment.

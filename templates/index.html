@@ -118,6 +118,11 @@ footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify
     <details><summary>What validation must establish</summary><p>Separate signature domains and currency types; conservation of issued supply; duplicate-redemption rejection; expiry; and safe failure, retry, and idempotency behavior. Test that pending or failed payments never unlock keys or payouts, and that self-tipping cannot increase redeemable value.</p><p>The settlement boundary limits financial exposure from unfulfilled promises. It still needs explicit accounting and proof verification; signatures alone do not establish settled funds. Tests must also examine transaction linkability and the privacy cost of stronger evidence checks. The reference work uses dummy credits only.</p></details>
   </div>
 </section>
+<section class="section" aria-labelledby="related-title">
+  <h2 id="related-title">Related projects</h2>
+  <p>HermesP2P is a standalone communications project. These separate projects explore other privacy ideas; they are not dependencies or integrated layers of HermesP2P.</p>
+  <div class="actions"><a href="https://signet.tools/">Signet</a><a href="https://jmcentire.github.io/agent-safe/">Agent-Safe</a><a href="https://jmcentire.github.io/tessera/">Tessera</a><a href="https://jmcentire.github.io/BlindDB/">BlindDB</a></div>
+</section>
 <section class="section split" aria-labelledby="contribute-title">
   <div><h2 id="contribute-title">Build it in the open.</h2><p>Run a local text relay, review the boundaries, or help turn the next protocol claim into a reproducible test.</p><div class="actions"><a class="button" href="https://github.com/jmcentire/HermesP2P">Explore the source</a><a href="https://a.co/d/05PSJFBK">Read <em>Privacy</em></a></div></div>
   <div><h3>Run locally</h3><pre><code>git clone https://github.com/jmcentire/HermesP2P.git

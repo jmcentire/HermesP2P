@@ -1,6 +1,6 @@
 # HermesP2P
 
-An experimental text-messaging client working toward ephemeral, anonymous peer-to-peer communication.
+A standalone, experimental text-messaging project working toward ephemeral, anonymous peer-to-peer communication.
 
 The browser connects to known WebSocket hubs for signalling and relay delivery, and attempts bounded direct WebRTC data channels. The relay remains active even when direct links work. This is an **experimental partial mesh**, with no configured STUN/TURN service. Local hub delivery and direct dummy-frame delivery between separate Safari tabs have passed, including reconnect with test relay forwarding disabled. Chrome direct connectivity remains unresolved; a mixed Safari–Chrome pair also timed out. Cross-device and wide-area delivery remain unverified. Privacy and anonymity are design goals, not guarantees of the prototype.
 
@@ -106,6 +106,13 @@ Subscriptions and superlikes reward creators, like subscriptions and donations o
 Only verified settled funds may be paid out or release a subscription key. Controlling both the sender and the creator account cannot generate new value through self-tipping; the same settled-value limit applies.
 
 The dummy reference and its tests should establish signature-domain and currency-type separation, supply conservation, proof-bound and duplicate redemption controls, expiry, safe failure/retry/idempotency, and transaction-linkability limits. Test that pending or failed payments never cause key release or payout, and that self-tipping cannot increase redeemable value. These are sandbox validation targets, not claims that live payments, audience rewards, subscriptions, or donations are available in the browser client.
+
+## Related projects
+
+[Signet](https://signet.tools/), [Agent-Safe](https://jmcentire.github.io/agent-safe/),
+[Tessera](https://jmcentire.github.io/tessera/) and [BlindDB](https://jmcentire.github.io/BlindDB/)
+are separate related projects. HermesP2P does not depend on them or implement an
+integrated stack with them. These links do not promise future integration.
 
 ## Website and deployment
 
