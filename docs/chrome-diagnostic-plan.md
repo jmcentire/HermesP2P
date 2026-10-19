@@ -190,8 +190,9 @@ Only already available evidence supports this comparison:
 
 The same installed version can connect in this environment. That narrows the
 failure but does not isolate a profile setting, extension, permission, feature
-trial, timing or network-interface selection as its cause. Fresh profiles still
-share application-level OS permissions. No extension attribution or normal-profile
+trial, timing or network-interface selection as its cause. A fresh profile alone
+does not determine macOS permission attribution; launch context also matters.
+No extension attribution or normal-profile
 repair is justified by this comparison. The observations occurred at different
 times, so a change over time is another possible explanation. `remoteApi` was zero
 even in the connected isolated run; it cannot distinguish these outcomes. The
@@ -243,3 +244,83 @@ operator stop then ended the owned controller; its PID and listener were verifie
 absent. The screen was released. No second browser run, settings change or Claude
 memory-hook invocation occurred in this pass. Further hypothesis testing remains
 separate work; this result does not justify a speculative product change.
+
+## GUI-opened Guest control and launch-attribution limit
+
+The next authorized single run opened Guest through the already-running Chrome
+profile menu, then used the same native fixture. The main browser PID, official
+binary path and command-line hash were identical before and with Guest open.
+This was not another executor-launched Chrome process. Guest reproduced the
+failure: accepted candidates, ICE/RTC `new`, zero remote candidates/pairs at
+2/8/12 seconds, two UDP plus two TCP local candidates, and a failed retained
+generated-name OS lookup. No channel-open or dummy-frame marker appeared.
+Native accessibility truncated the long output; an owned-window screenshot
+confirmed the normal cleanup marker and absence of those delivery markers.
+
+[The Guest receipt](../tests/browser/results/chrome-guest-2026-10-19.json) keeps
+controller snapshots separate from operator visual observations. Its cleanup
+baseline is **31 normal tabs before and the same 31 IDs after**. The earlier
+normal recheck had its own 29-tab baseline and a later additional non-fixture tab;
+the counts describe different checkpoints. The owned Guest window and controller
+were closed, the listener was absent, and the screen was released. No second run,
+extension installation, sign-in, settings change or permission grant occurred.
+
+A narrowly scoped read-only comparison found four stored WebRTC keys absent in
+both normal-profile preference stores: IP handling, multiple routes, non-proxied
+UDP and UDP port range. Six installed extension records had no declared or stored
+active `privacy` API permission. That API permission is required for Chrome's
+[WebRTC IP-handling control](https://developer.chrome.com/docs/extensions/reference/api/privacy#property-network-webRTCIPHandlingPolicy).
+This is not a complete audit of extension effects or proof of runtime effective
+preference values. No broad preference dump, browsing history or credential store
+was read or published. HermesP2P must work without requiring an extension.
+
+[Apple TN3179](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy)
+distinguishes Terminal/SSH-launched command-line tools and their children from
+other app-responsible code. The observed executor ancestry was Python → shell →
+Codex CLI → ChatGPT, so the Terminal/SSH exemption is **not established**. The
+successful disposable process was already deleted before responsibility could
+be recorded. Same-PID and parent-PID observations do not identify macOS responsible
+code, and the WebRTC log's permission-query bypass is a separate browser-level
+decision, not proof of an OS exemption.
+
+No safe unprivileged responsible-code query was established. The local documented
+`launchctl procinfo` facility requires root; it was not invoked. The documented
+`ps` parent-process fields do not supply that attribution. No privileged access,
+stack capture or broad OS logs were requested to fill this gap.
+
+### Smallest remaining launch-route control (not executed)
+
+| Control already performed | Result |
+|---|---|
+| Normal profile after official update/relaunch into a new browser process | Failed |
+| Normal profile recheck in that GUI process | Failed |
+| Guest opened in that same GUI browser process | Failed |
+| Fresh disposable profile in a separate directly executor-launched process | Connected; application delivery unverified |
+| Fresh disposable profile in a new LaunchServices-launched instance | Not tested |
+
+Another ordinary restart is redundant: the official update/relaunch already
+changed the main process and still failed. The smallest useful missing control
+is **one fresh disposable-profile instance launched through macOS LaunchServices**,
+using the same installed binary, fixture, origin and Chrome argument values as
+the successful direct-executable launch (apart from the unique temporary path).
+The installed `open` manual documents `-n` for a new application instance,
+`--args` for application arguments and `--stdout`/`--stderr` redirection. This can
+keep the existing normal Chrome process and tabs running. If matching the previous
+diagnostic flags, direct stdout/stderr to `/dev/null`; do not persist raw logs.
+Do not copy the normal profile, grant permissions or use remote debugging.
+
+Expected cost is roughly **2–4 minutes**, one temporary Chrome window and a
+12-second normal native run (22-second hard fixture limit). No paid service or
+normal-browser restart is needed. The earlier separate-process targeting limit
+means one owner click may be needed after the new fixture window is identified.
+Verify the new main PID and matching arguments before interpreting the result,
+then close only that instance and remove its dummy profile/controller.
+
+This would test a documented launch-route difference while retaining a fresh
+process/profile on both sides of the comparison. LaunchServices invocation by
+the executor is **not proof of a different macOS responsible app**, and inherited
+environment, helper attribution and time remain limitations. A failure would
+show that fresh-process-plus-clean-profile is insufficient under that route;
+a success would show that direct executor launch is not necessary for this
+connectivity result. Neither result alone diagnoses macOS permission enforcement.
+No browser action was taken during this background reconciliation pass.

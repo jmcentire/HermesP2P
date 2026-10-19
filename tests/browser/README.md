@@ -62,6 +62,11 @@ single run in unchanged normal Chrome reproduced the same zero-pair failure;
 its complete result text had neither channel-open nor frame-received markers.
 See the [normal-profile recheck receipt](results/chrome-normal-recheck-2026-10-19.json).
 No causal variable was isolated, and no settings changed.
+One subsequent [GUI-opened Guest run](results/chrome-guest-2026-10-19.json) also
+failed while keeping the main Chrome PID/binary/arguments unchanged. Its own
+31-tab normal-profile baseline was preserved. This weakens a normal-profile-only
+explanation but does not establish OS permission attribution or a browser-wide
+WebRTC failure. See the [remaining launch-route control](../../docs/chrome-diagnostic-plan.md#smallest-remaining-launch-route-control-not-executed).
 
 The isolated helper's readiness module is external and same-origin, so it works
 under the unchanged application CSP. Checks for this instrumentation run with
