@@ -10,9 +10,15 @@ separate cleanup baseline was 31 normal tabs, all preserved. See the
 [isolated receipt](../tests/browser/results/chrome-isolated-2026-10-19.json),
 [normal recheck](../tests/browser/results/chrome-normal-recheck-2026-10-19.json)
 and [Guest receipt](../tests/browser/results/chrome-guest-2026-10-19.json).
-The [remaining launch-route control](chrome-diagnostic-plan.md#smallest-remaining-launch-route-control-not-executed)
-accounts for the already failed official update/relaunch; no further restart or
-test has been performed.
+A subsequent fresh-profile LaunchServices instance also failed at the retained
+2/8-second samples, with a failed exact-name OS lookup and no delivery callbacks.
+Its normal fixture-cleanup callback and separate 28-second controller deadline
+were recorded. No 12-second snapshot was retained; the observer/cleanup boundary
+can race, but its exact cause was not captured. Original Chrome main processes
+were preserved and the disposable profile removed. See the
+[LaunchServices receipt](../tests/browser/results/chrome-launchservices-2026-10-19.json)
+and [completed comparison](chrome-diagnostic-plan.md#completed-launchservices-control-2026-10-19).
+This supports investigating launch context, not an OS permission diagnosis.
 
 This revision was checked with executable Node tests, the installed Constrain and PACT mechanical validators, and actual local-model Advocate and Simulacrum reviews. These checks establish properties of the reference sandbox and the tested transport paths. They do not certify production anonymity, human attention, durable money handling, or safe distributed settlement.
 

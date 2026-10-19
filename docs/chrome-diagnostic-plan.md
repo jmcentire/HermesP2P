@@ -288,7 +288,7 @@ No safe unprivileged responsible-code query was established. The local documente
 `ps` parent-process fields do not supply that attribution. No privileged access,
 stack capture or broad OS logs were requested to fill this gap.
 
-### Smallest remaining launch-route control (not executed)
+### Launch-route control — plan and completed result
 
 | Control already performed | Result |
 |---|---|
@@ -296,8 +296,9 @@ stack capture or broad OS logs were requested to fill this gap.
 | Normal profile recheck in that GUI process | Failed |
 | Guest opened in that same GUI browser process | Failed |
 | Fresh disposable profile in a separate directly executor-launched process | Connected; application delivery unverified |
-| Fresh disposable profile in a new LaunchServices-launched instance | Not tested |
+| Fresh disposable profile in a new LaunchServices-launched instance | Failed at retained 2/8-second samples; no delivery markers |
 
+The following pre-run plan was executed once, with the result below.
 Another ordinary restart is redundant: the official update/relaunch already
 changed the main process and still failed. The smallest useful missing control
 is **one fresh disposable-profile instance launched through macOS LaunchServices**,
@@ -323,4 +324,77 @@ environment, helper attribution and time remain limitations. A failure would
 show that fresh-process-plus-clean-profile is insufficient under that route;
 a success would show that direct executor launch is not necessary for this
 connectivity result. Neither result alone diagnoses macOS permission enforcement.
-No browser action was taken during this background reconciliation pass.
+No additional browser action was taken during the subsequent reconciliation pass.
+
+
+### Completed LaunchServices control (2026-10-19)
+
+The [sanitized receipt](../tests/browser/results/chrome-launchservices-2026-10-19.json)
+records a successful `open -n` invocation, a uniquely identified new main process
+with the intended disposable profile and matched Chrome arguments, and acknowledged
+page-ready and single-click callbacks. The corrected external readiness module ran
+under the unchanged CSP. A same-origin external observer sent only three allowlisted
+DOM marker categories; unknown categories and cross-origin requests were rejected
+in the wrapper check. Eight existing telemetry checks also passed before launch.
+The private original controller and receipt were archived byte-for-byte; their hashes
+are published, with no personal profile paths, PIDs, raw logs or network identifiers.
+
+Both peers accepted one candidate with no rejection, matching MID/ufrag and all
+observed candidates delivered. At **2 and 8 seconds**, ICE/RTC remained `new`, local
+stats contained two UDP and two TCP host candidates, and remote candidates/pairs
+were zero. The retained exact generated-name OS lookup failed. The fixture's normal
+cleanup callback arrived; neither channel-open nor dummy-frame callback arrived.
+These callbacks are observed telemetry, not a guarantee that every event was delivered.
+No permission-state query result or native resolver log category was retained in this
+run. Browser stdout and stderr went directly to `/dev/null`.
+
+**No 12-second snapshot was retained.** The independent observer schedules a sample
+at 12 seconds and returns without posting if closed before or after asynchronous
+`getStats()`. The native fixture schedules normal cleanup at 12 seconds after setup.
+A cleanup/sample race is therefore plausible, but no timing trace was retained to
+identify the exact reason. The missing sample is not evidence of success, failure,
+App Nap or permission enforcement. Neither earlier receipts nor fixture bytes were
+changed to fill the gap.
+
+The fixture reported `cleanup: native run complete`. Separately, the controller
+recorded `post_click_deadline`: its condition was more than 28 seconds since the
+acknowledged click, checked every half-second. The precise stop timestamp was not
+retained. It then terminated only the identified disposable main process, shut down
+the loopback server, removed the temporary profile and verified original main PIDs
+and command lines unchanged. No tab inventory was taken in this run, so the earlier
+Guest tab-count proof must not be reused here. A subsequent read-only process/listener
+check confirmed the controller and port 8787 listener absent; the original receipt
+still matched its archive byte-for-byte. No further user action was required.
+
+### Diagnosis and focused next step
+
+The failure occurs in the native browser loopback without HP2P signalling or message
+validation. Candidate API acceptance plus matching descriptions and zero pairs narrows
+the observed failure to later browser host-candidate processing/reachability. Failed
+exact-name OS lookup and earlier successful native resolver categories make the mDNS
+path a useful lead. They do not identify its failing component. Chromium documents
+its own [mDNS client and separate system-resolver source](https://chromium.googlesource.com/chromium/src/+/main/net/dns/README.md#MULTICAST_DNS);
+an OS lookup is a corroborating probe, not a trace of Chrome's resolver. No native
+Bonjour bottleneck, wrong virtual interface or extension cause is established.
+
+Normal, Guest and fresh LaunchServices failures versus direct-executor connectivity
+support a launch-context association. A clean profile/new main process alone is
+insufficient. Responsible-code attribution, inherited environment, helper state,
+log-consumer differences and time remain confounds. The browser LNA branch and macOS
+privacy enforcement must remain separate hypotheses.
+
+The next useful action is a **source-guided Chromium escalation packet**, using this
+matrix, pinned fixture hashes, retained counters and cleanup limits. Ask the browser
+maintainer to identify a connection-scoped, address-redacting instrumentation point
+between accepted remote mDNS candidate, resolver result and pair creation. Review that
+instrumentation before proposing any further runtime capture; do not repeat broad
+restart/profile/extension experiments. This section and linked receipts are the draft
+packet; no external issue or message has been sent.
+
+Keep the product's bounded relay fallback and honest experimental-direct status.
+Do not require an extension, request camera/microphone for text, expose host addresses
+or disable privacy protections as a workaround. Production cross-network traversal
+is a separate design/acceptance task: document metadata disclosure and verify the
+selected host/server-reflexive/relay path with application encryption intact. This
+host-only control does not justify adding public STUN/TURN servers or claiming WAN
+readiness; no such configuration was added.

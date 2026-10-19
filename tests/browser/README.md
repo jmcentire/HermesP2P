@@ -66,7 +66,10 @@ One subsequent [GUI-opened Guest run](results/chrome-guest-2026-10-19.json) also
 failed while keeping the main Chrome PID/binary/arguments unchanged. Its own
 31-tab normal-profile baseline was preserved. This weakens a normal-profile-only
 explanation but does not establish OS permission attribution or a browser-wide
-WebRTC failure. See the [remaining launch-route control](../../docs/chrome-diagnostic-plan.md#smallest-remaining-launch-route-control-not-executed).
+WebRTC failure. The subsequent [LaunchServices control](results/chrome-launchservices-2026-10-19.json)
+also failed with a fresh profile/new process at retained 2/8-second samples. Its
+12-second observer sample is missing; normal cleanup was recorded. See the
+[completed comparison and limits](../../docs/chrome-diagnostic-plan.md#completed-launchservices-control-2026-10-19).
 
 The isolated helper's readiness module is external and same-origin, so it works
 under the unchanged application CSP. Checks for this instrumentation run with

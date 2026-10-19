@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-19",
+  "sourceCommit": "09144520607d390bd528701002f4bfab780f8312",
+  "scope": "One host-only native trickle loopback in a fresh disposable Chrome process launched by macOS LaunchServices using open -n. No STUN/TURN or media capture.",
+  "launch": {
+    "route": "macOS LaunchServices open -n",
+    "returnCode": 0,
+    "newMainProcessVerified": true,
+    "argumentsMatched": true,
+    "matchedArguments": [
+      "--user-data-dir=<fresh disposable path>",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--enable-logging=stderr",
+      "--vmodule=p2p_transport_channel=1",
+      "--new-window",
+      "http://localhost:8787/__diag__/connectivity.html?browser=chrome"
+    ],
+    "outputDisposition": "stdout and stderr redirected to /dev/null; no native log categories collected",
+    "responsibleCodeAttribution": "Not captured. LaunchServices route and parent process are not kernel responsible-code attribution."
+  },
+  "fixtureHashes": {
+    "connectivity.html": "d123bac8a71772323e0d630011c1a27eb22d41777c5669ac0b511eb032efe68c",
+    "connectivity.js": "ebba9b81e6471174c2e4205d28e0da0c8f5af70460ae1f8d6a09b556d4600ed8",
+    "candidate_observer.js": "b648f705d65aac6378035c768d798b7c2a5ff52b3a997400823ede9852793a81",
+    "candidate_server.py": "b79e674fda7fa0680d5e7e4397248cc8e97842a6d5c08856a88af0728181d940",
+    "isolated_ready.js": "c2b699e3e7fb7447ce38054dc903d2505677b00990421cef87bfc8c469c6c6f3"
+  },
+  "callbacks": [
+    {
+      "event": "page_ready",
+      "elapsed": 0.763
+    },
+    {
+      "event": "test_clicked",
+      "elapsed": 3.485
+    }
+  ],
+  "fixedMarkerCallbacks": [
+    "fixture_cleanup"
+  ],
+  "fixture": {
+    "snapshots": [
+      {
+        "browser": "chrome",
+        "pc": 1,
+        "at": 2,
+        "ice": "new",
+        "connection": "new",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 4,
+        "remoteStats": 0,
+        "pairs": 0,
+        "localHostUdp": 2,
+        "localHostTcp": 2,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 2,
+        "at": 2,
+        "ice": "new",
+        "connection": "new",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 4,
+        "remoteStats": 0,
+        "pairs": 0,
+        "localHostUdp": 2,
+        "localHostTcp": 2,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 1,
+        "at": 8,
+        "ice": "new",
+        "connection": "new",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 4,
+        "remoteStats": 0,
+        "pairs": 0,
+        "localHostUdp": 2,
+        "localHostTcp": 2,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 2,
+        "at": 8,
+        "ice": "new",
+        "connection": "new",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 4,
+        "remoteStats": 0,
+        "pairs": 0,
+        "localHostUdp": 2,
+        "localHostTcp": 2,
+        "otherLocal": 0
+      }
+    ],
+    "resolutions": [
+      {
+        "resolved": false,
+        "families": [],
+        "browser": "chrome",
+        "pc": 1
+      }
+    ]
+  },
+  "observations": {
+    "execution": "observed",
+    "clickReceipt": "received",
+    "connectivity": "unverified",
+    "applicationDelivery": "unverified"
+  },
+  "missingSnapshot": {
+    "expectedSeconds": 12,
+    "receivedSeconds": [
+      2,
+      8
+    ],
+    "explanation": "The observer schedules at 12 seconds and skips when closed before or after asynchronous getStats; the native fixture also schedules normal cleanup at 12 seconds after setup. This creates a possible cleanup/sample race. No per-callback timestamps/errors were retained to establish the exact cause. Do not infer a 12-second state."
+  },
+  "cleanup": {
+    "fixtureNormalCleanupReceived": true,
+    "controllerStopTrigger": "post_click_deadline",
+    "controllerRule": "since_click > 28 seconds, checked every 0.5 seconds; exact stop timestamp not retained",
+    "ownedBrowserStopped": true,
+    "profileRemoved": true,
+    "originalMainProcessesAndCommandLinesPreserved": true,
+    "tabInventory": "Not independently inventoried during this run; process preservation does not prove tab inventory preservation.",
+    "serverShutdown": "Controller called shutdown and server_close before saving stopped status.",
+    "subsequentReadOnlyVerification": {
+      "controllerAbsent": true,
+      "listener8787Absent": true,
+      "originalReceiptPreserved": true
+    }
+  },
+  "originalReceiptSha256": "c277be6b078e40f86da7b80bd035ac8e3f89262ee2ed6561168423a52fabb5d9",
+  "executedLauncherSha256": "5aaaee1af877efd8d0cc83763777e2516611760ac5144d6647f65ffdac46dded",
+  "interpretation": "A fresh process and clean profile were insufficient on the LaunchServices route. The earlier direct-executor run connected; route-associated runtime/environment/helper/OS attribution and temporal differences remain unresolved. Supports investigation of launch context, not proof of OS permission enforcement or a specific resolver defect.",
+  "boundaries": "No second run, permission grants, settings changes, extension installation, paid provider, raw logs, live funds or external STUN/TURN service. Original receipts retained byte-for-byte."
+}
