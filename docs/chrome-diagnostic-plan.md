@@ -1,5 +1,9 @@
 # Bounded Chrome candidate diagnostic plan
 
+**Later outcome:** the owner-authorized disposable-process diagnostic below was
+subsequently performed; see [the isolated result](#isolated-process-result-and-next-discriminator).
+The original scoped plan and its capability checkpoint remain historical records.
+
 Prepared 2026-10-19; **not executed**. This preparation used files and public source
 only. No browser, screen capture, permission change or new Chrome process was used.
 The live checkpoint remains Chrome 155.0.8059.85 on macOS 26.6.2, with direct
@@ -137,3 +141,75 @@ was not established, so the plan stopped before a new runtime test. No global du
 security intervention or new process was attempted. This records a limit of the
 available supported route, not proof that every possible Chrome tool lacks such a
 facility. The existing native and mDNS controls were not rerun.
+
+## Isolated-process result and next discriminator
+
+On 2026-10-19 an authorized temporary profile used the installed official Chrome
+155.0.8059.85 binary, with `--enable-logging=stderr` and
+`--vmodule=p2p_transport_channel=1`. An in-memory filter retained only fixed event
+categories and elapsed times. There was no remote debugging, normal-profile
+logging, security change, copied profile or extension installation. The owner
+clicked Native trickle loopback once. The complete-SDP test was not run.
+
+[The sanitized receipt](../tests/browser/results/chrome-isolated-2026-10-19.json)
+records two browser resolver successes and two branches where a local-network
+permission query was unnecessary. Both peers had connected ICE/RTC state, one
+remote candidate and one pair at 2/8/12 seconds. One retained distinct-name OS
+lookup resolved IPv4. The observer did not retain an explicit deduplication count.
+Data-channel-open and dummy-frame-received markers were not retained, so this is
+**connectivity evidence, not verified application delivery**.
+
+The added inline readiness/click hook conflicted with the application's existing
+`script-src 'self'`. This source/policy finding explains the absent callbacks;
+a browser console CSP error was not captured. The original `testRan:false` field
+only reflected that callback and must not override six independent snapshots.
+The original receipt and launcher are preserved privately, with SHA-256 hashes
+in the public result. The corrected hook is an external same-origin module;
+regression checks verify unchanged CSP, asset availability, readiness failure,
+duplicate-click prevention and conservative evidence labels. It has not been
+rerun in a live browser.
+
+The window disappeared because the operator explicitly requested cleanup after
+reading the results. The post-click timer never started. The original generic
+`owned_process_stopped` receipt is disambiguated by the retained stop action;
+future cleanup labels distinguish these causes. Both owned processes exited,
+the loopback listener closed and the temporary profile was removed. Normal Chrome
+was untouched.
+
+Only already available evidence supports this comparison:
+
+| Observation | Earlier normal-profile runs | Disposable-profile run |
+|---|---|---|
+| Candidate API | Accepted one per peer | Accepted one per peer |
+| Browser resolver | Internal events unavailable | Two successes |
+| Permission processing | Historical query `prompt`; branch unknown | Query unnecessary for both candidates |
+| Candidate statistics | Four local; zero remote/pairs | Two local; one remote/pair per peer |
+| Host TCP statistics | Two local host TCP candidates | Zero local host TCP candidates |
+| Exact generated-name OS lookup | Retained Chrome result failed | Retained result resolved IPv4 |
+| Policy/configuration evidence | Effective policy UI empty; active flags only restart markers | Fresh profile; explicit diagnostic logging and first-run suppression flags |
+
+The same installed version can connect in this environment. That narrows the
+failure but does not isolate a profile setting, extension, permission, feature
+trial, timing or network-interface selection as its cause. Fresh profiles still
+share application-level OS permissions. No extension attribution or normal-profile
+repair is justified by this comparison. The observations occurred at different
+times, so a change over time is another possible explanation. `remoteApi` was zero
+even in the connected isolated run; it cannot distinguish these outcomes. The
+retained `remoteStats` and `pairs` fields do.
+
+Claude Validator reviewed the supplied helper code, tests and sanitized evidence
+without executing them. Its required correction was to acknowledge this temporal
+confound explicitly; the result now does. Its source review found the CSP and
+one-shot design consistent, while noting that the private process launcher was
+outside its packet and the corrected hook still needs a live integration run.
+
+**Smallest next discriminating test (not executed):** one owned disposable tab
+in the existing normal Chrome process, using the same localhost origin, native
+trickle fixture and candidate observer. Retain fixed channel-open and dummy-frame
+receipt evidence as well as candidate counts. This first distinguishes a currently
+reproducible normal-profile failure from a transient condition since the prior
+runs. Do not repeat complete-SDP, change extensions/settings, restart normal
+Chrome or collect its process logs. If it still fails while the fresh-profile
+result remains the positive control, select one further hypothesis from evidence
+before any intervention. Stop on a permission prompt. No new window or browser
+test was launched during the background correction/review pass.

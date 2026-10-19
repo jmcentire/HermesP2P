@@ -51,6 +51,22 @@ Do not collect or publish raw browser networking exports.
 
 ## Observed results on the development Mac
 
+**Later isolated Chrome result (2026-10-19):** a fresh disposable profile connected
+both native peers at 2/8/12 seconds, with successful internal resolver events and
+one remote candidate/pair each. Application delivery was not retained and remains
+unverified. The normal profile was not changed or retested in that pass. See the
+[receipt](results/chrome-isolated-2026-10-19.json) and
+[comparison/next discriminator](../../docs/chrome-diagnostic-plan.md#isolated-process-result-and-next-discriminator).
+The older failures below remain valid historical observations.
+
+The isolated helper's readiness module is external and same-origin, so it works
+under the unchanged application CSP. Checks for this instrumentation run with
+`python tests/browser/check_isolated_diagnostic.py` and
+`node --test tests/browser/check_isolated_ready.mjs`; these do not launch a browser.
+Importing `isolated_diagnostic.py` does not start a server or Chrome. Missing click
+telemetry means unavailable telemetry, not proof that no test ran. A connected
+candidate pair alone does not prove application delivery.
+
 On 2026-10-18, Chrome native trickle and complete-SDP loopbacks reached stable signalling
 and complete ICE gathering but stayed in ICE `new`, with no remote candidates or
 candidate pairs in pre-close snapshots. The real-hub mesh also timed out.

@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-19",
+  "status": "Native ICE/RTC connectivity observed in a disposable Chrome profile; application delivery unverified",
+  "sourceCommit": "604b637d1c771c49612fe7361646ee44e0dce0d4",
+  "browser": {
+    "version": "155.0.8059.85",
+    "versionEvidence": "Installed official application bundle; owned process launched this binary. No isolated-window version UI capture.",
+    "environment": "Same Mac; fresh disposable profile, no copied user profile, no sign-in or extension installation"
+  },
+  "scope": "One user-started native trickle loopback, two peer connections in one page, dummy data, no external ICE servers or media; no complete-SDP test.",
+  "originalReceiptSha256": "e30d8b94f6b7a69291e2e283ea6bab6aa8528aa013a78e16c3aee0042d03a56a",
+  "originalLauncherSha256": "76ba98c9bbb616a25be412d89027dd0f4a5b64daa3bd32aeb3bd6b42fc694095",
+  "instrumentation": {
+    "originalClickFlag": false,
+    "clickCallback": "unavailable",
+    "pageReadyCallback": "unavailable",
+    "execution": "independently observed",
+    "explanation": "The added inline module is incompatible with the retained script-src self CSP. Original external candidate observer and process logging remained functional. No browser console CSP error was captured; this cause follows from served source and policy.",
+    "fixedHookLiveRerun": false
+  },
+  "processEvents": [
+    {
+      "event": "resolver_started",
+      "elapsed": 112.92
+    },
+    {
+      "event": "resolver_started",
+      "elapsed": 112.921
+    },
+    {
+      "event": "resolver_succeeded",
+      "elapsed": 112.926
+    },
+    {
+      "event": "permission_bypassed",
+      "elapsed": 112.927
+    },
+    {
+      "event": "resolver_succeeded",
+      "elapsed": 112.927
+    },
+    {
+      "event": "permission_bypassed",
+      "elapsed": 112.927
+    },
+    {
+      "event": "owned_process_stopped",
+      "elapsed": 198.13
+    }
+  ],
+  "eventTimeOrigin": "Seconds since diagnostic controller startup, not click time.",
+  "fixture": {
+    "snapshots": [
+      {
+        "browser": "chrome",
+        "pc": 1,
+        "at": 2,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 2,
+        "at": 2,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 1,
+        "at": 8,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 2,
+        "at": 8,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 1,
+        "at": 12,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      },
+      {
+        "browser": "chrome",
+        "pc": 2,
+        "at": 12,
+        "ice": "connected",
+        "connection": "connected",
+        "policy": "all",
+        "generated": 1,
+        "applied": 1,
+        "rejected": 0,
+        "endEvents": 1,
+        "localSdp": 1,
+        "remoteSdp": 1,
+        "remoteApi": 0,
+        "localApi": 1,
+        "midMatch": true,
+        "ufragMatch": true,
+        "allDelivered": true,
+        "localStats": 2,
+        "remoteStats": 1,
+        "pairs": 1,
+        "localHostUdp": 2,
+        "localHostTcp": 0,
+        "otherLocal": 0
+      }
+    ],
+    "resolutions": [
+      {
+        "resolved": true,
+        "families": [
+          "IPv4"
+        ],
+        "browser": "chrome",
+        "pc": 1
+      }
+    ]
+  },
+  "interpretation": {
+    "connectivity": "Both peers connected at 2, 8 and 12 seconds, with one remote candidate and one candidate pair each.",
+    "resolver": "Two internal resolver successes; one retained distinct-name OS result resolved IPv4. The older observer does not retain a deduplication count.",
+    "permission": "Two no-need-to-request permission branches; no permission change or denial observed. This is not evidence that the permission factory was absent.",
+    "applicationDelivery": "Unverified: channel-open and dummy-frame receipt markers were not retained.",
+    "normalProfile": "Untouched in this pass; its current behavior was not retested.",
+    "rootCause": "A disposable profile connected in a newly launched process; earlier normal-profile runs failed. The normal profile was not retested at the same time, so the difference may reflect profile, process or runtime state, or a change over time. No causal variable has been isolated.",
+    "candidateApiLimit": "remoteApi remained zero even in this successful connection; use remoteStats and pairs for the retained connectivity discriminator."
+  },
+  "cleanup": {
+    "trigger": "operator_stop_request",
+    "evidence": "Operator created the owned stop sentinel after reading six candidate snapshots. Original launcher used the same owned_process_stopped label for stop sentinel and process exit; the retained action history disambiguates the trigger.",
+    "postClickTimerRan": false,
+    "ownedProcessesExited": true,
+    "loopbackListenerClosed": true,
+    "disposableProfileRemoved": true,
+    "normalBrowserChanged": false
+  },
+  "fixtureHashes": {
+    "tests/browser/connectivity.html": "d123bac8a71772323e0d630011c1a27eb22d41777c5669ac0b511eb032efe68c",
+    "tests/browser/connectivity.js": "ebba9b81e6471174c2e4205d28e0da0c8f5af70460ae1f8d6a09b556d4600ed8",
+    "tests/browser/candidate_server.py": "b79e674fda7fa0680d5e7e4397248cc8e97842a6d5c08856a88af0728181d940",
+    "tests/browser/candidate_observer.js": "b648f705d65aac6378035c768d798b7c2a5ff52b3a997400823ede9852793a81",
+    "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451"
+  },
+  "limitations": [
+    "Not a clean variable-controlled profile comparison; process, defaults, field-trial/runtime state and launch flags differ.",
+    "No proof of application data delivery, encrypted HP2P UI behavior, separate-tab Chrome, cross-device/WAN connectivity or anonymity.",
+    "No raw process lines, hostnames, addresses, ICE credentials or user browsing history retained."
+  ]
+}

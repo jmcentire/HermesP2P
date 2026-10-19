@@ -26,5 +26,7 @@ jobs:
       - run: python tests/browser/check_candidate_server.py
       - run: python tests/browser/check_four_peer_server.py
       - run: python tests/browser/check_sealed_ui_server.py
+      - run: python tests/browser/check_isolated_diagnostic.py
+      - run: node --test tests/browser/check_isolated_ready.mjs
       - run: node tests/browser/check_signature_control.mjs
       - run: node tests/check_sealed_mutations.mjs

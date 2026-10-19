@@ -1,5 +1,11 @@
 # Validation scope and evidence
 
+Latest Chrome checkpoint: an authorized disposable-profile native loopback
+connected on 2026-10-19. This updates the older Chrome failures recorded below;
+it does not establish application-frame delivery or repair the normal profile.
+See the [isolated receipt](../tests/browser/results/chrome-isolated-2026-10-19.json)
+and [bounded comparison](chrome-diagnostic-plan.md#isolated-process-result-and-next-discriminator).
+
 This revision was checked with executable Node tests, the installed Constrain and PACT mechanical validators, and actual local-model Advocate and Simulacrum reviews. These checks establish properties of the reference sandbox and the tested transport paths. They do not certify production anonymity, human attention, durable money handling, or safe distributed settlement.
 
 ## Reproduce the checks
