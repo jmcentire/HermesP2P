@@ -57,7 +57,11 @@ one remote candidate/pair each. Application delivery was not retained and remain
 unverified. The normal profile was not changed or retested in that pass. See the
 [receipt](results/chrome-isolated-2026-10-19.json) and
 [comparison/next discriminator](../../docs/chrome-diagnostic-plan.md#isolated-process-result-and-next-discriminator).
-The older failures below remain valid historical observations.
+The older failures below remain valid historical observations. A subsequent
+single run in unchanged normal Chrome reproduced the same zero-pair failure;
+its complete result text had neither channel-open nor frame-received markers.
+See the [normal-profile recheck receipt](results/chrome-normal-recheck-2026-10-19.json).
+No causal variable was isolated, and no settings changed.
 
 The isolated helper's readiness module is external and same-origin, so it works
 under the unchanged application CSP. Checks for this instrumentation run with

@@ -203,7 +203,7 @@ confound explicitly; the result now does. Its source review found the CSP and
 one-shot design consistent, while noting that the private process launcher was
 outside its packet and the corrected hook still needs a live integration run.
 
-**Smallest next discriminating test (not executed):** one owned disposable tab
+**Next test proposed at that checkpoint (subsequently executed below):** one owned disposable tab
 in the existing normal Chrome process, using the same localhost origin, native
 trickle fixture and candidate observer. Retain fixed channel-open and dummy-frame
 receipt evidence as well as candidate counts. This first distinguishes a currently
@@ -213,3 +213,33 @@ Chrome or collect its process logs. If it still fails while the fresh-profile
 result remains the positive control, select one further hypothesis from evidence
 before any intervention. Stop on a permission prompt. No new window or browser
 test was launched during the background correction/review pass.
+
+## Normal-profile recheck after isolated success
+
+One authorized native trickle run in an owned tab of the unchanged normal Chrome
+process reproduced the failure. All five fixture source hashes matched the earlier
+isolated run. Both peers accepted one candidate without rejection, retained matching
+MID/ufrag and complete delivery, but stayed in ICE/RTC `new` at 2/8/12 seconds.
+Each had four local candidates (two UDP and two TCP), zero remote candidates and
+zero pairs. The one retained exact generated-name OS lookup failed.
+
+The complete fixture result text contained its normal cleanup marker and neither
+`native channel OPEN` nor `native dummy frame RECEIVED`. Unlike the isolated run,
+these fixed delivery markers were checked explicitly. Both permission queries
+reported `prompt`; this is not an observed permission denial or an internal gate
+decision. No normal-profile process logging was collected.
+
+See [the recheck receipt](../tests/browser/results/chrome-normal-recheck-2026-10-19.json).
+The normal-failure / isolated-connectivity / normal-failure sequence strengthens
+the environment association and confirms the failure is currently reproducible.
+The runs remain sequential and differ in profile/process/runtime and launch
+conditions, so time-varying factors and the original temporal confound are not
+eliminated. No causal extension, setting, permission or engine defect is identified.
+
+The fixture completed its normal native-run cleanup. The owned tab was closed;
+all 29 original tab IDs remained, and no fixture tab remained. The final inventory
+had one additional non-fixture tab, which was not inspected or changed. An explicit
+operator stop then ended the owned controller; its PID and listener were verified
+absent. The screen was released. No second browser run, settings change or Claude
+memory-hook invocation occurred in this pass. Further hypothesis testing remains
+separate work; this result does not justify a speculative product change.
