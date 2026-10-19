@@ -315,3 +315,27 @@ method before installing its instance wrapper. This construction order preserves
 `observe.js`'s channel watcher. Do not reorder these wrappers without verifying
 both observers still receive every created channel; the setup remains diagnostic
 instrumentation rather than a production extension point.
+
+
+## Live sealed-message corruption probes
+
+Run `python tests/browser/sealed_ui_server.py` alone, then open disposable A/B
+product setup tabs as above. Wait for direct readiness and disable test hub data
+forwarding. Send normal private/DM messages through the actual form. On A's
+**Sealed transport probe v2** panel, send **private-control** and verify its token
+appears once in B's ReceiverRoom before sending private-ciphertext/private-nonce.
+Send **direct-control** and verify it once in B's Dummy Alice before its two
+negative probes. Abort that kind if its control does not display.
+
+After each negative, require its explicit valid-outer receipt label on B and
+inspect every conversation on both clients. A sees only some random rebroadcasts;
+record its actual labels. Send normal form messages again, verify delivery and
+perform the final all-conversation sweep. Never use aggregate frame counts as
+per-case receipts. The controller stores bounded fixed-case labels and rejects
+stale readiness. It does not assert UI acceptance or enforce the operator's
+control-display check. No raw keys, frames, IDs, addresses or candidates persist.
+
+`/__sealed__/status` records sanitized evidence and startup hashes. Save it before
+stopping and closing only the owned tabs/server. The base observer's 15-minute
+stop remains active. Background controller checks:
+`python tests/browser/check_sealed_ui_server.py` (no browser/listener).

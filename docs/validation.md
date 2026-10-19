@@ -226,7 +226,7 @@ verified. Wrong-key, missing-key, wrong-recipient checks and the final inspectio
 were completed in the resumed runs below. The observer's displayed
 counts refer only to the currently selected conversation; later zero counts must
 not erase earlier observations or be treated as proof of absence elsewhere.
-Private/direct tampering, WAN delivery and anonymity were not tested.
+Private/direct tampering was not tested in this historical run; see the later scoped sealed-UI results below. WAN delivery and anonymity remain untested.
 
 A preliminary four-client attempt never satisfied the requirement of three open
 direct channels at every client. It sent no product messages and kept data
@@ -342,7 +342,7 @@ test/source hashes and exact scope.
 
 No production crypto fix was required. The earlier completed public browser tamper
 check remains distinct; private/direct ciphertext tampering over live transport/UI
-is still pending. The [bounded Chrome diagnostic plan](chrome-diagnostic-plan.md)
+was pending at this module-only checkpoint; the later scoped run is recorded below. The [bounded Chrome diagnostic plan](chrome-diagnostic-plan.md)
 uses the displayed version's source tag and pinned WebRTC revision, identifies a
 possible browser-level local-network permission gate after name resolution, and
 requires scoped/redacted evidence before any later live tracing. It was not executed.
@@ -372,3 +372,60 @@ verify source citations/history. Its precision suggestions are reflected above;
 no permission-state observation is treated as proof of a root cause. Publication
 remains a draft-branch change: the live Pages source is still `main:/docs` and this
 pass performs no merge or deployment.
+
+
+### Live sealed-message corruption acceptance
+
+A later 2026-10-19 run used two separate Safari tabs, dummy A/B identities and
+unchanged product sources pinned to `1d587b1b1ed5391a90018705b3ae97c59b02129f`.
+The dedicated hub disabled data forwarding after both direct channels opened.
+Normal private/direct form messages arrived before and after the probes.
+
+A test-only panel constructed undamaged private/direct controls using the same
+real crypto, signatures and frame assembly as the negative probes. B displayed
+each once in the correct conversation **before** its corresponding negatives.
+Four fresh-ID frames then exercised private ciphertext-body bit flip, private
+nonce-first-bit flip, direct ciphertext-body bit flip and direct nonce-first-bit
+flip. Their outer signatures remained valid. Receiver-side observation verified
+all six control/probe labels after envelope validation. No raw frames or keys were
+saved. Fresh IDs avoid earlier legitimate-message deduplication masking a probe.
+
+All five configured conversations on both clients were inspected after each
+negative and after final normal sends: fifty operator readings. No corrupted
+probe token appeared anywhere. B retained one copy of each crafted control in
+its expected conversation. A received a subset of rebroadcast probes; only the
+cases in A's receipt record are claimed received there. A also displayed the
+private control's rebroadcast once, as expected for a raw-crafted send not locally
+registered by `packageMessage`.
+
+The hub blocked fifteen data frames; both clients reported one open direct channel,
+zero sends while forwarding was enabled and no observed link loss. Aggregate raw
+counts include rebroadcasts, so case labels—not aggregate increments—establish
+receipt. An initial incomplete run was stopped to add these labels and is excluded
+from acceptance evidence. Executed fixture bytes are retained unchanged.
+
+See [sealed UI evidence](../tests/browser/results/sealed-ui-2026-10-19.json).
+This establishes overall receive/UI rejection for these four cases, not which
+inner layer rejected them. The prior module checks isolate decryptor behavior.
+It does not cover arbitrary mutations, ephemeral-public-key tampering, live same-ID
+recovery, other browsers/devices, WAN or anonymity. Both owned tabs and servers
+were closed, original tabs preserved, and the screen released.
+
+The Chrome plan stopped at the safe-scoping prerequisite: connected-tool
+capabilities expose tab console/DOM inspection but no documented connection-scoped
+browser-internal ICE/resolver trace or isolated-profile capture. No safe route was
+verified for an internal-page trace. No Chrome diagnostic tab, new process,
+profile-wide log or security change was used, and completed controls were not
+repeated without a new discriminator. This is a capability/scope limit, not a tool
+denial or pending permission. The cause remains unresolved. See
+[scope checkpoint](../tests/browser/results/chrome-trace-scope-2026-10-19.json).
+
+
+For the crafted probes only, sender `packageMessage`/`broadcastMessage` is bypassed:
+test code writes to the real RTC channel. Normal before/after controls exercise
+the ordinary form/send path. Receipt labels are deduplicated presence records,
+not order/count records; control ordering is supported by the send list and
+operator observations. The result asserts receipts are a subset of sent cases,
+and all retained JSON files parse with their dummy control strings intact.
+Four new controller checks passed. Claude's final source/evidence review found no
+publication blockers; it did not run the browsers or CI.

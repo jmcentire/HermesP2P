@@ -124,3 +124,16 @@ the screen is released. Save a bounded scalar result with source/fixture hashes,
 completed/unavailable events, timeout and cleanup outcomes. No production fix is
 justified until evidence identifies an HP2P defect. Cross-device comparison and a
 clean-profile/new-process test remain separate work outside this pass.
+
+
+## Safe-scoping checkpoint
+
+On 2026-10-19 the connected Chrome extension documentation and advertised
+capabilities were inspected without claiming/enumerating user tabs or opening a
+Chrome diagnostic tab. Only tab console/DOM inspection and viewport/management
+capabilities were exposed; no documented per-connection internal resolver/ICE trace
+or isolated-profile capture was available. Safe scoping of an internal-page trace
+was not established, so the plan stopped before a new runtime test. No global dump,
+security intervention or new process was attempted. This records a limit of the
+available supported route, not proof that every possible Chrome tool lacks such a
+facility. The existing native and mDNS controls were not rerun.
