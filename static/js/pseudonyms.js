@@ -3,7 +3,7 @@
  *
  * Deterministic per-channel pseudonym generation using HKDF + HMAC-SHA256
  * via Web Crypto API. Same (privateKey, channelId) always produces the
- * same pseudonym; different channels produce unlinkable pseudonyms.
+ * same pseudonym; domain separation alone does not prevent traffic correlation.
  */
 
 const INFO_STRING = 'hermes-pseudonym';

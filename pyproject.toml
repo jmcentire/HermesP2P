@@ -1,12 +1,13 @@
 [project]
 name = "repl-nix-hermesp2p"
 version = "0.1.0"
-description = "HermesP2P: A decentralized, cryptographically secure, peer-to-peer messaging platform with transient, ephemeral communication and no central control."
+description = "HermesP2P experimental transient messaging and bootstrap relay."
 requires-python = ">=3.11"
 dependencies = [
     "email-validator>=2.2.0",
     "flask>=3.1.0",
     "flask-sock>=0.7.0",
+    "gunicorn>=23.0.0",
     "flask-sqlalchemy>=3.1.1",
     "psycopg2-binary>=2.9.10",
     "jsonschema>=4.23.0",

@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-19",
+  "scope": "Background-only module and receive-admission checks; no live browser/transport/UI execution",
+  "productBaseline": "235c08796eb35b7486c2993b861e6f0dc701d87e",
+  "productCodeChanged": false,
+  "fileHashes": {
+    "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+    "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+    "tests/sealed-tampering.test.js": "623f8fe760546fa1979840a28f341c2c40faf4b9bf9f8242f56db3651fcd6aa4",
+    "tests/helpers/sealed-crypto-cases.mjs": "347172e5ef03bb8d0bedebdcfbaf9b9d5b9a7f98fc283bbeb6503b352d54a236",
+    "tests/check_sealed_mutations.mjs": "6e83cd9800780c6fa6723944b1a7edc7457b43cc08150cb182db0c0f809923a9"
+  },
+  "tests": {
+    "newSealedVitest": 24,
+    "totalVitest": 230,
+    "nodeSandbox": 32,
+    "pythonRelay": 11,
+    "controller": 24,
+    "mutationControlScripts": 2,
+    "totalIndividualTests": 297
+  },
+  "sealedCasesPerKind": [
+    "unchanged positive control",
+    "ciphertext tag bit",
+    "ciphertext body bit",
+    "truncated ciphertext",
+    "empty ciphertext",
+    "nonce first bit",
+    "nonce last bit",
+    "short nonce",
+    "long nonce",
+    "empty nonce"
+  ],
+  "receiveCases": [
+    "private altered ciphertext with valid outer signature",
+    "private altered nonce with valid outer signature",
+    "direct altered ciphertext with valid outer signature",
+    "direct altered nonce with valid outer signature"
+  ],
+  "receiveAssertions": "Reject altered payload; accept same-ID original once afterward; reject duplicate original. Network/traffic-panel mocked; DOM rendering absent.",
+  "mutations": {
+    "scope": "Owned temporary copies only; removed in finally",
+    "private": "authentication-failure branch returns an unauthenticated sentinel",
+    "direct": "authentication-failure branch returns an unauthenticated sentinel",
+    "probesPerMutant": [
+      "ciphertext tag bit",
+      "ciphertext body bit",
+      "nonce first bit",
+      "nonce last bit"
+    ],
+    "result": "Real decryptor returns null; mutant returns sentinel; positive original decrypts in both. Malformed-length probes are not claimed as mutation kills."
+  },
+  "limitations": [
+    "Not live private/direct tampering acceptance; earlier public browser tampering evidence is separate.",
+    "Not a proof of cryptographic security or detection of every possible fail-open defect.",
+    "Chrome diagnostic plan prepared only; root cause remains unresolved.",
+    "Website copy validated statically and through Flask in-process rendering; no new visual layout run.",
+    "Receive-module rejection does not isolate decryption authentication from inner parsing/signature checks; primitive checks and mutation control exercise the decryptor separately.",
+    "Direct-message ephemeralPubKey tampering, including small-order inputs, is not covered by these new tests."
+  ]
+}

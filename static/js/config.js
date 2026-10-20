@@ -10,7 +10,6 @@ import {
     generateChannelKey,
     base64Decode,
 } from "./crypto.js";
-import { BOT_PUBLIC_KEYS } from "./bot-identities.js";
 import {
     showFriendModal,
     hideFriendModal,
@@ -77,7 +76,7 @@ function initializeNewConfig() {
             ...keypair,
         },
         channels: [{ name: "General" }, { name: "TechTalk" }],
-        friends: [...BOT_PUBLIC_KEYS],
+        friends: [],
     };
 }
 
@@ -100,6 +99,7 @@ export function handleSaveExit() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    sessionStorage.removeItem("hp2pConfig");
     window.location.href = "/";
 }
 
@@ -186,6 +186,10 @@ export function setupEventListeners(configuration) {
 
 // Channel management
 export function addChannel(name, key = "", configuration, editingItem = getEditingItem()) {
+    if (configuration.friends.some(friend => friend.name === name)) {
+        alert('Channel and friend names must be distinct');
+        return false;
+    }
     if (name.length < 6 || name.length > 36) {
         alert("Channel name must be between 6 and 36 characters");
         return false;
@@ -207,8 +211,8 @@ export function addChannel(name, key = "", configuration, editingItem = getEditi
     if (key) {
         try {
             const keyUint8 = base64Decode(key);
-            if (keyUint8.length !== 32) {
-                alert("Channel key must be exactly 32 bytes when decoded");
+            if (keyUint8.length !== 32 || base64js.fromByteArray(keyUint8) !== key) {
+                alert("Channel key must encode exactly 32 bytes in canonical Base64");
                 return false;
             }
         } catch (error) {
@@ -258,15 +262,20 @@ export function removeChannel(name, configuration) {
 
 // Friend management
 export function addFriend(name, pubKey, configuration, editingItem = getEditingItem()) {
+    if (configuration.channels.some(channel => channel.name === name)) {
+        alert('Channel and friend names must be distinct');
+        return false;
+    }
     if (name.length < 6 || name.length > 36) {
         alert("Friend name must be between 6 and 36 characters");
         return false;
     }
 
-    if (!/[A-Za-z0-9+/=]{32,96}/.test(pubKey)) {
-        alert(
-            "Public key must be in base64 format and between 32-96 characters",
-        );
+    try {
+        const decoded = base64Decode(pubKey);
+        if (decoded.length !== 32 || base64js.fromByteArray(decoded) !== pubKey) throw new Error('Invalid key');
+    } catch {
+        alert('Public key must encode exactly 32 bytes in canonical Base64');
         return false;
     }
 

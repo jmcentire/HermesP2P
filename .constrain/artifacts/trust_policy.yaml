@@ -1,0 +1,26 @@
+authority_map:
+- component: credits
+  domains:
+  - dummy.unspent
+  - dummy.operations
+  - dummy.issuance
+  - dummy.redemptions
+- component: subscriptions
+  domains:
+  - local.channel_keys
+- component: signatures
+  domains: []
+- component: use_cases
+  domains:
+  - dummy.campaign.budget
+  - dummy.subscription.capacity
+  - dummy.pending.promises
+trust:
+  floor: 0
+notes:
+- Issuer signatures are necessary for issuance but do not prove scarcity across replicas.
+- Holder signatures bind requests but do not prove unique humans, viewing or attention.
+- These in-memory records have no durability, anonymous-payment or offline-finality
+  guarantee.
+- Pending promises and collected proofs are not settled funds. Only authority acceptance
+  releases dummy reward or subscription outcomes.

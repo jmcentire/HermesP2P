@@ -1,0 +1,41 @@
+components:
+- name: signatures
+  authority:
+    domains: []
+  dependencies: []
+- name: credits
+  authority:
+    domains:
+    - dummy.unspent
+    - dummy.operations
+    - dummy.issuance
+    - dummy.redemptions
+  dependencies:
+  - signatures
+- name: subscriptions
+  authority:
+    domains:
+    - local.channel_keys
+  dependencies:
+  - signatures
+- name: use_cases
+  authority:
+    domains:
+    - dummy.campaign.budget
+    - dummy.subscription.capacity
+    - dummy.pending.promises
+  dependencies:
+  - credits
+  - signatures
+  - subscriptions
+edges:
+- from: credits
+  to: signatures
+- from: subscriptions
+  to: signatures
+- from: use_cases
+  to: credits
+- from: use_cases
+  to: signatures
+- from: use_cases
+  to: subscriptions

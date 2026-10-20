@@ -1,0 +1,274 @@
+{
+  "date": "2026-10-19",
+  "status": "PASS for four enumerated crafted sealed-message corruption cases over same-Mac Safari transport/UI",
+  "browser": "Safari 26.6.2",
+  "scope": "Two owned tabs, dummy identities, actual product receive/UI code; dedicated test hub data forwarding disabled; crafted probes bypass sender packageMessage/broadcastMessage and enter RTC directly, while normal form controls exercise that send path",
+  "cases": [
+    "private ciphertext body bit flip",
+    "private nonce first-bit flip",
+    "direct ciphertext body bit flip",
+    "direct nonce first-bit flip"
+  ],
+  "controls": [
+    "Normal private/direct form messages delivered before probes",
+    "Crafted private/direct undamaged controls constructed by the identical probe path displayed once at B before respective negatives",
+    "Normal private/direct form messages delivered after all probes"
+  ],
+  "probeProperties": [
+    "Fresh ID per case prevents previously accepted-message deduplication from masking receipt",
+    "Valid outer signatures independently verified by receiver observer",
+    "Known dummy keys, correct recipient/shared key; undamaged payload decrypts locally, damaged payload returns null",
+    "Controller and observer store only fixed probe labels and counters, never raw frames/keys/IDs/candidates"
+  ],
+  "controller": {
+    "blocked": 15,
+    "fixtureHashes": {
+      "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+      "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+      "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+      "sealed_ui_observer.js": "31836c73836e899da152353f0b43977b288aaa9c42dcf68f9e0eb3f97de59104",
+      "sealed_ui_server.py": "ab0e5ca3fd2113a837ba6b562da229d57bc003350d26173c824ff6869f9ea48e",
+      "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3"
+    },
+    "forwarding": false,
+    "pair": "AB",
+    "probes": [
+      "private-control",
+      "private-ciphertext",
+      "private-nonce",
+      "direct-control",
+      "direct-ciphertext",
+      "direct-nonce"
+    ],
+    "receipts": {
+      "A": [
+        "private-control",
+        "private-ciphertext",
+        "direct-ciphertext",
+        "direct-nonce"
+      ],
+      "B": [
+        "private-control",
+        "private-ciphertext",
+        "private-nonce",
+        "direct-control",
+        "direct-ciphertext",
+        "direct-nonce"
+      ]
+    },
+    "reports": {
+      "A": {
+        "directRx": 4,
+        "directShown": 0,
+        "invalidRx": 0,
+        "linkLost": 0,
+        "open": 1,
+        "outbound": 14,
+        "privateRx": 3,
+        "privateShown": 0,
+        "publicRx": 0,
+        "publicShown": 0,
+        "replyShown": 0,
+        "sentWhileForwarding": 0,
+        "tamperedShown": 0
+      },
+      "B": {
+        "directRx": 7,
+        "directShown": 0,
+        "invalidRx": 0,
+        "linkLost": 0,
+        "open": 1,
+        "outbound": 7,
+        "privateRx": 7,
+        "privateShown": 0,
+        "publicRx": 0,
+        "publicShown": 0,
+        "replyShown": 0,
+        "sentWhileForwarding": 0,
+        "tamperedShown": 0
+      }
+    },
+    "sourceCommit": "1d587b1b1ed5391a90018705b3ae97c59b02129f",
+    "sourceHashes": {
+      "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+      "static/js/bot-identities.js": "ee4c7556963f2231e109a46fe0cf7ee2c9c556d406561a2956b60d1e530fdb4c",
+      "static/js/bots.js": "8d61d2c6b4de09482ecf4b290f1f0b2ff9a80fc4cf2181bca983de37ac8ca2c3",
+      "static/js/client.js": "442aedfd956d8081529bc8f3b8ef35c80d1b86550295585c45d22289baa08f8e",
+      "static/js/config-import.js": "dfea4b43f3b87f6c6fdeebe3b7b73220f9aa0b18de732b9903a55ec61d177e45",
+      "static/js/config.js": "1be99ff0b2d5504314791621b4ccbd0ca3f1efedad513473201fb17c97496e2e",
+      "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+      "static/js/discovery.js": "62750d9bf9450bf37ea4794afccada8cad2bac2891a5b060facf3504ad28f178",
+      "static/js/envelope.js": "d26a3f42b53040482a84377aacf5442ce5e45ea46e0071b38f9c333eac814229",
+      "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+      "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+      "static/js/network-panel.js": "6502f92286b34ae62c3a87fb6f52c699d53e6b9be58519747371163fb3012f05",
+      "static/js/network.js": "acbc17a58504afed60352fcb9c50efd2d345364ee0da4e3329b4a1ea962e3224",
+      "static/js/padding.js": "669173dee2e4da38e3acc88258522efa0b518d91657ef5d69aeea3a2114533e7",
+      "static/js/pseudonyms.js": "5e036e84a0f2a9d7a8668b7874ca4d8a110c30fdfe663e8f2b049d673b795487",
+      "static/js/ttl.js": "383b4ed4162bedee80defa469f2bb11bfabc2b6c2dd3ee97ba914c10fe78f3f0",
+      "static/js/ui.js": "aa2a785cc32c5d3b217e33b5a03d51801397a7053f2adf4dc749812b1add1b1c",
+      "static/vendor/base64js.min.js": "d2e82495607abf54f16e21de04d90ba9ce1605451667d88425babece988f148b",
+      "static/vendor/nacl-fast.min.js": "3ec535c004aeeb225785d8e93fb33bf99f52e399bd7dfc01969b5629baea5131",
+      "templates/client.html": "46b233ea8132207d7c1b5356164a1640d487f8e5d2025ea629e819947fa2f421"
+    }
+  },
+  "committedFixtureHashes": {
+    "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+    "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+    "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+    "sealed_ui_observer.js": "31836c73836e899da152353f0b43977b288aaa9c42dcf68f9e0eb3f97de59104",
+    "sealed_ui_server.py": "ab0e5ca3fd2113a837ba6b562da229d57bc003350d26173c824ff6869f9ea48e",
+    "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3"
+  },
+  "currentFixtureBrowserRun": true,
+  "fixtureByteStatus": "Executed startup hashes equal the retained files in the commit containing this result. Product sources pinned separately.",
+  "conversationReadings": {
+    "private-ciphertext": {
+      "A:General": [],
+      "A:SenderRoom": [
+        "🔒 ✍️ accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "A:Dummy Bobby": [
+        "🔒 ✍️ accept-direct-01"
+      ],
+      "A:Dummy Carol": [],
+      "A:Dummy Delta": [],
+      "B:General": [],
+      "B:ReceiverRoom": [
+        "🔒 accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "B:Dummy Alice": [
+        "🔒 accept-direct-01"
+      ],
+      "B:Dummy Carol": [],
+      "B:Dummy Delta": []
+    },
+    "private-nonce": {
+      "A:General": [],
+      "A:SenderRoom": [
+        "🔒 ✍️ accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "A:Dummy Bobby": [
+        "🔒 ✍️ accept-direct-01"
+      ],
+      "A:Dummy Carol": [],
+      "A:Dummy Delta": [],
+      "B:General": [],
+      "B:ReceiverRoom": [
+        "🔒 accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "B:Dummy Alice": [
+        "🔒 accept-direct-01"
+      ],
+      "B:Dummy Carol": [],
+      "B:Dummy Delta": []
+    },
+    "direct-ciphertext": {
+      "A:General": [],
+      "A:SenderRoom": [
+        "🔒 ✍️ accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "A:Dummy Bobby": [
+        "🔒 ✍️ accept-direct-01"
+      ],
+      "A:Dummy Carol": [],
+      "A:Dummy Delta": [],
+      "B:General": [],
+      "B:ReceiverRoom": [
+        "🔒 accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "B:Dummy Alice": [
+        "🔒 accept-direct-01",
+        "🔒 sealed-direct-control-must-display-once"
+      ],
+      "B:Dummy Carol": [],
+      "B:Dummy Delta": []
+    },
+    "direct-nonce": {
+      "A:General": [],
+      "A:SenderRoom": [
+        "🔒 ✍️ accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "A:Dummy Bobby": [
+        "🔒 ✍️ accept-direct-01"
+      ],
+      "A:Dummy Carol": [],
+      "A:Dummy Delta": [],
+      "B:General": [],
+      "B:ReceiverRoom": [
+        "🔒 accept-private-01",
+        "🔒 sealed-private-control-must-display-once"
+      ],
+      "B:Dummy Alice": [
+        "🔒 accept-direct-01",
+        "🔒 sealed-direct-control-must-display-once"
+      ],
+      "B:Dummy Carol": [],
+      "B:Dummy Delta": []
+    },
+    "final-after-positive": {
+      "A:General": [],
+      "A:SenderRoom": [
+        "🔒 ✍️ accept-private-01",
+        "🔒 sealed-private-control-must-display-once",
+        "🔒 ✍️ accept-private-after-01"
+      ],
+      "A:Dummy Bobby": [
+        "🔒 ✍️ accept-direct-01",
+        "🔒 ✍️ accept-direct-after-01"
+      ],
+      "A:Dummy Carol": [],
+      "A:Dummy Delta": [],
+      "B:General": [],
+      "B:ReceiverRoom": [
+        "🔒 accept-private-01",
+        "🔒 sealed-private-control-must-display-once",
+        "🔒 accept-private-after-01"
+      ],
+      "B:Dummy Alice": [
+        "🔒 accept-direct-01",
+        "🔒 sealed-direct-control-must-display-once",
+        "🔒 accept-direct-after-01"
+      ],
+      "B:Dummy Carol": [],
+      "B:Dummy Delta": []
+    }
+  },
+  "conversationEvidenceType": "50 operator readings of native accessibility UI: all five configured conversations on each client after each negative and after final positive sends. Structured transcription, not per-step controller snapshots.",
+  "preliminaryAttempt": "A preliminary v1 run was stopped after the first ciphertext case because aggregate raw counts can include rebroadcasts. It is not acceptance evidence. Restarted v2 adds authenticated per-role fixed-case receipt labels; this result describes only the final v2 run.",
+  "limits": [
+    "Only these four bit-flip cases, not arbitrary ciphertext/header mutations",
+    "Live non-display establishes overall receive/UI rejection; primitive tests and fail-open mutants isolate decryptor authentication separately",
+    "A received only the rebroadcast cases listed in its receipt record; absence on A is not claimed as receipt of every probe",
+    "No ephemeral-public-key tampering, live same-ID recovery, WAN/device/anonymity or Chrome connectivity acceptance",
+    "Aggregated raw counts include rebroadcasts; receipt case labels and conversation sweeps provide the per-probe evidence"
+  ],
+  "cleanup": "Both owned Safari clients stopped and closed; original tab labels preserved; loopback server exited; screen released.",
+  "controlObservations": [
+    {
+      "before": "private-ciphertext",
+      "role": "B",
+      "conversation": "ReceiverRoom",
+      "token": "sealed-private-control-must-display-once",
+      "visibleCopies": 1,
+      "source": "Operator native accessibility reading before private negatives"
+    },
+    {
+      "before": "direct-ciphertext",
+      "role": "B",
+      "conversation": "Dummy Alice",
+      "token": "sealed-direct-control-must-display-once",
+      "visibleCopies": 1,
+      "source": "Operator native accessibility reading before direct negatives"
+    }
+  ],
+  "receiptSemantics": "Deduplicated case presence only; no per-receipt order/count. Send order is recorded in probes; control-before-negative display comes from operator readings.",
+  "receiptsSubsetOfProbes": true
+}

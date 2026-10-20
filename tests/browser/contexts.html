@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>HP2P separate context fixture</title>
+<style>body{font:18px system-ui;max-width:850px;margin:30px auto;padding:12px;background:#f5f5f5;color:#17212b}p{margin:8px 0}button{font:inherit;padding:8px}#result{font-weight:bold}#events{font-size:14px}</style></head>
+<body><h1>HP2P separate context fixture v3</h1>
+<p>One actual MeshTransport per tab. Dummy data only; no external ICE services.</p>
+<p id="role"></p><p id="phase">Phase: waiting for both tabs</p><p id="link">Direct link: not started</p>
+<p id="relay">Test hub forwarding: enabled</p><p id="first">Before reconnect: 0 direct duplicate frames</p><p id="second">After reconnect: 0 direct duplicate frames</p>
+<p id="disconnect">Disconnect observation: pending</p><p id="result">Result: pending</p>
+<button id="stop">Stop this test peer</button><div id="events"></div>
+<script type="module" src="contexts.js?v=3"></script></body></html>

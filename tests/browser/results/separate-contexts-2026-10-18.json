@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-18",
+  "fixtureVersion": 3,
+  "scope": "One MeshTransport per separate tab, same Mac; controlled local test only",
+  "sourceHashes": {
+    "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+    "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+    "tests/browser/context_server.py": "f5db9384a68b570b46d1801f76f6cc59b6bf2de426cf680853a3b2233ecf840b",
+    "tests/browser/contexts.js": "7837c91b95b3844dcd898b0dad09c7c7a8cee60a51ba6b0fb74ad2a30aaafb3c",
+    "tests/browser/contexts.html": "6779d71114b4e83e879c091fc0961c6d7f25da0f7e078ee69020897f57406e6b"
+  },
+  "runs": [
+    {
+      "fixture": 3,
+      "browser": "Safari 26.6.2",
+      "contexts": "two separate tabs; process isolation not measured",
+      "result": {
+        "blocked": 2,
+        "blockedPeers": 2,
+        "forwarding": false,
+        "meshHash": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+        "phase": "done",
+        "reports": {
+          "A": {
+            "down": true,
+            "first": 2,
+            "ready": true,
+            "rejoined": true,
+            "removed": false,
+            "second": 2
+          },
+          "B": {
+            "down": false,
+            "first": 2,
+            "ready": false,
+            "rejoined": false,
+            "removed": true,
+            "second": 2
+          }
+        }
+      },
+      "label": "Separate Safari tabs"
+    },
+    {
+      "fixture": 3,
+      "browsers": [
+        "Safari 26.6.2",
+        "Chrome 155.0.8059.85"
+      ],
+      "contexts": "one tab in each browser, same Mac",
+      "result": {
+        "blocked": 0,
+        "blockedPeers": 0,
+        "forwarding": true,
+        "meshHash": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+        "phase": "failed",
+        "reports": {
+          "A": {
+            "down": false,
+            "first": 0,
+            "ready": false,
+            "rejoined": false,
+            "removed": false,
+            "second": 0
+          },
+          "B": {
+            "down": false,
+            "first": 0,
+            "ready": false,
+            "rejoined": false,
+            "removed": false,
+            "second": 0
+          }
+        }
+      },
+      "label": "Safari\u2013Chrome pair"
+    }
+  ],
+  "limits": [
+    "Not product UI/encryption direct-path integration",
+    "Transport passes duplicates; authenticated replay tests are separate",
+    "Separate browser processes not measured",
+    "No cross-device, LAN, NAT or WAN test",
+    "Mixed pair never connected, so relay-off and reconnect stages were not reached",
+    "One reconnect only; both offer directions not established"
+  ]
+}

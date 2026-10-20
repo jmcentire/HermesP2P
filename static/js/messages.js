@@ -1,21 +1,43 @@
-import { signMessage, encryptChannelMessage, encryptDirectMessage, decryptChannelMessage, decryptDirectMessage } from './crypto.js';
+import { deriveChannelSigner, generateKeypair, verifySignature, signMessage, encryptChannelMessage, encryptDirectMessage, decryptChannelMessage, decryptDirectMessage } from './crypto.js';
+import { signingPayload } from './envelope.js';
 import { stampTTL } from './ttl.js';
 import { padMessage } from './padding.js';
-import { generatePseudonym, shortenPseudonym } from './pseudonyms.js';
 import { broadcastMessage } from './network.js';
 import { addTrafficEntry } from './network-panel.js';
 
 // Message history storage — also used by bots.js via injectBotMessage
-const messageHistory = {};
+const messageHistory = Object.create(null);
+// Per local identity/conversation cache. This is bounded replay suppression:
+// accepted traffic under capacity pressure evicts the earliest-expiring record,
+// so an evicted frame may replay before its TTL. It must not freeze a busy room.
+const acceptedMessages = new Map();
+function conversationScope(configuration, kind, target) {
+    return JSON.stringify([configuration.user.pubKey, kind, target]);
+}
+function acceptOnce(scope, key, deadline) {
+    let seen = acceptedMessages.get(scope);
+    if (!seen) { seen = new Map(); acceptedMessages.set(scope, seen); }
+    const now = Date.now();
+    for (const [id, expires] of seen) if (expires <= now) seen.delete(id);
+    if (seen.has(key)) return false;
+    if (seen.size >= 2000) {
+        let earliestId, earliestDeadline = Infinity;
+        for (const [id, expires] of seen) {
+            if (expires < earliestDeadline) { earliestId = id; earliestDeadline = expires; }
+        }
+        seen.delete(earliestId);
+    }
+    seen.set(key, deadline);
+    return true;
+}
 
-let messageIdCounter = 0;
 
 function generateMessageId() {
-    return `msg_${Date.now()}_${messageIdCounter++}_${Math.random().toString(36).slice(2, 8)}`;
+    return 'msg_' + Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export function updateChannelName(oldName, newName) {
-    if (messageHistory.hasOwnProperty(oldName)) {
+    if (Object.hasOwn(messageHistory, oldName)) {
         messageHistory[newName] = messageHistory[oldName];
         messageHistory[oldName] = null;
     }
@@ -79,7 +101,7 @@ export function displayMessages(name = null) {
                             <strong class="d-block mb-2">Add a Channel:</strong>
                             <ul class="list-unstyled ps-4">
                                 <li class="mb-1">• Public channels require no keys</li>
-                                <li class="mb-1">• Private channels require a public/private key pair</li>
+                                <li class="mb-1">• Private channels require a shared symmetric key</li>
                             </ul>
                         </li>
                         <li class="ps-3">
@@ -122,6 +144,7 @@ function appendMessage(sender, content, type = 'public') {
     }
 
     messageHistory[chatName].push({ sender, content: displayContent, timestamp });
+    if (messageHistory[chatName].length > 200) messageHistory[chatName].shift();
     displayMessages(chatName);
 }
 
@@ -194,6 +217,7 @@ export function injectBotMessage(channelOrFriendName, senderName, content, type 
     }
 
     messageHistory[channelOrFriendName].push({ sender: senderName, content: displayContent, timestamp });
+    if (messageHistory[channelOrFriendName].length > 200) messageHistory[channelOrFriendName].shift();
 
     // Refresh display if this channel/friend is currently active
     const activeChat = document.querySelector('.list-group-item.active');
@@ -211,8 +235,10 @@ export function injectBotMessage(channelOrFriendName, senderName, content, type 
  */
 export function handleIncomingNetworkMessage(url, messagePackage, configuration) {
     const { type, to, from, message } = messagePackage;
+    if (type === 'public' && (configuration.friends.some(f => f.name === to) || !configuration.channels.some(c => c.name === to && !c.key))) return false;
     let content = message;
     let displayTarget = to;
+    let verifiedSender = from.name;
 
     if (type === 'private') {
         let parsed;
@@ -224,10 +250,17 @@ export function handleIncomingNetworkMessage(url, messagePackage, configuration)
         // Try all channel keys — the key is the channel identity, not the name
         let matched = false;
         for (const channel of configuration.channels) {
-            if (!channel.key) continue;
+            if (!channel.key || configuration.friends.some(f => f.name === channel.name)) continue;
             const decrypted = decryptChannelMessage(parsed.encrypted, parsed.nonce, channel.key);
             if (decrypted) {
-                content = decrypted;
+                let inner;
+                try { inner = JSON.parse(decrypted); } catch { continue; }
+                if (inner.id !== messagePackage.id || inner.timestamp !== messagePackage.timestamp ||
+                    inner.ttl !== messagePackage.ttl || inner.proofKey !== from.proofKey || typeof inner.text !== 'string' ||
+                    !verifySignature(privateSigningPayload(inner), inner.signature, inner.sender)) continue;
+                if (!acceptOnce(conversationScope(configuration, 'private', channel.key), inner.sender + ':' + inner.id, inner.timestamp + inner.ttl * 1000)) return false;
+                content = inner.text;
+                verifiedSender = inner.sender;
                 displayTarget = channel.name;
                 matched = true;
                 break;
@@ -235,24 +268,27 @@ export function handleIncomingNetworkMessage(url, messagePackage, configuration)
         }
         if (!matched) return; // no key could decrypt — not our channel
     } else if (type === 'direct') {
-        if (from?.pubKey) {
-            const friend = configuration.friends.find(f => f.pubKey === from.pubKey);
-            displayTarget = friend ? friend.name : from.name;
-        } else {
-            displayTarget = from?.name || 'Unknown';
-        }
         try {
             const parsed = JSON.parse(message);
-            content = decryptDirectMessage(parsed.encrypted, parsed.nonce, parsed.ephemeralPubKey, configuration.user.privKey);
-            if (!content) return; // can't decrypt — not for us
-        } catch {
-            return;
-        }
+            const plaintext = decryptDirectMessage(parsed.encrypted, parsed.nonce, parsed.ephemeralPubKey, configuration.user.privKey);
+            const inner = JSON.parse(plaintext);
+            if (inner.id !== messagePackage.id || inner.timestamp !== messagePackage.timestamp ||
+                inner.ttl !== messagePackage.ttl || inner.proofKey !== from.proofKey || inner.recipient !== configuration.user.pubKey ||
+                typeof inner.text !== 'string' ||
+                !verifySignature(directSigningPayload(inner), inner.signature, inner.sender)) return;
+            const friend = configuration.friends.find(f => f.pubKey === inner.sender);
+            if (!friend) return false; // Unknown senders cannot impersonate a local friend by name.
+            if (!acceptOnce(conversationScope(configuration, 'direct', inner.sender), inner.id, inner.timestamp + inner.ttl * 1000)) return false;
+            injectBotMessage(friend.name, friend.name, inner.text, type);
+            return true;
+        } catch { return; }
     }
 
-    const senderName = from?.name || 'Anonymous';
+    if (type === 'public' && !acceptOnce(conversationScope(configuration, 'public', to), from.proofKey + ':' + messagePackage.id, messagePackage.timestamp + messagePackage.ttl * 1000)) return false;
+    const senderName = verifiedSender || 'Anonymous';
     const displaySender = configuration.aliases?.[senderName] || senderName;
     injectBotMessage(displayTarget, displaySender, content, type);
+    return true;
 }
 
 export function disableMessageInput() {
@@ -315,66 +351,63 @@ export async function handleMessageSubmit(e, configuration) {
  * Builds, encrypts, stamps TTL, signs, serializes, and pads a message.
  * Returns a padded Uint8Array ready for binary broadcast.
  */
+export function directSigningPayload(inner) {
+    return JSON.stringify(['hp2p:direct:v2', inner.id, inner.timestamp, inner.ttl,
+        inner.sender, inner.recipient, inner.proofKey, inner.text]);
+}
+
+export function privateSigningPayload(inner) {
+    return JSON.stringify(['hp2p:private:v2', inner.id, inner.timestamp, inner.ttl,
+        inner.sender, inner.proofKey, inner.text]);
+}
+
 export async function packageMessage(plaintext, type, to, configuration) {
-    if (!configuration || !configuration.user) {
-        throw new Error('Invalid configuration passed to packageMessage');
+    if (!configuration?.user || typeof plaintext !== 'string' || !['public', 'private', 'direct'].includes(type)) {
+        throw new Error('Invalid message configuration');
     }
-
-    // Encrypt content based on type
-    let messageContent;
-    if (type === 'private') {
-        const channel = configuration.channels.find(ch => ch.name === to);
-        if (channel?.key) {
-            const [encrypted, nonce] = encryptChannelMessage(plaintext, channel.key);
-            messageContent = JSON.stringify({ encrypted, nonce });
-        } else {
-            messageContent = plaintext;
-        }
-    } else if (type === 'direct') {
-        const friend = configuration.friends.find(f => f.name === to);
-        if (friend) {
-            const [encrypted, nonce, ephemeralPubKey] = encryptDirectMessage(plaintext, friend.pubKey);
-            messageContent = JSON.stringify({ encrypted, nonce, ephemeralPubKey });
-        } else {
-            messageContent = plaintext;
-        }
-    } else {
-        messageContent = plaintext;
-    }
-
-    // Build message package
-    const messagePackage = {
-        id: generateMessageId(),
-        type: type,
-        timestamp: Date.now(),
-        to: to,
-        from: {
-            name: configuration.user.name,
-            pubKey: configuration.user.pubKey
-        },
-        message: messageContent,
-        signature: '',
-    };
-
-    // Stamp TTL
+    const messagePackage = { version: 2, id: generateMessageId(), type, timestamp: Date.now(),
+        to: type === 'public' ? to : 'sealed', from: { name: 'Anonymous' }, message: '', signature: '' };
     stampTTL(messagePackage, type);
-
-    // Channel messages: remove pubKey for anonymity, replace name with pseudonym
-    if (type === 'private' || type === 'public') {
-        delete messagePackage.from.pubKey;
-        try {
-            const pseudonym = await generatePseudonym(configuration.user.privKey, to);
-            messagePackage.from.name = shortenPseudonym(pseudonym, 16);
-        } catch (err) {
-            console.warn('Pseudonym generation failed, using username:', err);
+    // Fresh proof keys protect envelope integrity without exposing identity keys.
+    // They do not authenticate a human or ownership of a displayed pseudonym.
+    let proof = generateKeypair();
+    let localAcceptance;
+    messagePackage.from.proofKey = proof.pubKey;
+    if (type === 'direct') {
+        const friend = configuration.friends.find(f => f.name === to);
+        if (!friend?.pubKey) throw new Error('Known recipient key required');
+        const inner = { id: messagePackage.id, timestamp: messagePackage.timestamp, ttl: messagePackage.ttl,
+            sender: configuration.user.pubKey, recipient: friend.pubKey, proofKey:proof.pubKey, text: plaintext };
+        inner.signature = signMessage(directSigningPayload(inner), configuration.user.privKey);
+        if (!inner.signature) throw new Error('Message signing failed');
+        const [encrypted, nonce, ephemeralPubKey] = encryptDirectMessage(JSON.stringify(inner), friend.pubKey);
+        messagePackage.message = JSON.stringify({ encrypted, nonce, ephemeralPubKey });
+        localAcceptance = [conversationScope(configuration, 'direct', friend.pubKey), inner.id];
+    } else {
+        const channel = configuration.channels.find(ch => ch.name === to);
+        if (type === 'private' && !channel?.key) throw new Error('Private channel key required');
+        const scope = type === 'private' ? channel.key : to;
+        const signer = await deriveChannelSigner(configuration.user.privKey, scope, type);
+        localAcceptance = [conversationScope(configuration, type, scope), signer.pubKey + ':' + messagePackage.id];
+        if (type === 'private') {
+            const inner = { id: messagePackage.id, timestamp: messagePackage.timestamp,
+                ttl: messagePackage.ttl, proofKey:proof.pubKey, sender:signer.pubKey, text:plaintext };
+            inner.signature = signMessage(privateSigningPayload(inner), signer.privKey);
+            if (!inner.signature) throw new Error('Message signing failed');
+            const [encrypted, nonce] = encryptChannelMessage(JSON.stringify(inner), channel.key);
+            messagePackage.message = JSON.stringify({ encrypted, nonce });
+        } else {
+            proof = signer;
+            messagePackage.from = {name:signer.pubKey,proofKey:signer.pubKey};
+            messagePackage.message = plaintext;
         }
     }
 
-    // Sign the message content
-    messagePackage.signature = signMessage(messageContent, configuration.user.privKey);
-
-    // Serialize and pad
-    const jsonStr = JSON.stringify(messagePackage);
-    const jsonBytes = new TextEncoder().encode(jsonStr);
-    return padMessage(jsonBytes);
+    messagePackage.signature = signMessage(signingPayload(messagePackage), proof.privKey);
+    if (!messagePackage.signature) throw new Error('Message signing failed');
+    const frame = padMessage(new TextEncoder().encode(JSON.stringify(messagePackage)));
+    // Register only a successfully signed, padded frame. Its local display is
+    // added by the send handler; the network echo must not display it again.
+    acceptOnce(...localAcceptance, messagePackage.timestamp + messagePackage.ttl * 1000);
+    return frame;
 }

@@ -1,0 +1,10 @@
+currency_kind: [ordinary, advertising]
+units: positive safe integers
+signature_scheme: Ed25519 with domain-separated canonical payloads
+symmetric_cipher: AES-256-GCM with authenticated channel, epoch and message id
+month_format: YYYY-MM in UTC
+replay_key: currency/action/signer/id namespace plus request fingerprint
+claim_replay_key: recipient signer plus claim id
+authority_clock: nondecreasing trusted observation including rejected requests
+provenance: unspent output reference owned by the signing key
+reward_binding: [offerHash, challenge, evidenceHash, requirementsHash]

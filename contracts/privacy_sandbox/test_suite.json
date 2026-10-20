@@ -1,0 +1,488 @@
+{
+  "component_id": "privacy_sandbox",
+  "contract_version": 1,
+  "test_cases": [
+    {
+      "id": "HP2P-SBX-001",
+      "description": "only issuer-signed dummy issuance is honored; 47 issued cannot become a 50-unit claim",
+      "function": "issue",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "only issuer-signed dummy issuance is honored; 47 issued cannot become a 50-unit claim"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-002",
+      "description": "signed provenance, owner, currency and signature domain are enforced",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "signed provenance, owner, currency and signature domain are enforced"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-003",
+      "description": "atomic retries survive expiry; changed operation id content is rejected",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "atomic retries survive expiry; changed operation id content is rejected"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-004",
+      "description": "valid split and merge preserve provenance and rejected operations do not reserve IDs",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "valid split and merge preserve provenance and rejected operations do not reserve IDs"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-005",
+      "description": "issuance and output-total overflow fail atomically",
+      "function": "issue",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "issuance and output-total overflow fail atomically"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-006",
+      "description": "expiry cannot be extended by transferring and boundary is exclusive",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "expiry cannot be extended by transferring and boundary is exclusive"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-007",
+      "description": "duplicate inputs, unsafe units and malformed keys fail closed without consuming balance",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "duplicate inputs, unsafe units and malformed keys fail closed without consuming balance"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-008",
+      "description": "two competing spends serialize at the single authority; duplicate redemption and lost reply retry are safe",
+      "function": "redeem",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "two competing spends serialize at the single authority; duplicate redemption and lost reply retry are safe"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-009",
+      "description": "advertising rewards conserve designated supply and bind signed offer, recipient, challenge and evidence",
+      "function": "reward",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "advertising rewards conserve designated supply and bind signed offer, recipient, challenge and evidence"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-010",
+      "description": "ordinary credits, expired offers and transplanted or forged claims cannot fund rewards",
+      "function": "reward",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "ordinary credits, expired offers and transplanted or forged claims cannot fund rewards"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-011",
+      "description": "authority rejects clock rollback after rejected expiry without changing monetary state",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "authority rejects clock rollback after rejected expiry without changing monetary state"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-012",
+      "description": "operation IDs are scoped by currency, action and signer; provenance remains distinct",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "operation IDs are scoped by currency, action and signer; provenance remains distinct"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-013",
+      "description": "distinct recipients may reuse claim IDs without blocking each other",
+      "function": "reward",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "distinct recipients may reuse claim IDs without blocking each other"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-014",
+      "description": "seeded adversarial transfer/redeem/replay simulation preserves both supplies at every step",
+      "function": "transfer",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "seeded adversarial transfer/redeem/replay simulation preserves both supplies at every step"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-015",
+      "description": "independent authorities demonstrate the explicit restart/double-spend limitation",
+      "function": "issue",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-credits.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "independent authorities demonstrate the explicit restart/double-spend limitation"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-016",
+      "description": "publisher-only channels require configured publisher and bind channel and month",
+      "function": "readPublisherMessage",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "publisher-only channels require configured publisher and bind channel and month"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-017",
+      "description": "monthly symmetric keys rotate, authenticate metadata and fail without the current key",
+      "function": "open",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "monthly symmetric keys rotate, authenticate metadata and fail without the current key"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-018",
+      "description": "UTC negotiation window includes exactly seven days either side of month boundary",
+      "function": "negotiationWindow",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "UTC negotiation window includes exactly seven days either side of month boundary"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-019",
+      "description": "composed publisher subscription requires both monthly key and configured publisher signature",
+      "function": "openPublisherMessage",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "composed publisher subscription requires both monthly key and configured publisher signature"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-020",
+      "description": "a subscriber with the monthly key cannot forge or impersonate the configured publisher",
+      "function": "openPublisherMessage",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "a subscriber with the monthly key cannot forge or impersonate the configured publisher"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-021",
+      "description": "composed subscription rejects rewrapping across month, channel or message ID",
+      "function": "openPublisherMessage",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "composed subscription rejects rewrapping across month, channel or message ID"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-022",
+      "description": "composed subscription rotates at UTC month boundary without revoking known historical keys",
+      "function": "openPublisherMessage",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-subscriptions.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "composed subscription rotates at UTC month boundary without revoking known historical keys"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-023",
+      "description": "signed promises create no balance; settlement alone creates spendable recipient outputs",
+      "function": "settlePromise",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "signed promises create no balance; settlement alone creates spendable recipient outputs"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-024",
+      "description": "unfunded promises and wrong creator targets degrade superlikes to ordinary likes without paid entitlement",
+      "function": "redeemSuperlike",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "unfunded promises and wrong creator targets degrade superlikes to ordinary likes without paid entitlement"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-025",
+      "description": "self-tipping and repeated superlikes cannot create new issued value or payout",
+      "function": "redeemSuperlike",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "self-tipping and repeated superlikes cannot create new issued value or payout"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-026",
+      "description": "advertiser collects bound evidence without crediting, then redeems exactly once from funded ad units",
+      "function": "redeemAdvertisingProof",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "advertiser collects bound evidence without crediting, then redeems exactly once from funded ad units"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-027",
+      "description": "advertising collection rejects campaign/action/recipient substitution and cannot use ordinary funding",
+      "function": "collectAdvertisingProof",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "advertising collection rejects campaign/action/recipient substitution and cannot use ordinary funding"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-028",
+      "description": "rejected expired campaign proofs cannot be revived by rolling the application clock backward",
+      "function": "redeemAdvertisingProof",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "rejected expired campaign proofs cannot be revived by rolling the application clock backward"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-029",
+      "description": "campaign budget and recipient uniqueness hold across competing collected proofs",
+      "function": "redeemAdvertisingProof",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "campaign budget and recipient uniqueness hold across competing collected proofs"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-030",
+      "description": "subscription releases no token until a pending payment becomes settled spendable credit",
+      "function": "releaseSubscription",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "subscription releases no token until a pending payment becomes settled spendable credit"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-031",
+      "description": "subscription oversubscription races release only one token and debit only its verified funds",
+      "function": "releaseSubscription",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "subscription oversubscription races release only one token and debit only its verified funds"
+      ]
+    },
+    {
+      "id": "HP2P-SBX-032",
+      "description": "subscription price, creator/month purpose, expiry and ordinary-currency checks fail before token release",
+      "function": "releaseSubscription",
+      "category": "invariant",
+      "setup_description": "tests/sandbox-use-cases.test.js",
+      "mock_dependencies": {},
+      "input_values": {},
+      "input_description": "",
+      "expected_output_description": "",
+      "expected_error": "",
+      "assertions": [
+        "subscription price, creator/month purpose, expiry and ordinary-currency checks fail before token release"
+      ]
+    }
+  ],
+  "test_language": "javascript",
+  "generated_code": ""
+}

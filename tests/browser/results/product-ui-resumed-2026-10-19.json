@@ -1,0 +1,570 @@
+{
+  "date": "2026-10-19",
+  "status": "PASS for the enumerated same-Mac Safari product acceptance cases; broader validation remains incomplete",
+  "browser": "Safari 26.6.2",
+  "scope": "Actual product UI, deterministic dummy identities, separate tab pairs, test hub data forwarding disabled before each new message",
+  "evidenceType": "Conversation sweeps are operator readings of native accessibility UI after the final send, transcribed into this structured result. Controller snapshots independently record raw frame counts and transport state; they are not per-step conversation snapshots.",
+  "historicalRun": "product-ui-partial-2026-10-19.json",
+  "conversationSweeps": [
+    {
+      "run": "prior-partial-AB",
+      "role": "A",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "✍️ accept-public-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "A",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-private-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "A",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-direct-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "A",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "A",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "B",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "accept-public-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "B",
+      "conversation": "ReceiverRoom",
+      "visibleTokenLines": [
+        "🔒 accept-private-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "B",
+      "conversation": "Dummy Alice",
+      "visibleTokenLines": [
+        "🔒 accept-direct-01"
+      ]
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "B",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "prior-partial-AB",
+      "role": "B",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "A",
+      "conversation": "General",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "A",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "A",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": [
+        "🔒 accept-reply-01"
+      ]
+    },
+    {
+      "run": "AB-reply",
+      "role": "A",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "A",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "B",
+      "conversation": "General",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "B",
+      "conversation": "ReceiverRoom",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "B",
+      "conversation": "Dummy Alice",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-reply-01"
+      ]
+    },
+    {
+      "run": "AB-reply",
+      "role": "B",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AB-reply",
+      "role": "B",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "C",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "accept-public-01"
+      ]
+    },
+    {
+      "run": "AC-negative",
+      "role": "C",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "C",
+      "conversation": "Dummy Alice",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "C",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "C",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "A",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "✍️ accept-public-01"
+      ]
+    },
+    {
+      "run": "AC-negative",
+      "role": "A",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-private-01"
+      ]
+    },
+    {
+      "run": "AC-negative",
+      "role": "A",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-direct-01"
+      ]
+    },
+    {
+      "run": "AC-negative",
+      "role": "A",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AC-negative",
+      "role": "A",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "D",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "accept-public-01"
+      ]
+    },
+    {
+      "run": "AD-negative",
+      "role": "D",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "D",
+      "conversation": "Dummy Alice",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "D",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "D",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "A",
+      "conversation": "General",
+      "visibleTokenLines": [
+        "✍️ accept-public-01"
+      ]
+    },
+    {
+      "run": "AD-negative",
+      "role": "A",
+      "conversation": "SenderRoom",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-private-01"
+      ]
+    },
+    {
+      "run": "AD-negative",
+      "role": "A",
+      "conversation": "Dummy Bobby",
+      "visibleTokenLines": [
+        "🔒 ✍️ accept-direct-01"
+      ]
+    },
+    {
+      "run": "AD-negative",
+      "role": "A",
+      "conversation": "Dummy Carol",
+      "visibleTokenLines": []
+    },
+    {
+      "run": "AD-negative",
+      "role": "A",
+      "conversation": "Dummy Delta",
+      "visibleTokenLines": []
+    }
+  ],
+  "newRuns": {
+    "AB-reply": {
+      "blocked": 2,
+      "fixtureHashes": {
+        "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+        "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+        "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+        "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3"
+      },
+      "forwarding": false,
+      "pair": "AB",
+      "reports": {
+        "A": {
+          "directRx": 1,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 1,
+          "privateRx": 0,
+          "privateShown": 0,
+          "publicRx": 0,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        },
+        "B": {
+          "directRx": 1,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 1,
+          "privateRx": 0,
+          "privateShown": 0,
+          "publicRx": 0,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        }
+      },
+      "sourceCommit": "ea9c2df72d1377e582c2ba66b4a4ae6fd81474d5",
+      "sourceHashes": {
+        "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+        "static/js/bot-identities.js": "ee4c7556963f2231e109a46fe0cf7ee2c9c556d406561a2956b60d1e530fdb4c",
+        "static/js/bots.js": "8d61d2c6b4de09482ecf4b290f1f0b2ff9a80fc4cf2181bca983de37ac8ca2c3",
+        "static/js/client.js": "442aedfd956d8081529bc8f3b8ef35c80d1b86550295585c45d22289baa08f8e",
+        "static/js/config-import.js": "dfea4b43f3b87f6c6fdeebe3b7b73220f9aa0b18de732b9903a55ec61d177e45",
+        "static/js/config.js": "1be99ff0b2d5504314791621b4ccbd0ca3f1efedad513473201fb17c97496e2e",
+        "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+        "static/js/discovery.js": "62750d9bf9450bf37ea4794afccada8cad2bac2891a5b060facf3504ad28f178",
+        "static/js/envelope.js": "d26a3f42b53040482a84377aacf5442ce5e45ea46e0071b38f9c333eac814229",
+        "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+        "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+        "static/js/network-panel.js": "6502f92286b34ae62c3a87fb6f52c699d53e6b9be58519747371163fb3012f05",
+        "static/js/network.js": "acbc17a58504afed60352fcb9c50efd2d345364ee0da4e3329b4a1ea962e3224",
+        "static/js/padding.js": "669173dee2e4da38e3acc88258522efa0b518d91657ef5d69aeea3a2114533e7",
+        "static/js/pseudonyms.js": "5e036e84a0f2a9d7a8668b7874ca4d8a110c30fdfe663e8f2b049d673b795487",
+        "static/js/ttl.js": "383b4ed4162bedee80defa469f2bb11bfabc2b6c2dd3ee97ba914c10fe78f3f0",
+        "static/js/ui.js": "aa2a785cc32c5d3b217e33b5a03d51801397a7053f2adf4dc749812b1add1b1c",
+        "static/vendor/base64js.min.js": "d2e82495607abf54f16e21de04d90ba9ce1605451667d88425babece988f148b",
+        "static/vendor/nacl-fast.min.js": "3ec535c004aeeb225785d8e93fb33bf99f52e399bd7dfc01969b5629baea5131",
+        "templates/client.html": "46b233ea8132207d7c1b5356164a1640d487f8e5d2025ea629e819947fa2f421"
+      }
+    },
+    "AC-negative": {
+      "blocked": 5,
+      "fixtureHashes": {
+        "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+        "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+        "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+        "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3"
+      },
+      "forwarding": false,
+      "pair": "AC",
+      "reports": {
+        "A": {
+          "directRx": 1,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 3,
+          "privateRx": 1,
+          "privateShown": 0,
+          "publicRx": 0,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        },
+        "C": {
+          "directRx": 1,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 2,
+          "privateRx": 1,
+          "privateShown": 0,
+          "publicRx": 1,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        }
+      },
+      "sourceCommit": "ea9c2df72d1377e582c2ba66b4a4ae6fd81474d5",
+      "sourceHashes": {
+        "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+        "static/js/bot-identities.js": "ee4c7556963f2231e109a46fe0cf7ee2c9c556d406561a2956b60d1e530fdb4c",
+        "static/js/bots.js": "8d61d2c6b4de09482ecf4b290f1f0b2ff9a80fc4cf2181bca983de37ac8ca2c3",
+        "static/js/client.js": "442aedfd956d8081529bc8f3b8ef35c80d1b86550295585c45d22289baa08f8e",
+        "static/js/config-import.js": "dfea4b43f3b87f6c6fdeebe3b7b73220f9aa0b18de732b9903a55ec61d177e45",
+        "static/js/config.js": "1be99ff0b2d5504314791621b4ccbd0ca3f1efedad513473201fb17c97496e2e",
+        "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+        "static/js/discovery.js": "62750d9bf9450bf37ea4794afccada8cad2bac2891a5b060facf3504ad28f178",
+        "static/js/envelope.js": "d26a3f42b53040482a84377aacf5442ce5e45ea46e0071b38f9c333eac814229",
+        "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+        "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+        "static/js/network-panel.js": "6502f92286b34ae62c3a87fb6f52c699d53e6b9be58519747371163fb3012f05",
+        "static/js/network.js": "acbc17a58504afed60352fcb9c50efd2d345364ee0da4e3329b4a1ea962e3224",
+        "static/js/padding.js": "669173dee2e4da38e3acc88258522efa0b518d91657ef5d69aeea3a2114533e7",
+        "static/js/pseudonyms.js": "5e036e84a0f2a9d7a8668b7874ca4d8a110c30fdfe663e8f2b049d673b795487",
+        "static/js/ttl.js": "383b4ed4162bedee80defa469f2bb11bfabc2b6c2dd3ee97ba914c10fe78f3f0",
+        "static/js/ui.js": "aa2a785cc32c5d3b217e33b5a03d51801397a7053f2adf4dc749812b1add1b1c",
+        "static/vendor/base64js.min.js": "d2e82495607abf54f16e21de04d90ba9ce1605451667d88425babece988f148b",
+        "static/vendor/nacl-fast.min.js": "3ec535c004aeeb225785d8e93fb33bf99f52e399bd7dfc01969b5629baea5131",
+        "templates/client.html": "46b233ea8132207d7c1b5356164a1640d487f8e5d2025ea629e819947fa2f421"
+      }
+    },
+    "AD-negative": {
+      "blocked": 5,
+      "fixtureHashes": {
+        "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+        "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+        "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+        "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3"
+      },
+      "forwarding": false,
+      "pair": "AD",
+      "reports": {
+        "A": {
+          "directRx": 0,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 3,
+          "privateRx": 1,
+          "privateShown": 0,
+          "publicRx": 1,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        },
+        "D": {
+          "directRx": 1,
+          "directShown": 0,
+          "invalidRx": 0,
+          "linkLost": 0,
+          "open": 1,
+          "outbound": 2,
+          "privateRx": 1,
+          "privateShown": 0,
+          "publicRx": 1,
+          "publicShown": 0,
+          "replyShown": 0,
+          "sentWhileForwarding": 0,
+          "tamperedShown": 0
+        }
+      },
+      "sourceCommit": "ea9c2df72d1377e582c2ba66b4a4ae6fd81474d5",
+      "sourceHashes": {
+        "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+        "static/js/bot-identities.js": "ee4c7556963f2231e109a46fe0cf7ee2c9c556d406561a2956b60d1e530fdb4c",
+        "static/js/bots.js": "8d61d2c6b4de09482ecf4b290f1f0b2ff9a80fc4cf2181bca983de37ac8ca2c3",
+        "static/js/client.js": "442aedfd956d8081529bc8f3b8ef35c80d1b86550295585c45d22289baa08f8e",
+        "static/js/config-import.js": "dfea4b43f3b87f6c6fdeebe3b7b73220f9aa0b18de732b9903a55ec61d177e45",
+        "static/js/config.js": "1be99ff0b2d5504314791621b4ccbd0ca3f1efedad513473201fb17c97496e2e",
+        "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+        "static/js/discovery.js": "62750d9bf9450bf37ea4794afccada8cad2bac2891a5b060facf3504ad28f178",
+        "static/js/envelope.js": "d26a3f42b53040482a84377aacf5442ce5e45ea46e0071b38f9c333eac814229",
+        "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+        "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+        "static/js/network-panel.js": "6502f92286b34ae62c3a87fb6f52c699d53e6b9be58519747371163fb3012f05",
+        "static/js/network.js": "acbc17a58504afed60352fcb9c50efd2d345364ee0da4e3329b4a1ea962e3224",
+        "static/js/padding.js": "669173dee2e4da38e3acc88258522efa0b518d91657ef5d69aeea3a2114533e7",
+        "static/js/pseudonyms.js": "5e036e84a0f2a9d7a8668b7874ca4d8a110c30fdfe663e8f2b049d673b795487",
+        "static/js/ttl.js": "383b4ed4162bedee80defa469f2bb11bfabc2b6c2dd3ee97ba914c10fe78f3f0",
+        "static/js/ui.js": "aa2a785cc32c5d3b217e33b5a03d51801397a7053f2adf4dc749812b1add1b1c",
+        "static/vendor/base64js.min.js": "d2e82495607abf54f16e21de04d90ba9ce1605451667d88425babece988f148b",
+        "static/vendor/nacl-fast.min.js": "3ec535c004aeeb225785d8e93fb33bf99f52e399bd7dfc01969b5629baea5131",
+        "templates/client.html": "46b233ea8132207d7c1b5356164a1640d487f8e5d2025ea629e819947fa2f421"
+      }
+    }
+  },
+  "observations": [
+    "Prior AB final sweep performed after its connections had been intentionally stopped: correct public/private/DM placement and no tampered token in any configured conversation. Historical transport metrics before stopping remain in the partial result.",
+    "Fresh AB: B sends encrypted reply through the real form; A displays it once only in Dummy Bobby. Both clients have one direct channel, zero pre-disable sends/link loss; hub blocks two frames.",
+    "Fresh AC and AD: A sends public positive control, private message, and DM addressed to absent Bobby. C/D each receive one valid raw public, private and direct frame. Only the public control appears; every configured private/friend conversation is empty. Hub blocks five frames per run.",
+    "The operator attributed the earlier unsuccessful reply attempt to input focus: a click scrolled the input into view without focusing it. That earlier cause was not separately reproduced. The resumed run verified focus and exact typed input before Send; no product reply defect was established."
+  ],
+  "limitations": [
+    "Private/direct ciphertext tampering was not exercised.",
+    "Two-peer acceptance is not a four-peer data-delivery, cross-browser, cross-device or WAN result.",
+    "Current selected-conversation counters can lag a sidebar click; actual visible message lines were used for each sweep.",
+    "This does not prove anonymity, traffic-analysis resistance or general security.",
+    "Negative-party pairs exclude Bobby; they do not establish correct-recipient delivery concurrently with the negative party."
+  ],
+  "cleanup": "All owned product tabs were stopped and closed; each owned local server exited. Original tabs were preserved.",
+  "cases": [
+    {
+      "case": "Public replay suppression",
+      "run": "initial-partial-AB",
+      "controllerHash": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2",
+      "evidence": "Historical live operator reading and controller counters; retained-message sweep after stopping",
+      "result": "PASS within this Safari pair: three valid raw public receipts, one displayed copy; combined transport/application suppression",
+      "controllerRetained": false
+    },
+    {
+      "case": "Public payload tamper rejection",
+      "run": "initial-partial-AB",
+      "controllerHash": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2",
+      "evidence": "Historical live operator reading and invalid-frame counter; post-stop all-conversation sweep; independent signature mutation control",
+      "result": "PASS within this Safari pair: changed payload with fresh ID/timestamp and original signature was invalid and never displayed",
+      "controllerRetained": false
+    },
+    {
+      "case": "Shared-key decryption under different local labels",
+      "run": "initial-partial-AB",
+      "controllerHash": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2",
+      "evidence": "Historical live operator reading plus post-stop all-conversation sweep",
+      "result": "PASS: SenderRoom private message displayed once under ReceiverRoom",
+      "controllerRetained": false
+    },
+    {
+      "case": "Intended-recipient direct message",
+      "run": "initial-partial-AB",
+      "controllerHash": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2",
+      "evidence": "Historical live operator reading plus post-stop all-conversation sweep",
+      "result": "PASS: A message to Bobby displayed once in B Dummy Alice",
+      "controllerRetained": false
+    },
+    {
+      "case": "Encrypted direct reply",
+      "run": "AB-reply",
+      "controllerHash": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+      "evidence": "Fresh controller snapshot and final all-conversation readings on both tabs",
+      "result": "PASS: reply displayed once in A Dummy Bobby and corresponding sender conversation on B, nowhere else",
+      "controllerRetained": true
+    },
+    {
+      "case": "Wrong shared key",
+      "run": "AC-negative",
+      "controllerHash": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+      "evidence": "Fresh controller snapshot and final all-conversation readings; public positive control",
+      "result": "PASS: C received valid outer private frame but displayed no private plaintext anywhere",
+      "controllerRetained": true
+    },
+    {
+      "case": "Missing shared key",
+      "run": "AD-negative",
+      "controllerHash": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+      "evidence": "Fresh controller snapshot and final all-conversation readings; public positive control",
+      "result": "PASS: D received valid outer private frame but displayed no private plaintext anywhere; the sealed message also did not appear in D keyless SenderRoom, whose local label matches A SenderRoom",
+      "controllerRetained": true
+    },
+    {
+      "case": "Wrong direct-message recipient with Bobby absent (C)",
+      "run": "AC-negative",
+      "controllerHash": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+      "evidence": "Fresh controller snapshot and final all-conversation readings; public positive control",
+      "result": "PASS: C received valid outer direct frame addressed to Bobby but displayed no direct plaintext anywhere",
+      "controllerRetained": true
+    },
+    {
+      "case": "Wrong direct-message recipient with Bobby absent (D)",
+      "run": "AD-negative",
+      "controllerHash": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+      "evidence": "Fresh controller snapshot and final all-conversation readings; public positive control",
+      "result": "PASS: D received valid outer direct frame addressed to Bobby but displayed no direct plaintext anywhere",
+      "controllerRetained": true
+    }
+  ]
+}

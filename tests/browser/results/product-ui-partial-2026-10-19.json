@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-19",
+  "status": "PARTIAL \u2014 paused before completing acceptance",
+  "safari": "26.6.2",
+  "scope": "Two separate tabs on the same Mac, dummy identities, actual product UI and crypto; test-only hub data forwarding disabled",
+  "executedObserverVersion": 4,
+  "controllerAtPause": {
+    "blocked": 5,
+    "fixtureHashes": {
+      "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+      "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+      "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+      "ui_server.py": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2"
+    },
+    "forwarding": false,
+    "pair": "AB",
+    "reports": {
+      "A": {
+        "directRx": 1,
+        "directShown": 1,
+        "invalidRx": 0,
+        "linkLost": 0,
+        "open": 1,
+        "outbound": 6,
+        "privateRx": 1,
+        "privateShown": 0,
+        "publicRx": 0,
+        "publicShown": 0,
+        "replyShown": 0,
+        "sentWhileForwarding": 0,
+        "tamperedShown": 0
+      },
+      "B": {
+        "directRx": 1,
+        "directShown": 1,
+        "invalidRx": 1,
+        "linkLost": 0,
+        "open": 1,
+        "outbound": 2,
+        "privateRx": 1,
+        "privateShown": 0,
+        "publicRx": 3,
+        "publicShown": 0,
+        "replyShown": 0,
+        "sentWhileForwarding": 0,
+        "tamperedShown": 0
+      }
+    },
+    "sourceCommit": "9dd2115a0c1a5d18cba5402afab5ce3131451a1a",
+    "sourceHashes": {
+      "main.py": "e00d86c50f9aea9bb09642bed225dd7522dc46f56683bb06e8e4662c0337876c",
+      "static/js/bot-identities.js": "ee4c7556963f2231e109a46fe0cf7ee2c9c556d406561a2956b60d1e530fdb4c",
+      "static/js/bots.js": "8d61d2c6b4de09482ecf4b290f1f0b2ff9a80fc4cf2181bca983de37ac8ca2c3",
+      "static/js/client.js": "442aedfd956d8081529bc8f3b8ef35c80d1b86550295585c45d22289baa08f8e",
+      "static/js/config-import.js": "dfea4b43f3b87f6c6fdeebe3b7b73220f9aa0b18de732b9903a55ec61d177e45",
+      "static/js/config.js": "1be99ff0b2d5504314791621b4ccbd0ca3f1efedad513473201fb17c97496e2e",
+      "static/js/crypto.js": "52caa7f794595860e36816213e45a8eb11fc131eb2217420a2c817060ab0fa3e",
+      "static/js/discovery.js": "62750d9bf9450bf37ea4794afccada8cad2bac2891a5b060facf3504ad28f178",
+      "static/js/envelope.js": "d26a3f42b53040482a84377aacf5442ce5e45ea46e0071b38f9c333eac814229",
+      "static/js/mesh.js": "a247cadeab9c96e6e4bea3b7262b5cd6c5672025324959574edfff9a5ee0e451",
+      "static/js/messages.js": "0db1c5451b2c2456ab1d9024bd58ec7b8f80a97f367d9f4458dab39ccc562a51",
+      "static/js/network-panel.js": "6502f92286b34ae62c3a87fb6f52c699d53e6b9be58519747371163fb3012f05",
+      "static/js/network.js": "acbc17a58504afed60352fcb9c50efd2d345364ee0da4e3329b4a1ea962e3224",
+      "static/js/padding.js": "669173dee2e4da38e3acc88258522efa0b518d91657ef5d69aeea3a2114533e7",
+      "static/js/pseudonyms.js": "5e036e84a0f2a9d7a8668b7874ca4d8a110c30fdfe663e8f2b049d673b795487",
+      "static/js/ttl.js": "383b4ed4162bedee80defa469f2bb11bfabc2b6c2dd3ee97ba914c10fe78f3f0",
+      "static/js/ui.js": "aa2a785cc32c5d3b217e33b5a03d51801397a7053f2adf4dc749812b1add1b1c",
+      "static/vendor/base64js.min.js": "d2e82495607abf54f16e21de04d90ba9ce1605451667d88425babece988f148b",
+      "static/vendor/nacl-fast.min.js": "3ec535c004aeeb225785d8e93fb33bf99f52e399bd7dfc01969b5629baea5131",
+      "templates/client.html": "46b233ea8132207d7c1b5356164a1640d487f8e5d2025ea629e819947fa2f421"
+    }
+  },
+  "observedSteps": [
+    {
+      "case": "public post and two exact replays",
+      "selectedConversation": "B: General",
+      "rawPublicFrames": 3,
+      "displayedCopies": 1,
+      "source": "Operator reading of native accessibility product UI and observer-panel counters during the recorded manual run; not a per-step controller snapshot"
+    },
+    {
+      "case": "altered public payload with fresh ID and timestamp, original signature",
+      "selectedConversation": "B: General",
+      "invalidRawFrames": 1,
+      "tamperedCopies": 0,
+      "source": "Operator reading of native accessibility product UI and observer-panel counters during the recorded manual run; not a per-step controller snapshot"
+    },
+    {
+      "case": "shared-key private message",
+      "senderConversation": "A: SenderRoom",
+      "recipientConversation": "B: ReceiverRoom",
+      "displayedCopies": 1,
+      "source": "Operator reading of native accessibility product UI and observer-panel counters during the recorded manual run; not a per-step controller snapshot"
+    },
+    {
+      "case": "encrypted direct message",
+      "senderConversation": "A: Dummy Bobby",
+      "recipientConversation": "B: Dummy Alice",
+      "displayedCopies": 1,
+      "source": "Operator reading of native accessibility product UI and observer-panel counters during the recorded manual run; not a per-step controller snapshot"
+    }
+  ],
+  "pending": [
+    "Encrypted reply verification",
+    "Final inspection of every conversation",
+    "Wrong-key and missing-key browser runs (AC and AD)",
+    "Wrong-recipient browser check",
+    "Private/direct tampering",
+    "WAN and cross-device tests"
+  ],
+  "fourPeerPreliminary": {
+    "status": "Direct-link prerequisite not satisfied; no product sends; relay remained enabled",
+    "openCounts": {
+      "A": 1,
+      "B": 3,
+      "C": 3,
+      "D": 1
+    },
+    "limitation": "Periodic per-page reports are not a synchronized topology snapshot. No PC/candidate traces captured for this run; cause unresolved."
+  },
+  "limits": [
+    "Replay is suppressed by combined transport/application layers; inner message replay cache is not isolated.",
+    "Counts in the controller snapshot cover only the selected conversation at that moment. Earlier General and ReceiverRoom observations are listed separately.",
+    "Tamper rejection was observed in General; no final all-conversation sweep occurred.",
+    "No complete browser acceptance PASS is claimed.",
+    "Controller subsequently hardened by unit-tested freshness/malformed-input guards; those changes have not received another browser run.",
+    "Blocked hub frame count includes rebroadcasts, not only original product submissions. A receiving its own private/DM frame back does not prove a reply from B.",
+    "The executed controller was uncommitted and its original bytes were not retained; its hash is recorded. The current hardened controller is reproducible from this repository."
+  ],
+  "executedFixtureHashes": {
+    "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+    "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+    "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0",
+    "ui_server.py": "4a6f525a9feae621ed68b758580028814b03f073d42242f9fe09f5043f060ef2"
+  },
+  "committedFixtureHashes": {
+    "ui_server.py": "e20080192ef3470c0e2d9de0dac6e866c433dbcbd15c7fb51295ed65078bd4b3",
+    "product/observe.js": "b88fcf48f2da42bc79680b9b590bb0d827b36d8f6c1a648202250bccdf107e64",
+    "product/setup.html": "5634ebdbedaed6b93d4fc1cfe5740b61900638f5bc9e52dada24de9d21242cf1",
+    "product/setup.js": "0c16fa340449a1826e1e681d15230049fada6a61022122e1d66922f70e0521e0"
+  },
+  "currentFixtureBrowserRun": false,
+  "observerUnchangedSinceBrowserRun": true,
+  "executedControllerRetained": false
+}

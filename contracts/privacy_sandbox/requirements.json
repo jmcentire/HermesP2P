@@ -1,0 +1,60 @@
+{
+  "status": "Sandbox reference contracts, manually authored from owner requirements; no production currency or anonymity certification",
+  "currency_kinds": [
+    "ordinary",
+    "advertising"
+  ],
+  "signature_domains": {
+    "ordinary_issue": "hp2p.sandbox.ordinary.issue.v1",
+    "ordinary_transfer": "hp2p.sandbox.ordinary.transfer.v1",
+    "ordinary_redeem": "hp2p.sandbox.ordinary.redeem.v1",
+    "advertising_offer": "hp2p.sandbox.advertising.offer.v1",
+    "advertising_claim": "hp2p.sandbox.advertising.claim.v1",
+    "publisher": "hp2p.sandbox.subscription.publisher.v1",
+    "campaign": "hp2p.sandbox.advertising.campaign.v1"
+  },
+  "fee_basis_points": {
+    "ordinary": 500,
+    "advertising": 2000
+  },
+  "credit_invariants": [
+    "Issuer signature authorizes dummy issuance; holder signature authorizes each transfer and redemption.",
+    "Unspent provenance is single-use within one authority process; duplicate requests with identical currency/action/signer/id namespace and fingerprint return the prior receipt when authority time has not moved backwards.",
+    "Conflicting operation ids within the same currency/action/signer namespace, spent inputs, forged signatures, cross-kind claims, unsafe integers, expired inputs, and supply inflation must reject before monetary mutation.",
+    "For each currency kind, issued equals outstanding plus redeemed; expiry does not erase the accounting record.",
+    "47 issued dummy units cannot produce 50 redeemable units. No exchange rate or dollar-to-unit conversion is implied.",
+    "Rewards require separately designated advertising inputs and an advertising offer and claim, bound by offerHash and challenge.",
+    "evidenceHash is a commitment supplied by the recipient, not proof of viewing, humanity, or attention. Bots and colluding recipients can produce signed claims.",
+    "State is necessary for single-use provenance and idempotency. Restart, independent replicas and offline acceptance do not provide monetary finality.",
+    "Every mutating entry point observes a nondecreasing trusted authority timestamp, including rejected requests. Clock rollback rejects; observing later time may update the clock guard while leaving monetary state unchanged.",
+    "Advertising claim replay identifiers are scoped to recipient signer plus claim id; unrelated recipients may use the same local id."
+  ],
+  "subscription_invariants": [
+    "Publisher messages verify publisher identity, channel and UTC month under hp2p.sandbox.subscription.publisher.v1.",
+    "Symmetric channels authenticate channel, epoch and message id as AEAD associated data. Every member knowing the key can author a group message.",
+    "Keys must rotate monthly and cannot repeat in the same channel instance. Rotation does not revoke a recipient's saved historical keys.",
+    "Negotiation window is inclusive from seven days before through seven days after the month boundary. This helper neither takes payment nor distributes keys.",
+    "Composed publisher subscriptions sign channel, epoch, message id and text before monthly encryption; opening verifies the configured publisher and matching inner/outer scope. Group key possession alone cannot impersonate the publisher. Unchanged authentic messages remain replayable."
+  ],
+  "privacy_limits": [
+    "Pseudonymous signing keys and transaction provenance are linkable; this reference model is not an anonymous payment system.",
+    "No signatures-only solution to double spending, ordering, revocation or offline finality is claimed.",
+    "Transport state is bounded local cache/peer state; monetary accounting remains a separate stateful component.",
+    "No real funds, token issuance, wallet, financial account, settlement or production backend is connected."
+  ],
+  "cross_boundary_fields": [
+    "offerHash",
+    "challenge",
+    "evidenceHash",
+    "requirementsHash",
+    "expiresAt"
+  ],
+  "economic_invariants": [
+    "A pending signed proposal or IOU is not settled funds. A verified authority acceptance is required before counting monetary value or granting a paid entitlement.",
+    "An unfunded or failed optional superlike reduces to an ordinary like, without fabricating settled creator income or paid access. Self-controlled sender and creator keys cannot turn an unbacked promise into payout.",
+    "Advertising uses only separately designated credits in a closed campaign budget. Collected proofs bind campaign, action, recipient and amount; replay and concurrent claims cannot spend beyond accepted funding.",
+    "Subscription access requires verified settled funds scoped to recipient, channel and monthly epoch. Pending promises, forged receipt objects and transplanted settlement references must not unlock it.",
+    "Proof collection provides attributable confirmation of a defined action and recipient-directed value; it does not prove human attention, unique people or advertising effectiveness.",
+    "All settlement, budget and access records are local dummy-model state. No service or token is issued against live funds, and no financial integration is connected."
+  ]
+}

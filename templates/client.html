@@ -9,6 +9,7 @@
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
+    <div class="p-2 border-bottom small" role="note">Experimental text client. Relays and direct peers observe network metadata. Public posts are not identity-authenticated. Identity downloads contain unencrypted keys.</div>
     <div class="container-fluid vh-100">
         <div class="row h-100">
             <div class="col-md-3 border-end py-3">
@@ -146,6 +147,9 @@
                     </div>
                 </div>
                 <div class="mt-auto">
+                    <label for="importConfig" class="small">Import identity locally</label>
+                    <input type="file" id="importConfig" accept=".json,application/json" class="form-control mb-2">
+                    <p id="importStatus" class="small" role="status"></p>
                     <button id="saveExitBtn" class="btn btn-secondary w-100">Save & Exit</button>
                 </div>
             </div>
@@ -166,7 +170,7 @@
                         <button id="network-panel-toggle" class="btn btn-sm px-2 py-0 me-2" style="background: #000033; color: #0f0; font-family: monospace; font-size: 0.7rem;">
                             <span class="toggle-indicator">&#9654;</span> NETWORK
                         </button>
-                        <span class="network-label">mesh traffic</span>
+                        <span class="network-label">observed traffic</span>
                     </div>
                     <div id="network-panel-body" style="display: none;"></div>
                 </div>
@@ -174,10 +178,10 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/base64-js@1.5.1/base64js.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/nacl-fast.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/base64js.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/feather.min.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/client.js') }}"></script>
 </body>
 </html>

@@ -1,0 +1,689 @@
+schema: boundary-register/1
+entries:
+- id: credits.ordinary
+  kind: enum
+  relation: equal
+  description: Exact ordinary identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: ordinary
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 4
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: ordinary
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 4
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: ordinary
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 10
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.advertising
+  kind: enum
+  relation: equal
+  description: Exact advertising identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: advertising
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 5
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: advertising
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 4
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: advertising
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 21
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.offerHash
+  kind: field
+  relation: equal
+  description: Exact offerHash identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: offerHash
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 26
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: offerHash
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 106
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: offerHash
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 109
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.challenge
+  kind: field
+  relation: equal
+  description: Exact challenge identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: challenge
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 26
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: challenge
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 105
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: challenge
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 106
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.evidenceHash
+  kind: field
+  relation: equal
+  description: Exact evidenceHash identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: evidenceHash
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 27
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: evidenceHash
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 106
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: evidenceHash
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 109
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.requirementsHash
+  kind: field
+  relation: equal
+  description: Exact requirementsHash identifier across dummy credit requirements,
+    implementation and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: requirementsHash
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 49
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: requirementsHash
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 105
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: requirementsHash
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 106
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: credits.expiresAt
+  kind: field
+  relation: equal
+  description: Exact expiresAt identifier across dummy credit requirements, implementation
+    and adversarial tests.
+  sides:
+  - party: external:specification
+    role: defines
+    value: expiresAt
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 50
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: expiresAt
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 41
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: expiresAt
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 11
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: subscription.publisher-domain
+  kind: claim
+  relation: equal
+  description: Publisher signature domain must match the explicit subscription specification.
+  sides:
+  - party: external:specification
+    role: defines
+    value: hp2p.sandbox.subscription.publisher.v1
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 13
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: hp2p.sandbox.subscription.publisher.v1
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 5
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+- id: interface.FEE_BASIS_POINTS
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: FEE_BASIS_POINTS
+    records:
+    - kind: file
+      path: sandbox/credits.js
+      line: 5
+      sha256: bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5
+  - party: external:sandbox_tests
+    role: consumes
+    value: FEE_BASIS_POINTS
+    records:
+    - kind: file
+      path: tests/sandbox-credits.test.js
+      line: 4
+      sha256: 6ebc1d4c7aa09e63604c6b0c5ff82f6215c60c046c37b6b6c6247aba3674b818
+- id: interface.negotiationWindow
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: negotiationWindow
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 12
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+  - party: external:sandbox_tests
+    role: consumes
+    value: negotiationWindow
+    records:
+    - kind: file
+      path: tests/sandbox-subscriptions.test.js
+      line: 6
+      sha256: 0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882
+- id: interface.MonthlySymmetricChannel
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: MonthlySymmetricChannel
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 30
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+  - party: external:sandbox_tests
+    role: consumes
+    value: MonthlySymmetricChannel
+    records:
+    - kind: file
+      path: tests/sandbox-subscriptions.test.js
+      line: 6
+      sha256: 0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882
+- id: interface.readPublisherMessage
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: readPublisherMessage
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 21
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+  - party: external:sandbox_tests
+    role: consumes
+    value: readPublisherMessage
+    records:
+    - kind: file
+      path: tests/sandbox-subscriptions.test.js
+      line: 6
+      sha256: 0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882
+- id: interface.sealPublisherMessage
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: sealPublisherMessage
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 61
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+  - party: external:sandbox_tests
+    role: consumes
+    value: sealPublisherMessage
+    records:
+    - kind: file
+      path: tests/sandbox-subscriptions.test.js
+      line: 50
+      sha256: 0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882
+- id: interface.openPublisherMessage
+  kind: name
+  relation: equal
+  description: Exact exported interface used by the executable sandbox tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: openPublisherMessage
+    records:
+    - kind: file
+      path: sandbox/subscriptions.js
+      line: 65
+      sha256: 6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9
+  - party: external:sandbox_tests
+    role: consumes
+    value: openPublisherMessage
+    records:
+    - kind: file
+      path: tests/sandbox-subscriptions.test.js
+      line: 51
+      sha256: 0a7a503daa8265608563f36869eaf6e6a0304608b0d121778fc5549f9c6fd882
+- id: use-case.CAMPAIGN_DOMAIN
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: CAMPAIGN_DOMAIN
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 7
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: CAMPAIGN_DOMAIN
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 6
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.receivePromise
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: receivePromise
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 27
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: receivePromise
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 42
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.settlePromise
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: settlePromise
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 37
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: settlePromise
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 44
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.redeemSuperlike
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: redeemSuperlike
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 45
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: redeemSuperlike
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 54
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.registerCampaign
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: registerCampaign
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 57
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: registerCampaign
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 26
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.collectAdvertisingProof
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: collectAdvertisingProof
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 68
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: collectAdvertisingProof
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 77
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.redeemAdvertisingProof
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: redeemAdvertisingProof
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 85
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: redeemAdvertisingProof
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 80
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.campaignStatus
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: campaignStatus
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 103
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: campaignStatus
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 83
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.registerSubscription
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: registerSubscription
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 107
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: registerSubscription
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 21
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.releaseSubscription
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: releaseSubscription
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 117
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: releaseSubscription
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 125
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.subscriptionStatus
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: subscriptionStatus
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 146
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: subscriptionStatus
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 126
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.superlikeService
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: superlikeService
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 12
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: superlikeService
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 6
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.subscriptionService
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: subscriptionService
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 13
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: subscriptionService
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 6
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: use-case.advertisingRequirement
+  kind: name
+  relation: equal
+  description: Exact dummy economic adapter interface used by executable acceptance
+    tests.
+  sides:
+  - party: privacy_sandbox
+    role: defines
+    value: advertisingRequirement
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 15
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c
+  - party: external:sandbox_tests
+    role: consumes
+    value: advertisingRequirement
+    records:
+    - kind: file
+      path: tests/sandbox-use-cases.test.js
+      line: 6
+      sha256: f9ee5adb24797773c0e0c9724fa3f938f78ef600ccc8060866463a1f2bdf11bc
+- id: advertising.campaign-domain
+  kind: claim
+  relation: equal
+  description: Campaign signatures are domain-separated from currency issuance and
+    reward claims.
+  sides:
+  - party: external:specification
+    role: defines
+    value: hp2p.sandbox.advertising.campaign.v1
+    records:
+    - kind: file
+      path: contracts/privacy_sandbox/requirements.json
+      line: 14
+      sha256: d1166a9159cfdee08fd5dd611dc47263a7612bb7529b8f6dab6886ce9447af5a
+  - party: privacy_sandbox
+    role: consumes
+    value: hp2p.sandbox.advertising.campaign.v1
+    records:
+    - kind: file
+      path: sandbox/use-cases.js
+      line: 7
+      sha256: 90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c

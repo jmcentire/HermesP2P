@@ -1,7 +1,8 @@
 // === js/network.js ===
 console.log("Network module loaded");
 
-import { verifySignature } from './crypto.js';
+import { validEnvelope } from './envelope.js';
+import { MeshTransport } from './mesh.js';
 import { unpadMessage } from './padding.js';
 import { isExpired, getRebroadcastProbability } from './ttl.js';
 import { isProtocolMessage, handlePeerExchangeRequest, handlePeerExchangeResponse,
@@ -17,7 +18,8 @@ let getConfigurationCallback = () => { console.warn("Network: Config getter not 
 const MAX_PEERS = 5;
 const PEER_RECONNECT_DELAY = 5000; // ms
 const PEER_MANAGEMENT_INTERVAL = 30 * 1000; // ms
-const SEEN_MSG_TTL = 2 * 60 * 1000; // 2 minutes in ms
+const MAX_SEEN_MESSAGES = 10000;
+const MAX_FRAME_BYTES = 65536;
 const SEEN_MSG_CLEANUP_INTERVAL = 30 * 1000; // ms
 
 // --- State ---
@@ -26,6 +28,7 @@ let seenMessageIDs = new Map(); // { messageId: timestamp }
 let peerManagementTimer = null;
 let cleanupTimer = null;
 const knownPeersCache = new KnownPeersCache(50);
+const meshes = new Map();
 
 // --- Peer Accessors (new exports for discovery) ---
 
@@ -78,7 +81,11 @@ function updateOverallStatus() {
 }
 
 export function connectToNode(url) {
-    if (!url || typeof url !== 'string' || !url.startsWith('ws')) {
+    let parsedUrl;
+    try { parsedUrl = new URL(url); } catch { return; }
+    if (!['ws:', 'wss:'].includes(parsedUrl.protocol) || parsedUrl.username || parsedUrl.password ||
+        (window.location.protocol === 'https:' && parsedUrl.protocol !== 'wss:') ||
+        (!peers.has(url) && peers.size >= 16)) {
         console.warn("Network: connectToNode called with invalid URL:", url);
         return;
     }
@@ -125,6 +132,27 @@ function handleOpen(url) {
 
 function handleMessage(url, event) {
     const rawData = event.data;
+    if ((typeof rawData === 'string' ? new TextEncoder().encode(rawData).length : rawData?.byteLength) > MAX_FRAME_BYTES) return;
+    if (typeof rawData === 'string') {
+        try {
+            const signal = JSON.parse(rawData);
+            if (signal?.type?.startsWith('mesh_')) {
+                if (!peers.has(url)) return; // Direct peers cannot impersonate hub control messages.
+                let mesh = meshes.get(url);
+                if (signal.type === 'mesh_welcome' && window.RTCPeerConnection) {
+                    mesh?.disconnect();
+                    mesh = new MeshTransport({ RTCPeerConnection: window.RTCPeerConnection,
+                        sendSignal: value => sendRawText(url, JSON.stringify(value)),
+                        onStatus: reason => console.info('Direct peer transport:', reason),
+                        onFrame: (frame, id) => handleMessage('mesh:' + id, { data: frame }) });
+                    meshes.set(url, mesh);
+                    mesh.setIdentity(signal.peerId, signal.peers);
+                } else if (signal.type === 'mesh_roster') mesh?.updatePeers(signal.peers);
+                else if (signal.type === 'mesh_signal') Promise.resolve(mesh?.receiveSignal(signal.from, signal.signal)).catch(() => {});
+                return;
+            }
+        } catch { /* ordinary message validation below */ }
+    }
 
     // --- Text frame: check for protocol messages (peer exchange) ---
     if (typeof rawData === 'string') {
@@ -152,128 +180,44 @@ function handleProtocolMsg(url, parsed) {
     const config = getConfigurationCallback();
     if (parsed.type === 'peer_exchange_request') {
         const peerUrls = handlePeerExchangeRequest(parsed, getConnectedPeerUrls(), url);
-        const response = createPeerExchangeResponse(peerUrls, config?.user?.pubKey || '');
+        const response = createPeerExchangeResponse(peerUrls, '');
         sendRawText(url, JSON.stringify(response));
     } else if (parsed.type === 'peer_exchange_response') {
         handlePeerExchangeResponse(parsed, knownPeersCache);
     }
 }
 
-/** Handle padded binary frames through the full receive pipeline. */
-function handleBinaryFrame(url, rawArrayBuffer) {
-    try {
-        // Unpad
-        const paddedBytes = new Uint8Array(rawArrayBuffer);
-        const unpadded = unpadMessage(paddedBytes);
-
-        // Deserialize
-        const jsonStr = new TextDecoder().decode(unpadded);
-        const messagePackage = JSON.parse(jsonStr);
-
-        if (!messagePackage || typeof messagePackage !== 'object' || !messagePackage.id || !messagePackage.timestamp) {
-            console.warn("Network: Malformed message structure from " + url);
-            return;
-        }
-
-        // TTL check (cheapest check first)
-        if (isExpired(messagePackage)) {
-            console.warn("Network: Expired message dropped:", messagePackage.id);
-            return;
-        }
-
-        // Deduplication
-        if (seenMessageIDs.has(messagePackage.id)) {
-            return;
-        }
-        seenMessageIDs.set(messagePackage.id, Date.now());
-
-        // Signature verification (only if pubKey present — channel messages skip this)
-        if (messagePackage.from?.pubKey) {
-            if (!messagePackage.signature) {
-                console.warn("Network: Message has pubKey but no signature:", messagePackage.id);
-                return;
-            }
-            const messageContent = typeof messagePackage.message === 'string'
-                ? messagePackage.message
-                : JSON.stringify(messagePackage.message);
-            if (!verifySignature(messageContent, messagePackage.signature, messagePackage.from.pubKey)) {
-                console.warn("Network: Signature verification failed for message:", messagePackage.id);
-                return;
-            }
-        }
-
-        // Pass to upper layer
-        handleIncomingMsgCallback(url, messagePackage);
-
-        // Show in network traffic panel
-        addTrafficEntry(
-            messagePackage.type || 'public',
-            messagePackage.to || 'unknown',
-            messagePackage.message,
-            messagePackage.from?.name || 'Anonymous'
-        );
-
-        // Rebroadcast with TTL-decayed probability, forwarding original raw binary
-        const prob = getRebroadcastProbability(messagePackage);
-        if (Math.random() < prob) {
-            rebroadcastRaw(rawArrayBuffer, url);
-        }
-    } catch (e) {
-        console.error("Network: Error processing binary frame from " + url + ":", e);
-    }
+/** Both frame formats share exactly the same authentication and replay rules. */
+function processEnvelope(url, messagePackage, rawFrame) {
+    if (!validEnvelope(messagePackage)) return;
+    const proofKey = messagePackage.from.pubKey || messagePackage.from.proofKey;
+    const replayKey = proofKey + ':' + messagePackage.id;
+    if (seenMessageIDs.has(replayKey)) return;
+    // Transport dedup is best effort; authenticated per-conversation replay checks live above.
+    if (seenMessageIDs.size >= MAX_SEEN_MESSAGES) seenMessageIDs.delete(seenMessageIDs.keys().next().value);
+    seenMessageIDs.set(replayKey, messagePackage.timestamp + messagePackage.ttl * 1000);
+    handleIncomingMsgCallback(url, messagePackage);
+    addTrafficEntry(messagePackage.type, messagePackage.to,
+        messagePackage.type === 'public' ? messagePackage.message : null,
+        messagePackage.from.name);
+    if (Math.random() < getRebroadcastProbability(messagePackage)) rebroadcastRaw(rawFrame, url);
 }
 
-/** Handle legacy (non-padded) text messages for backward compatibility. */
-function handleLegacyTextMessage(url, rawData) {
-    let messagePackage;
+function handleBinaryFrame(url, rawArrayBuffer) {
     try {
-        messagePackage = JSON.parse(rawData);
-        if (!messagePackage || typeof messagePackage !== 'object' || !messagePackage.id || !messagePackage.timestamp) {
-           console.warn("Network: Received malformed message from " + url);
-           return;
-        }
-    } catch (e) {
-        console.error("Network: Failed to parse incoming JSON from " + url + ":", e);
-        return;
-    }
+        const unpadded = unpadMessage(new Uint8Array(rawArrayBuffer));
+        processEnvelope(url, JSON.parse(new TextDecoder().decode(unpadded)), rawArrayBuffer);
+    } catch { /* malformed frames are dropped without logging payloads */ }
+}
 
-    // TTL check
-    if (messagePackage.ttl && isExpired(messagePackage)) {
-        console.warn("Network: Expired message dropped:", messagePackage.id);
-        return;
-    }
-
-    // Deduplication
-    if (seenMessageIDs.has(messagePackage.id)) {
-        return;
-    }
-    seenMessageIDs.set(messagePackage.id, Date.now());
-
-    // Signature verification
-    if (messagePackage.from?.pubKey && messagePackage.signature) {
-        const messageContent = typeof messagePackage.message === 'string'
-            ? messagePackage.message
-            : JSON.stringify(messagePackage.message);
-        if (!verifySignature(messageContent, messagePackage.signature, messagePackage.from.pubKey)) {
-            console.warn("Network: Signature verification failed for message:", messagePackage.id);
-            return;
-        }
-    }
-
-    handleIncomingMsgCallback(url, messagePackage);
-
-    // Show in network traffic panel
-    addTrafficEntry(
-        messagePackage.type || 'public',
-        messagePackage.to || 'unknown',
-        messagePackage.message,
-        messagePackage.from?.name || 'Anonymous'
-    );
-
-    rebroadcastMessage(messagePackage, url);
+function handleLegacyTextMessage(url, rawData) {
+    try { processEnvelope(url, JSON.parse(rawData), rawData); }
+    catch { /* v1/unsigned/malformed envelopes are intentionally rejected */ }
 }
 
 function handleError(url, errorEvent) {
+    meshes.get(url)?.disconnect();
+    meshes.delete(url);
     console.error("Network: WebSocket error on " + url + ":", errorEvent);
     const peer = peers.get(url);
     if (peer) {
@@ -290,6 +234,8 @@ function handleError(url, errorEvent) {
 }
 
 function handleClose(url, event) {
+    meshes.get(url)?.disconnect();
+    meshes.delete(url);
     const code = event?.code;
     const reason = event?.reason;
     console.log("Network: WebSocket connection closed: " + url + " (Code: " + code + ", Reason: " + (reason || 'N/A') + ")");
@@ -370,7 +316,7 @@ function managePeers() {
 function cleanupSeenMessages() {
     const now = Date.now();
     for (const [id, timestamp] of seenMessageIDs.entries()) {
-        if (now - timestamp > SEEN_MSG_TTL) {
+        if (now >= timestamp) {
             seenMessageIDs.delete(id);
         }
     }
@@ -408,6 +354,8 @@ export function initializeNetwork(messageHandler, statusHandler, configGetter) {
         }
     });
     peers.clear();
+    meshes.forEach(mesh => mesh.disconnect());
+    meshes.clear();
     seenMessageIDs.clear();
 
     // Get initial nodes (origin + config)
@@ -436,6 +384,19 @@ export function initializeNetwork(messageHandler, statusHandler, configGetter) {
  * Accepts JS objects (JSON-stringified), strings, Uint8Array, or ArrayBuffer.
  */
 export function broadcastMessage(frame) {
+    // Suppress our own valid frame when it returns via another relay or direct peer.
+    try {
+        const decoded = typeof frame === 'string' ? frame : new TextDecoder().decode(unpadMessage(new Uint8Array(frame)));
+        const message = JSON.parse(decoded);
+        if (!validEnvelope(message)) throw new Error('Invalid envelope');
+        {
+            if (seenMessageIDs.size >= MAX_SEEN_MESSAGES) seenMessageIDs.delete(seenMessageIDs.keys().next().value);
+            seenMessageIDs.set(message.from.proofKey + ':' + message.id, message.timestamp + message.ttl * 1000);
+        }
+    } catch (error) { throw new Error('Cannot broadcast an invalid or untracked message', {cause:error}); }
+
+    meshes.forEach(mesh => mesh.broadcast(frame));
+    // Relay fallback remains active for peers outside the partial direct mesh.
     peers.forEach((peer, url) => {
         if (peer.status === 'open') {
             sendFrame(url, frame);
@@ -445,6 +406,7 @@ export function broadcastMessage(frame) {
 
 /** Rebroadcast original raw binary frame to all peers except the origin. */
 function rebroadcastRaw(rawArrayBuffer, originUrl) {
+    meshes.forEach(mesh => mesh.broadcast(rawArrayBuffer));
     peers.forEach((peer, url) => {
         if (url !== originUrl && peer.status === 'open') {
             sendFrame(url, rawArrayBuffer);
@@ -468,6 +430,8 @@ export function rebroadcastMessage(messageObject, originUrl) {
 
 /** Disconnect a peer by URL (for rotation). */
 export function disconnectPeer(url) {
+    meshes.get(url)?.disconnect();
+    meshes.delete(url);
     const peer = peers.get(url);
     if (peer && peer.ws) {
         peer.ws.onopen = null; peer.ws.onmessage = null; peer.ws.onerror = null; peer.ws.onclose = null;

@@ -1,0 +1,25 @@
+{
+  "scope": "Combined local economics review plus final application-clock supplement; code inspection and executable checks are separate evidence.",
+  "tools": {
+    "advocate": "0.1.5 red_team",
+    "pact-agents": "0.14.1 bundled Simulacrum",
+    "local_model": "gemma3:27b-it-q4_K_M"
+  },
+  "external_paid_provider_calls": false,
+  "files": {
+    "sandbox/signatures.js": "6c1bc3e338f70ed4f3068a734771bc162d99ff4cd9b2a3dcea98a0f2ac3f5cdd",
+    "sandbox/credits.js": "bee37c6de723f9264b92a76159c3ded07b6904c127c733aabd9a2609f404c8a5",
+    "sandbox/subscriptions.js": "6a947650ef712c8aa3bdaba718e93f60775cb2500e9a02c24dd5a3064b8e89f9",
+    "sandbox/use-cases.js": "90d7dc9248097ad38c410bcacaf6d77a68efc37fb1df75b3b37dd7bb3907fc7c"
+  },
+  "limitations": "This manifest identifies source bytes; it is not a security certification or proof of reviewer conclusions.",
+  "reviewed_documentation": {
+    "docs/protocol-contracts.md": "24e273bc81a5e4c7db297584d5bd1e173ed9074035f25ffa530a2e7e5dc33be4"
+  },
+  "post_review_documentation": {
+    "docs/protocol-contracts.md": {
+      "sha256": "544b5ed2241b20dd18ee0947cee6285df6289b7dc6b6cc224145253f43b03d61",
+      "change": "Claude final review requested explicit trusted local product registration and advertiser-operated authority access restrictions. These two disclosure-only edits followed the local Advocate/Sim passes; sandbox source hashes above are unchanged."
+    }
+  }
+}

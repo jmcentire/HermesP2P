@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-19",
+  "browser": "Chrome 155.0.8059.85 Official Build arm64",
+  "evidenceType": "Read-only native accessibility inspection of chrome://policy and chrome://version in one owned temporary tab",
+  "chromePolicies": "No policies set",
+  "policyPrecedence": "No policies set",
+  "extensionInstallPolicies": "No policies set",
+  "displayedExtensionPolicies": {
+    "Claude": "No policies set",
+    "Google Docs Offline": "No policies set"
+  },
+  "googleUpdatePolicies": "No policies set",
+  "commandLineFlags": [
+    "--restart",
+    "--restart",
+    "--flag-switches-begin",
+    "--flag-switches-end"
+  ],
+  "conclusion": "No displayed enterprise policy or active command-line WebRTC/network override explains the failure. This does not inspect every browser-internal runtime state or establish a root cause.",
+  "cleanup": "Owned temporary tab closed; original selected page restored; no settings changed."
+}
