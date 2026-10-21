@@ -1,140 +1,112 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HermesP2P — Ephemeral messaging, in progress</title>
-<meta name="description" content="Try the experimental HermesP2P text client. Explore experimental hub and direct-peer transport for ephemeral communication, with explicit privacy limits.">
-<meta property="og:title" content="HermesP2P — Ephemeral messaging, in progress">
-<meta property="og:description" content="Experimental hub text messaging. Separate Safari tabs passed direct-link and reconnect tests; Chrome and wide-area connectivity remain unresolved.">
-<meta property="og:type" content="website">
-<link rel="icon" type="image/png" href="hermesp2p_logo.png">
-<style>
-:root { --navy:#000033; --ink:#24374b; --muted:#50647a; --wash:#edf3f9; --line:#c8d5e3; --accent:#076a68; --white:#fff; }
-* { box-sizing:border-box; } html { scroll-behavior:smooth; scroll-padding-top:24px; }
-body { margin:0; background:var(--white); color:var(--ink); font:17px/1.65 Avenir, 'Avenir Next', 'Segoe UI', sans-serif; }
-a { color:var(--navy); text-underline-offset:4px; } a:hover { color:var(--accent); }
-a:focus-visible, summary:focus-visible { outline:3px solid var(--accent); outline-offset:5px; }
-.wrap { width:min(1120px, calc(100% - 48px)); margin:auto; }
-header { display:flex; align-items:center; justify-content:space-between; padding:24px 0; gap:24px; }
-.brand { display:flex; align-items:center; gap:12px; font-weight:750; text-decoration:none; }
-.brand img { width:52px; height:52px; object-fit:contain; }
-nav { display:flex; flex-wrap:wrap; gap:24px; font-size:.9rem; } nav a { text-decoration:none; }
-.hero { display:grid; grid-template-columns:1.2fr 1fr; align-items:center; gap:60px; padding:76px 0 84px; }
-h1,h2,h3 { color:var(--navy); line-height:1.12; } h1 { font-size:clamp(2.8rem,6.1vw,5rem); letter-spacing:-.055em; font-weight:650; margin:0 0 28px; max-width:13ch; }
-h2 { font-size:clamp(1.85rem,3vw,2.7rem); letter-spacing:-.035em; margin:0 0 22px; } h3 { font-size:1.15rem; margin:0 0 10px; }
-p { margin:0 0 18px; max-width:68ch; } .lead { font-size:1.14rem; max-width:43ch; }
-.actions { display:flex; flex-wrap:wrap; align-items:center; gap:18px; margin:30px 0 16px; }
-.button { display:inline-block; padding:12px 22px; border-radius:4px; background:var(--navy); color:white; text-decoration:none; font-weight:650; } .button:hover { background:var(--accent); color:white; }
-.note { font-size:.88rem; color:var(--muted); } .status { display:inline-block; color:var(--accent); font-weight:650; margin:0 0 18px; }
-.network { margin:0; padding:32px 26px; background:var(--wash); border-radius:60px 8px 60px 8px; }
-.network img { width:140px; height:140px; object-fit:contain; display:block; margin:0 auto 28px; }
-.route { display:flex; align-items:center; gap:0; text-align:center; }
-.node { flex:1; padding:16px 6px; background:white; border:1px solid var(--line); border-radius:6px; font-size:.88rem; line-height:1.4; }
-.node.hub { background:var(--navy); color:white; } .wire { width:20px; height:2px; background:var(--muted); flex-shrink:0; }
-figcaption { color:var(--muted); font-size:.88rem; margin-top:22px; }
-.band { background:var(--wash); padding:58px 0; }
-.split { display:grid; grid-template-columns:1fr 1.5fr; gap:64px; }
-.hero > *, .split > * { min-width:0; }
-.facts { display:grid; grid-template-columns:1fr 1fr; gap:32px; } .facts p { margin:0; font-size:.95rem; }
-.section { padding:76px 0; } .section + .section { border-top:1px solid var(--line); }
-.status-table { width:100%; border-collapse:collapse; margin:30px 0 0; text-align:left; }
-th,td { padding:20px 18px 20px 0; border-bottom:1px solid var(--line); vertical-align:top; }
-th { font-weight:650; color:var(--navy); } td:first-child { width:22%; color:var(--navy); font-weight:650; } td:nth-child(2) { width:23%; } .phase { color:var(--accent); font-size:.9rem; }
-details { border-top:1px solid var(--line); padding:20px 0; } details:last-child { border-bottom:1px solid var(--line); } summary { cursor:pointer; color:var(--navy); font-weight:650; } details p { margin:18px 0 0; }
-pre { background:var(--wash); padding:22px; border-radius:5px; overflow-x:auto; font-size:.85rem; }
-footer { padding:32px 0; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; font-size:.88rem; } footer p { margin:0; } footer a { margin-right:18px; }
-.skip { position:absolute; left:16px; top:-100px; background:white; padding:12px; z-index:5; } .skip:focus { top:12px; }
-@media(max-width:760px) { .wrap { width:calc(100% - 36px); } header { align-items:flex-start; } nav { gap:12px; justify-content:flex-end; } nav a:first-child { display:none; } .hero { grid-template-columns:1fr; gap:36px; padding:36px 0 52px; } h1 { max-width:12ch; } .network { max-width:500px; width:100%; } .split { grid-template-columns:1fr; gap:24px; } .section { padding:48px 0; } .facts { gap:24px; } th,td { padding:16px 8px 16px 0; font-size:.88rem; } .status-table td:first-child { width:27%; } }
-@media(max-width:400px) { .brand { font-size:.9rem; gap:6px; } .brand img { width:34px; height:34px; } nav { font-size:.8rem; } .facts { grid-template-columns:1fr; } }
-@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
-</style></head><body>
-<a class="skip" href="#main">Skip to content</a>
-<div class="wrap">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Start a text conversation with HermesP2P. No account, your own keys, and clear privacy limits. An experimental messenger.">
+<title>HermesP2P — A conversation, without an account</title>
+<link rel="icon" href="hermesp2p_logo.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
 <header>
-  <a class="brand" href="#"><img src="hermesp2p_logo.png" alt="">HermesP2P</a>
-  <nav aria-label="Main navigation"><a href="#today">Today</a><a href="#roadmap">Roadmap</a><a href="https://github.com/jmcentire/HermesP2P">Source</a></nav>
+<a class="brand" href="#">
+<img src="hermesp2p_logo.png" alt="">
+<span>HermesP2P</span>
+</a>
+<nav aria-label="Main navigation">
+<a href="#how">How it works</a>
+<a href="#privacy">Privacy</a>
+<a href="https://github.com/jmcentire/HermesP2P">Source</a>
+</nav>
 </header>
-</div>
 <main id="main">
-<div class="wrap">
-  <section class="hero" aria-labelledby="hero-title">
-    <div>
-      <p class="status">Experimental text messaging</p>
-      <h1 id="hero-title">Messages for<br>the moment.</h1>
-      <p class="lead">Building toward an ephemeral, peer-to-peer network. Start with the browser text client. Help shape a system that keeps less and puts keys in your hands.</p>
-      <div class="actions"><a class="button" href="https://hp2p.net/client">Open text client</a><a href="#today">Understand the prototype</a></div>
-      <p class="note">Research software. Local hub delivery and direct dummy-frame tests between separate Safari tabs have passed. Chrome direct connectivity remains unresolved. Anonymity is a design goal, not a guarantee.</p>
-    </div>
-    <figure class="network">
-      <img src="hermesp2p_logo.png" alt="HermesP2P logo">
-      <div class="route" aria-label="Bootstrap and fallback transport: your browser connects through a WebSocket hub to another browser">
-        <div class="node">Your<br>browser</div><span class="wire" aria-hidden="true"></span><div class="node hub">WebSocket<br>hub</div><span class="wire" aria-hidden="true"></span><div class="node">Another<br>browser</div>
-      </div>
-      <figcaption>Bootstrap through a known hub.<br>Separate Safari tabs exchanged direct frames and reconnected. Cross-device delivery remains unverified.</figcaption>
-    </figure>
-  </section>
+<section class="hero">
+<div>
+<h1>A conversation.<br>Without an account.</h1>
+<p>Drop into a public room or talk with someone you know. HermesP2P is a small, experimental messenger that puts your identity in your hands.</p>
+<div class="actions">
+<a class="btn btn-primary" href="https://hp2p.net/client">Start a conversation</a>
+<a href="https://hp2p.net/client#restore">Restore your identity</a>
 </div>
-<section id="today" class="band" aria-labelledby="today-title">
-  <div class="wrap split">
-    <div><h2 id="today-title">What you can try today</h2><p>Public text channels, shared-key private channels, and encrypted direct messages in an experimental browser client.</p></div>
-    <div class="facts">
-      <div><h3>Bring your own keys</h3><p>The browser generates an identity. Save its configuration to keep your keys and contacts. Treat that unencrypted file as a secret.</p></div>
-      <div><h3>Choose the conversation</h3><p>Public channels are readable by others. Private channels use a shared key. Direct messages use the recipient’s public key.</p></div>
-      <div><h3>Keep less by default</h3><p>The relay has no message database. Connections, duplicate suppression, and the open client still need temporary state. Recent frame hashes expire after 30 seconds or earlier under load. Recipients can keep copies.</p></div>
-      <div><h3>Inspect the experiment</h3><p>The implementation and tests are open for review. Clients use hub signalling to try direct WebRTC links. Separate Safari tabs exchanged direct dummy frames with test relay forwarding disabled, including after reconnect. Chrome direct connectivity remains unresolved; wide-area delivery and anonymity remain unproven. A single hub has no Sybil resistance and can be disrupted.</p></div>
-    </div>
-  </div>
-</section>
-<div class="wrap">
-<section class="section split" aria-labelledby="privacy-title">
-  <div><h2 id="privacy-title">Privacy starts with honest limits.</h2><p>Encryption protects content in some contexts. It does not make a connection invisible.</p></div>
-  <div>
-    <p>A hub or network observer can observe addresses, timing, message sizes, and traffic patterns. Direct peers may learn one another’s network addresses. Public messages are readable. Pseudonyms and padding do not, by themselves, prevent linking activity.</p>
-    <p>The current direct-message scheme does not provide a full forward-secrecy guarantee: compromise of a recipient’s long-term key can expose recorded messages. Signed direct messages are not deniable, and stable per-channel keys link posts over time. Browsers and the code they load are also part of the trust boundary.</p>
-    <p class="note">“Ephemeral” describes the intended retention model. It cannot prevent screenshots, recipient archives, compromised devices, or independent infrastructure logs.</p>
-  </div>
-</section>
-<section id="roadmap" class="section" aria-labelledby="roadmap-title">
-  <h2 id="roadmap-title">The direction, with the status attached.</h2>
-  <p>A small transport core, explicit optional services, and tests for the promises that matter.</p>
-  <table class="status-table">
-    <caption class="note" style="text-align:left">Development scope; planned features are not available in the text client.</caption>
-    <thead><tr><th scope="col">Capability</th><th scope="col">Status</th><th scope="col">Direction</th></tr></thead>
-    <tbody>
-      <tr><td>Text messaging</td><td><span class="phase">Experimental client</span></td><td>Public channels, shared-key channels, and direct messages with locally demonstrated hub delivery.</td></tr>
-      <tr><td>Direct peer links</td><td><span class="phase">Experimental</span></td><td>Known hubs signal bounded WebRTC connections. Separate Safari tabs passed direct dummy-frame and reconnect tests; Chrome direct connectivity remains unresolved. No STUN/TURN service is configured; the relay stays active. A resilient anonymous ad hoc mesh remains future work.</td></tr>
-      <tr><td>Optional rebroadcast</td><td><span class="phase">Planned</span></td><td>Explicit cloud caching and rebroadcast with a stated retention period. Persistence is an opt-in service with different privacy tradeoffs.</td></tr>
-      <tr><td>Subscriptions</td><td><span class="phase">Planned</span></td><td>Signed publisher-only broadcasts and symmetric-key channels, funded by verified settled payments. Monthly decryption keys; payment and key negotiation through a backchannel during the week before and after each month boundary.</td></tr>
-      <tr><td>Images and video</td><td><span class="phase">Future work</span></td><td>Rich media will need bandwidth, retention, and abuse controls. The current client is for text.</td></tr>
-      <tr><td>Hermes credits</td><td><span class="phase">Sandbox research</span></td><td>Dummy-credit accounting and adversarial validation. No live purchases, wallets, rewards, or blockchain settlement.</td></tr>
-    </tbody>
-  </table>
-</section>
-<section class="section split" aria-labelledby="credits-title">
-  <div><h2 id="credits-title">Explore the economics without real funds.</h2><p>The transport should forget. A monetary system must remember enough to reject duplicate spending.</p><p class="note">Proposed economics only. These are not purchase offers.</p></div>
-  <div>
-    <details><summary>Ordinary Hermes credits</summary><p>The proposed acquisition fee is about 5%, potentially adjusted by volume. Issuance is system-signed; transfers and IOUs are user-signed and refer to their provenance. A signature cannot create spendable value beyond what was issued.</p><p>The $100 / 47-token example is a design fixture, not a published exchange rate. The pricing and rounding rules remain to be specified. A claim to 50 tokens cannot redeem more than an issued 47.</p></details>
-    <details><summary>Advertising that rewards the audience</summary><p>The proposal gives advertisers more control over being seen and better confirmation of participation, while directing rewards to the person taking part. Advertising effectiveness remains to be demonstrated.</p><p>Advertising coin purchases carry a proposed 20% fee. Only separately signed, advertising-designated credits fund this rewards mechanism, which is closed only while the authority is reached through the advertiser-operated adapter. Advertisers collect and verify the required backchannel proofs against funded offers; accepted proofs support redemption within that funding limit. Ordinary credits cannot be relabeled.</p><p>Viewing evidence confirms only what the proof establishes, not human attention. Proof validation and duplicate-redemption controls still need tests against replay, fabricated evidence, bots, Sybil identities, and collusion.</p></details>
-    <details><summary>Subscriptions and superlikes reward creators</summary><p>Subscriptions and superlike donations are proposed ways to support creators. A pending promise is not paid revenue or a subscription entitlement. Only verified settled funds can support a payout or subscription-key release.</p><p>An unfunded or failed superlike degrades to an ordinary like. The creator does not receive an advance against it. Controlling both the sender and creator accounts creates no new value: only verified settled funds can be paid out.</p></details>
-    <details><summary>What validation must establish</summary><p>Separate signature domains and currency types; conservation of issued supply; duplicate-redemption rejection; expiry; and safe failure, retry, and idempotency behavior. Test that pending or failed payments never unlock keys or payouts, and that self-tipping cannot increase redeemable value.</p><p>The settlement boundary limits financial exposure from unfulfilled promises. It still needs explicit accounting and proof verification; signatures alone do not establish settled funds. Tests must also examine transaction linkability and the privacy cost of stronger evidence checks. The reference work uses dummy credits only.</p></details>
-  </div>
-</section>
-<section class="section" aria-labelledby="related-title">
-  <h2 id="related-title">Related projects</h2>
-  <p>HermesP2P is a standalone communications project. These separate projects explore other privacy ideas; they are not dependencies or integrated layers of HermesP2P.</p>
-  <div class="actions"><a href="https://signet.tools/">Signet</a><a href="https://jmcentire.github.io/agent-safe/">Agent-Safe</a><a href="https://jmcentire.github.io/tessera/">Tessera</a><a href="https://jmcentire.github.io/BlindDB/">BlindDB</a></div>
-</section>
-<section class="section split" aria-labelledby="contribute-title">
-  <div><h2 id="contribute-title">Build it in the open.</h2><p>Run a local text relay, review the boundaries, or help turn the next protocol claim into a reproducible test.</p><div class="actions"><a class="button" href="https://github.com/jmcentire/HermesP2P">Explore the source</a><a href="https://a.co/d/05PSJFBK">Read <em>Privacy</em></a></div></div>
-  <div><h3>Run locally</h3><pre><code>git clone https://github.com/jmcentire/HermesP2P.git
-cd HermesP2P
-python3 -m venv .venv
-. .venv/bin/activate
-pip install flask flask-sock jsonschema
-python main.py</code></pre><p class="note">Open http://localhost:5000. See the README for testing and deployment boundaries.</p></div>
-</section>
+<p class="note">Text only. Both people need to be online. No account or payment required. This is research software, not a guarantee of anonymity.</p>
 </div>
+<div class="conversation-preview" aria-label="Illustration of a conversation, not live messages">
+<div class="preview-top">
+<img src="hermesp2p_logo.png" alt="">A little space to talk</div>
+<div class="bubble">
+<small>You</small>
+<p>Got a minute?</p>
+</div>
+<div class="bubble reply">
+<small>A friend</small>
+<p>For a conversation? Always.</p>
+</div>
+<div class="bubble">
+<small>You</small>
+<p>Let’s start here.</p>
+</div>
+<div class="preview-note">Illustration only. Your real conversations begin in the text client.</div>
+</div>
+</section>
+<section class="intro" id="how">
+<h2>Your next conversation starts here.</h2>
+<div class="steps">
+<div>
+<h3>Open a room</h3>
+<p>Start in General, or add a room of your own. Public rooms are open to anyone; private rooms use a shared secret key.</p>
+</div>
+<div>
+<h3>Bring someone along</h3>
+<p>Exchange contact keys and add each other. Direct messages encrypt the content for the recipient. They need to be online to receive it.</p>
+</div>
+<div>
+<h3>Keep your identity</h3>
+<p>Your browser creates your keys. Download an identity backup to return as the same person. Keep it private: it contains your secret keys.</p>
+</div>
+<div>
+<h3>Leave a lighter trail</h3>
+<p>The relay has no message database. Your open tab holds recent messages, and recipients can keep copies. There is no offline inbox.</p>
+</div>
+</div>
+</section>
+<section class="limits" id="privacy">
+<h2>Privacy deserves plain language.</h2>
+<p>Encryption protects message content in private conversations. It does not make your connection invisible. Use this experiment with its limits in mind.</p>
+<details>
+<summary>What the network can see</summary>
+<p>Relays and network observers can see addresses, timing, sizes and traffic patterns. Direct peers may learn your address. Public rooms are readable; display names do not verify a person. Pseudonyms, padding and signatures do not establish anonymity. Recorded direct messages may be exposed if the recipient’s long-term key is compromised.</p>
+</details>
+<details>
+<summary>What works today—and what’s next</summary>
+<p>The experimental client supports public text, shared-key rooms and encrypted direct messages through a WebSocket relay. Direct peer links remain experimental: local Safari tests passed, Chrome direct connectivity is unresolved, and cross-device/WAN delivery is not yet demonstrated. Relay delivery stays available. No STUN/TURN service is configured. A resilient anonymous ad hoc mesh, optional caching, images and video are future work.</p>
+</details>
+<details>
+<summary>Subscriptions, rewards and Hermes credits</summary>
+<p>These are research plans, not available services. Dummy-credit contracts explore ordinary and advertising credits, double-spend rejection and monthly publisher subscriptions. There are no live purchases, wallets, advertising rewards or blockchain settlements. Watching a video does not prove human attention. The monetary model requires accounting state even when transport is transient.</p>
+<a href="https://github.com/jmcentire/HermesP2P/blob/main/docs/protocol-contracts.md">Read the research contracts</a>
+</details>
+<details>
+<summary>Identity and retention</summary>
+<p>Identity backups contain unencrypted secret keys. Import them only locally in the client. Closing a tab can lose an identity without a saved backup. Relays retain bounded temporary connection and duplicate-suppression state; recipients, browsers and infrastructure can retain data independently. Ephemeral does not mean impossible to save.</p>
+</details>
+</section>
+<section class="bottom-action">
+<div>
+<h2>Say something worth sharing.</h2>
+<p>Start small. Keep the sensitive things in perspective.</p>
+</div>
+<a class="btn btn-primary" href="https://hp2p.net/client">Open the text client</a>
+</section>
 </main>
-<div class="wrap">
-<footer><p>HermesP2P · An experiment in communicating with less retention.</p><div><a href="https://github.com/jmcentire/HermesP2P">GitHub</a><a href="mailto:contact@hp2p.net">Contact</a></div></footer>
+<footer>
+<span>HermesP2P · Built to keep less.</span>
+<div>
+<a href="https://github.com/jmcentire/HermesP2P">Source &amp; research</a>
+<a href="https://a.co/d/05PSJFBK">Read Privacy</a>
+<a href="mailto:contact@hp2p.net">Contact</a>
 </div>
-</body></html>
+</footer>
+</body>
+</html>

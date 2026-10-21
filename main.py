@@ -10,7 +10,7 @@ import os
 app = Flask(__name__)
 app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = 65536
-app.config['SOCK_SERVER_OPTIONS'] = {'max_message_size': 65536, 'ping_interval': 25}
+app.config['SOCK_SERVER_OPTIONS'] = {'max_message_size': 65536, 'ping_interval': 25, 'subprotocols': ['hp2p.v2']}
 sock = Sock(app)
 
 # Directory containing agent-readiness assets (robots.txt, sitemap.xml,
@@ -112,6 +112,15 @@ def relay_signal(sender_ws, message):
 
 @sock.route('/ws')
 def ws_handler(ws):
+    # Negotiate before admission: old tabs never join the v2 relay/roster.
+    if ws.subprotocol != 'hp2p.v2':
+        try:
+            ws.send(json.dumps({'type': 'upgrade_required', 'protocol': 2,
+                                'message': 'Save your identity, then reload /client.'}))
+            ws.close(reason=1008, message='Upgrade required: save identity and reload /client')
+        except Exception:
+            pass
+        return
     evicted = None
     peer = {'id': secrets.token_hex(16), 'send_lock': threading.Lock(),
             'last_activity': time.monotonic()}
@@ -260,6 +269,11 @@ def validate_config():
     return jsonify({'error': 'Import identity files locally in the client; server uploads are disabled.'}), 410
 
 
+@app.get('/healthz')
+def healthz():
+    return jsonify(status='ok', protocol=2, release=os.environ.get('HP2P_RELEASE', 'development'))
+
+
 @app.route('/client')
 def client():
     return render_template('client.html')
@@ -267,7 +281,7 @@ def client():
 
 @app.after_request
 def after_request(response):
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.replit.com; img-src 'self' data:; connect-src 'self' ws: wss:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws: wss:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
     response.headers['Referrer-Policy'] = 'no-referrer'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     if request.path in ('/client', '/validate-config'):

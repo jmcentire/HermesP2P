@@ -4,10 +4,11 @@ import main
 
 class Peer:
     def __init__(self):
+        self.subprotocol = 'hp2p.v2'
         self.sent = []
         self.closed = False
     def send(self, data): self.sent.append(data)
-    def close(self, reason=None):
+    def close(self, reason=None, message=None):
         # Closing may block or invoke socket callbacks; never hold registry lock.
         self.closed_with_registry_lock = main.peers_lock.locked()
         self.close_reason = reason
@@ -168,7 +169,7 @@ def test_evicted_connection_stops_after_receive():
 
 def test_failed_eviction_close_does_not_reject_newcomer():
     class BrokenPeer(Peer):
-        def close(self, reason=None):
+        def close(self, reason=None, message=None):
             self.closed_with_registry_lock = main.peers_lock.locked()
             self.close_reason = reason
             raise ConnectionError('already disconnected')
@@ -192,3 +193,25 @@ def test_failed_eviction_close_does_not_reject_newcomer():
     assert not broken.closed_with_registry_lock
     assert broken.close_reason == 1013
     assert json.loads(newcomer.sent[0])['type'] == 'mesh_welcome'
+
+
+def test_old_client_never_enters_v2_roster_or_relay():
+    modern = Peer(); attach(modern, 'a' * 32)
+    for protocol in (None, '', 'hp2p.v1'):
+        old = Peer(); old.subprotocol = protocol
+        run_connection(old)
+        assert old not in main.peers
+        assert old.closed and old.close_reason == 1008
+        assert json.loads(old.sent[0])['type'] == 'upgrade_required'
+    assert modern.sent == []
+
+
+def test_health_and_self_hosted_client_security_headers():
+    client = main.app.test_client()
+    assert client.get('/healthz').json['protocol'] == 2
+    page = client.get('/client')
+    assert page.status_code == 200
+    assert page.headers['Cache-Control'] == 'no-store'
+    assert "script-src 'self'" in page.headers['Content-Security-Policy']
+    assert b'cdn.jsdelivr' not in page.data and b'cdn.replit' not in page.data
+    assert b'backupIdentityBtn' in page.data

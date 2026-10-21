@@ -86,33 +86,20 @@ export function displayMessages(name = null) {
         if (messageHistory[name].length === 0) {
             const emptyMessage = document.createElement("p");
             emptyMessage.className = "text-center text-muted";
-            emptyMessage.textContent = `Messages for ${name} will appear here.`;
+            emptyMessage.textContent = `No messages in this tab yet. Say hello when someone is online. Past messages are not loaded.`;
             messagesDiv.appendChild(emptyMessage);
         }
     } else {
-        messagesHeader.textContent = "Messages";
+        messagesHeader.textContent = "Start a conversation";
         messagesDiv.innerHTML = `
-            <div class="text-center p-4">
-                <h5 class="text-navy mb-3" style="color: #000033;">Welcome to HermesP2P Chat</h5>
-                <p class="mb-3 fs-6" style="color: #000033;">Explore the secure, peer-to-peer network by selecting a channel or friend from the lists on the left. From there, you can view and send messages with ease. Want to personalize your experience? You can expand your network:</p>
-                <div class="px-4">
-                    <ul class="list-unstyled text-start mb-3 ps-5">
-                        <li class="mb-3 ps-3">
-                            <strong class="d-block mb-2">Add a Channel:</strong>
-                            <ul class="list-unstyled ps-4">
-                                <li class="mb-1">• Public channels require no keys</li>
-                                <li class="mb-1">• Private channels require a shared symmetric key</li>
-                            </ul>
-                        </li>
-                        <li class="ps-3">
-                            <strong class="d-block mb-2">Add a Friend:</strong>
-                            <ul class="list-unstyled ps-4">
-                                <li>• Enter their public key</li>
-                            </ul>
-                        </li>
-                    </ul>
+            <div class="welcome">
+                <h2>A little less setup.<br>A little more conversation.</h2>
+                <p>Your identity is ready in this tab. Choose where to begin.</p>
+                <div class="welcome-choices">
+                    <section><h3>Say hello in a room</h3><p>Join General for public text. Anyone in the room can read what you share.</p><button id="startGeneralBtn" class="btn btn-primary">Open General</button></section>
+                    <section><h3>Talk with someone you know</h3><p>Ask for their contact key, add them, and send an encrypted direct message. They need to be online to receive it.</p><button id="startPrivateBtn" class="btn btn-secondary">Add a contact</button></section>
                 </div>
-                <p class="fs-6" style="color: #000033;">Feel free to remove channels or friends as your preferences change. When you're finished, remember to Save and Exit to download your updated configuration file and keep your settings for next time. Dive in and enjoy a secure, customizable messaging experience!</p>
+                <p class="welcome-footnote">Already have an identity? Restore your backup from the identity menu. Messages are not an offline inbox.</p>
             </div>`;
     }
 
@@ -155,6 +142,8 @@ export function enableMessageInput(configuration) {
 
     messageForm.classList.remove('disabled');
     messageInput.disabled = false;
+    const sendButton = messageForm.querySelector('[type="submit"]');
+    if (sendButton) sendButton.disabled = false;
     messageInput.placeholder = 'Type your message...';
 
     messageForm.onsubmit = async (e) => {
@@ -173,7 +162,13 @@ export function enableMessageInput(configuration) {
 
         try {
             const paddedFrame = await packageMessage(message, messageType, chatName, configuration);
-            broadcastMessage(paddedFrame);
+            if (broadcastMessage(paddedFrame) === false) {
+                const status = document.getElementById('sendStatus');
+                if (status) status.textContent = 'Not sent: no connection is available. Your draft is still here. Wait for a connection, then try again.';
+                return;
+            }
+            const status = document.getElementById('sendStatus');
+            if (status) status.textContent = 'Sent to the network. Delivery to a person is not confirmed.';
             addTrafficEntry(messageType, chatName, messageType === 'public' ? message : null, configuration.user.name, 'out');
             messageInput.value = '';
             appendMessage(configuration.user.name, message, messageType);
@@ -296,6 +291,8 @@ export function disableMessageInput() {
     const messageInput = document.getElementById('messageInput');
     messageForm.classList.add('disabled');
     messageInput.disabled = true;
+    const sendButton = messageForm.querySelector('[type="submit"]');
+    if (sendButton) sendButton.disabled = true;
     messageInput.placeholder = 'Select a chat to send messages';
 }
 
@@ -333,7 +330,13 @@ export async function handleMessageSubmit(e, configuration) {
                 detail: { type: messageType, to: chatName }
             }));
 
-            broadcastMessage(paddedFrame);
+            if (broadcastMessage(paddedFrame) === false) {
+                const status = document.getElementById('sendStatus');
+                if (status) status.textContent = 'Not sent: no connection is available. Your draft is still here. Wait for a connection, then try again.';
+                return;
+            }
+            const status = document.getElementById('sendStatus');
+            if (status) status.textContent = 'Sent to the network. Delivery to a person is not confirmed.';
             addTrafficEntry(messageType, chatName, messageType === 'public' ? message : null, configuration.user.name, 'out');
             appendMessage(configuration.user.name, message, messageType);
             messageInput.value = '';
