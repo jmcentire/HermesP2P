@@ -81,7 +81,7 @@ function initializeNewConfig() {
 }
 
 // Save and Exit functionality
-export function handleSaveExit() {
+export function downloadIdentity(leave = false) {
     const config = JSON.parse(sessionStorage.getItem("hp2pConfig"));
     if (!config) {
         console.error("No configuration found");
@@ -99,9 +99,13 @@ export function handleSaveExit() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    sessionStorage.removeItem("hp2pConfig");
-    window.location.href = "/";
+    if (leave) {
+        sessionStorage.removeItem("hp2pConfig");
+        window.location.href = "/";
+    }
 }
+
+export function handleSaveExit() { downloadIdentity(true); }
 
 // Setup all event listeners
 export function setupEventListeners(configuration) {
@@ -339,16 +343,10 @@ export function removeFriend(name, configuration) {
 // Create action button helper
 function createActionButton(text, clickHandler, isEdit = false) {
     const btn = document.createElement("button");
-    btn.className = `btn btn-sm px-0 py-0 ${isEdit ? "me-1" : ""}`;
-    btn.style.backgroundColor = "#000033";
-    btn.style.color = "#FFFFFF";
-    btn.style.width = "15px";
-    btn.style.height = "15px";
-    btn.style.fontSize = "0.75rem";
-    btn.style.lineHeight = "1";
-    btn.style.display = "flex";
-    btn.style.alignItems = "center";
-    btn.style.justifyContent = "center";
+    btn.className = "conversation-action";
+    btn.type = "button";
+    btn.setAttribute('aria-label', isEdit ? 'Edit conversation' : 'Remove conversation');
+    btn.title = isEdit ? 'Edit conversation' : 'Remove conversation';
 
     if (text === "edit-2") {
         const icon = document.createElement("i");
@@ -378,7 +376,11 @@ export function populateSidebar(config) {
         const li = document.createElement("li");
         li.className =
             "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
-        li.style.cursor = "pointer";
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        li.addEventListener('keydown', event => {
+            if (event.target === li && ['Enter', ' '].includes(event.key)) { event.preventDefault(); li.click(); }
+        });
 
         const nameSpan = document.createElement("span");
         nameSpan.textContent = channel.name;
@@ -421,6 +423,9 @@ export function populateSidebar(config) {
             });
             li.classList.add("active");
             displayMessages(channel.name);
+            const scope = document.getElementById('conversationScope');
+            if (scope) scope.textContent = channel.key ? 'Private room · anyone with its secret key can read and post.' : 'Public room · anyone can read these messages.';
+            document.getElementById('messageInput')?.focus();
             enableMessageInput(config);
         });
 
@@ -432,7 +437,11 @@ export function populateSidebar(config) {
         const li = document.createElement("li");
         li.className =
             "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
-        li.style.cursor = "pointer";
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        li.addEventListener('keydown', event => {
+            if (event.target === li && ['Enter', ' '].includes(event.key)) { event.preventDefault(); li.click(); }
+        });
 
         const nameSpan = document.createElement("span");
         nameSpan.textContent = friend.name;
@@ -475,12 +484,19 @@ export function populateSidebar(config) {
             });
             li.classList.add("active");
             displayMessages(friend.name);
+            const scope = document.getElementById('conversationScope');
+            if (scope) scope.textContent = 'Encrypted direct message · both of you need to be online.';
+            document.getElementById('messageInput')?.focus();
             enableMessageInput(config);
         });
 
         friendsList.appendChild(li);
     });
 
+    if (!config.friends.length) {
+        const empty = document.createElement('li'); empty.className = 'empty-contacts';
+        empty.textContent = 'Your people will appear here. Add a contact to begin.'; friendsList.appendChild(empty);
+    }
     // Initialize Feather icons
     feather.replace();
 }

@@ -246,7 +246,7 @@ async function nativeLoopback(run, nontrickle) {
 function meshLoopback(run) {
     const clients = [];
     for (const label of ['a', 'b']) {
-        const ws = new WebSocket(HUB_URL);
+        const ws = new WebSocket(HUB_URL, 'hp2p.v2');
         const mesh = new MeshTransport({
             sendSignal: message => {
                 if (ws.readyState !== WebSocket.OPEN) return false;

@@ -20,7 +20,17 @@ initializeNetworkPanel(
 // Initialize network with message handler and status callbacks
 initializeNetwork(
     (url, messagePackage) => handleIncomingNetworkMessage(url, messagePackage, configuration),
-    (msg, type) => console.log('Network:', msg),
+    (msg, type) => {
+        const status = document.getElementById('connectionStatus');
+        if (type === 'upgrade') {
+            document.getElementById('upgradeNotice').hidden = false;
+            status.textContent = 'Update required';
+        } else if (!document.getElementById('upgradeNotice').hidden) {
+            status.textContent = 'Update required';
+        } else {
+            status.textContent = getConnectedPeerCount() ? 'Connected · relay available' : 'Offline · reconnecting…';
+        }
+    },
     () => configuration,
 );
 
@@ -47,6 +57,7 @@ document.getElementById('importConfig').addEventListener('change', async event =
         const file = event.target.files[0];
         if (!file || file.size > 65536) throw new Error('Identity file too large');
         const config = validateLocalConfig(JSON.parse(await file.text()), window.nacl, window.base64js);
+        if (!window.confirm('Replace this tab’s identity with the backup? Download your current identity first if you want to keep it.')) return;
         sessionStorage.setItem('hp2pConfig', JSON.stringify(config));
         window.location.reload();
     } catch { status.textContent = 'Invalid identity file. Nothing was imported or uploaded.'; }

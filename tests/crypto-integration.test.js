@@ -143,3 +143,12 @@ it('manual channel entry rejects alternate Base64 spellings of the same key', as
  expect(addChannel('Test canonical',noncanonical,config,null)).toBe(false);
  expect(globalThis.alert).toHaveBeenCalled();
 });
+
+it('preserves a legacy-shaped identity, contacts, shared keys and aliases through local import/export',()=>{
+ const legacy={user:{name:'Returning person',...alice},channels:[{name:'General'},{name:'Private room',key:enc(new Uint8Array(32).fill(7))}],friends:[{name:'Trusted contact',pubKey:bob.pubKey}],aliases:{[bob.pubKey]:'A familiar name'}};
+ const original=JSON.stringify(legacy);
+ const imported=importer.validateLocalConfig(JSON.parse(original),nacl,base64js);
+ expect(imported).toEqual(legacy);
+ expect(importer.validateLocalConfig(JSON.parse(JSON.stringify(imported)),nacl,base64js)).toEqual(legacy);
+ expect(JSON.stringify(legacy)).toBe(original);
+});

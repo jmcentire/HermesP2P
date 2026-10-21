@@ -23,7 +23,7 @@ function finish(result) {
 }
 function connect() {
     if (!active || ws) return;
-    const socket = new WebSocket('ws://' + location.host + '/ws'); ws = socket;
+    const socket = new WebSocket('ws://' + location.host + '/ws', 'hp2p.v2'); ws = socket;
     const transport = new MeshTransport({
         sendSignal: signal => { if (socket.readyState !== WebSocket.OPEN) return false; socket.send(JSON.stringify(signal)); return true; },
         onStatus: status => {

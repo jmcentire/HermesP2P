@@ -4,6 +4,7 @@ import {
     addFriend,
     populateSidebar,
     handleSaveExit,
+    downloadIdentity,
     getEditingItem,
     clearEditingItem,
     updateProfileName,
@@ -46,6 +47,27 @@ export function initializeUI(configuration) {
     displayMessages();
 
     setupEventListeners(configuration);
+    if (window.location.hash === "#restore") {
+        document.getElementById("identityBackup").open = true;
+        document.getElementById("importConfig").focus();
+    }
+    document.getElementById('backupIdentityBtn')?.addEventListener('click', () => {
+        downloadIdentity();
+        document.getElementById('backupStatus').textContent = 'Backup download requested. Keep the file somewhere private; this tab stays open.';
+    });
+    document.getElementById('reloadClientBtn')?.addEventListener('click', () => window.location.reload());
+    document.getElementById('messages').addEventListener('click', event => {
+        if (event.target.id === 'startPrivateBtn') document.getElementById('addFriendBtn').click();
+        if (event.target.id === 'startGeneralBtn') {
+            if (!configuration.channels.some(c => c.name === 'General')) {
+                if (configuration.friends.some(f => f.name === 'General')) { document.getElementById('addChannelBtn').click(); return; }
+                addChannel('General', '', configuration);
+            }
+            for (const item of document.querySelectorAll('#channels-list .list-group-item')) {
+                if (item.querySelector('span')?.textContent === 'General') { item.click(); break; }
+            }
+        }
+    });
 
     // sessionStorage survives reload/import within the tab and is cleared by Save & Exit.
     // Browser tab closure ends the storage session; never erase unrelated origin storage.
@@ -164,7 +186,8 @@ function updateProfileDisplay(configuration) {
 
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        // Brief visual feedback would go here
+        const status = document.getElementById('backupStatus');
+        if (status) status.textContent = 'Contact key copied. Share it with the person you want to message.';
     }).catch(() => {
         // Fallback for older browsers
         const ta = document.createElement("textarea");

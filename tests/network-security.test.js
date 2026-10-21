@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 beforeEach(() => {
   vi.useFakeTimers(); sockets=[]; received=vi.fn();
-  globalThis.WebSocket=class { constructor(url){this.url=url;sockets.push(this);this.send=vi.fn();} close(){} };
+  globalThis.WebSocket=class { constructor(url){this.url=url;sockets.push(this);this.protocol='hp2p.v2';this.send=vi.fn();} close(){} };
   network.initializeNetwork(received,vi.fn(),()=>({nodes:[]})); sockets[0].onopen();
 });
 afterEach(()=>vi.useRealTimers());
@@ -45,4 +45,25 @@ describe('authenticated receive boundary',()=>{
     expect(received).not.toHaveBeenCalled();
   });
   it('rejects oversized and malformed frames',()=>{sockets[0].onmessage({data:'x'.repeat(65537)});deliver([]);deliver(null);expect(received).not.toHaveBeenCalled();});
+});
+
+describe('protocol upgrade boundary and offline send feedback',()=>{
+  it('does not admit an old relay, retry it, or claim a successful send',()=>{
+    const statuses=vi.fn();network.initializeNetwork(received,statuses,()=>({nodes:[]}));
+    const old=sockets.at(-1);old.protocol='';old.close=vi.fn();old.onopen();
+    expect(network.getConnectedPeerCount()).toBe(0);
+    expect(statuses).toHaveBeenCalledWith(expect.any(String),'upgrade');
+    expect(old.close).toHaveBeenCalledWith(1000,'Protocol upgrade required');
+    const count=sockets.length;vi.advanceTimersByTime(31000);expect(sockets).toHaveLength(count);
+    expect(network.broadcastMessage(JSON.stringify(message()))).toBe(false);
+  });
+  it('retains relay sends without RTC and returns a meaningful send result',()=>{
+    expect(network.broadcastMessage(JSON.stringify(message()))).toBe(true);
+    expect(sockets[0].send).toHaveBeenCalled();
+  });
+  it('stops reconnecting when the server explicitly requires an upgrade',()=>{
+    sockets[0].onclose({code:1008,reason:'Upgrade required'});
+    const count=sockets.length;vi.advanceTimersByTime(31000);
+    expect(sockets).toHaveLength(count);expect(network.getConnectedPeerCount()).toBe(0);
+  });
 });

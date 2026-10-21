@@ -97,7 +97,7 @@ export function connectToNode(url) {
     updateStatusCallback('Connecting to ' + url + '...', 'info');
 
     try {
-        const ws = new WebSocket(url);
+        const ws = new WebSocket(url, 'hp2p.v2');
         ws.binaryType = 'arraybuffer'; // Receive binary frames as ArrayBuffer
         if (existingPeer?.reconnectTimer) clearTimeout(existingPeer.reconnectTimer);
         peers.set(url, { ws: ws, status: 'connecting', reconnectTimer: null, connectedAt: null });
@@ -119,6 +119,17 @@ export function connectToNode(url) {
 function handleOpen(url) {
     console.log("Network: WebSocket connection opened: " + url);
     const peer = peers.get(url);
+    if (peer?.ws?.protocol !== 'hp2p.v2') {
+        if (peer) {
+            peer.status = 'incompatible';
+            peer.ws.onclose = null;
+            peer.ws.onmessage = null;
+            peer.ws.close(1000, 'Protocol upgrade required');
+            peer.ws = null;
+        }
+        updateStatusCallback('This client and relay need the same protocol version. Save your identity and reload.', 'upgrade');
+        return;
+    }
     if (peer) {
         peer.status = 'open';
         peer.connectedAt = Date.now();
@@ -237,6 +248,12 @@ function handleClose(url, event) {
     meshes.get(url)?.disconnect();
     meshes.delete(url);
     const code = event?.code;
+    if (code === 1008) {
+        const peer = peers.get(url);
+        if (peer) { peer.status = 'incompatible'; peer.ws = null; if (peer.reconnectTimer) clearTimeout(peer.reconnectTimer); peer.reconnectTimer = null; }
+        updateStatusCallback('Protocol upgrade required. Save your identity and reload.', 'upgrade');
+        return;
+    }
     const reason = event?.reason;
     console.log("Network: WebSocket connection closed: " + url + " (Code: " + code + ", Reason: " + (reason || 'N/A') + ")");
     const peer = peers.get(url);
@@ -258,7 +275,7 @@ function handleClose(url, event) {
 
 function scheduleReconnect(url) {
     const peer = peers.get(url);
-    if (peer && !peer.reconnectTimer) {
+    if (peer && peer.status !== 'incompatible' && !peer.reconnectTimer) {
         console.log("Network: Scheduling reconnect for " + url + " in " + (PEER_RECONNECT_DELAY / 1000) + "s...");
         peer.reconnectTimer = setTimeout(() => {
              if (peers.has(url)) {
@@ -284,7 +301,7 @@ function sendRawText(peerUrl, text) {
 function sendFrame(peerUrl, frame) {
     const peer = peers.get(peerUrl);
     if (peer && peer.status === 'open' && peer.ws) {
-        try { peer.ws.send(frame); } catch (e) {
+        try { peer.ws.send(frame); return true; } catch (e) {
             console.error("Network: Error sending to " + peerUrl + ":", e);
             handleError(peerUrl, e);
         }
@@ -395,13 +412,13 @@ export function broadcastMessage(frame) {
         }
     } catch (error) { throw new Error('Cannot broadcast an invalid or untracked message', {cause:error}); }
 
-    meshes.forEach(mesh => mesh.broadcast(frame));
+    let sent = 0;
+    meshes.forEach(mesh => { sent += mesh.broadcast(frame); });
     // Relay fallback remains active for peers outside the partial direct mesh.
     peers.forEach((peer, url) => {
-        if (peer.status === 'open') {
-            sendFrame(url, frame);
-        }
+        if (peer.status === 'open' && sendFrame(url, frame)) sent++;
     });
+    return sent > 0;
 }
 
 /** Rebroadcast original raw binary frame to all peers except the origin. */
